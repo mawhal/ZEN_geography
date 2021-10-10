@@ -3,11 +3,12 @@
 - [ ] check outputs of model comparison script
 - [ ] check outputs of figures script
 - [ ] check outputs of data assembly script
+- [ ] consider removing "2014" from script file names - year does not matter relative to purpose
 
 
 
 ### Zipped data file sent by Emmett
-- [ ] One file with Zostera Relative Growth rates does not seem to be used, or maybe I am missing something?  `ZEN_2011_ZRG_AllSites_Edit141102 copy.csv`
+- [X] One file with Zostera Relative Growth rates does not seem to be used, or maybe I am missing something?  `ZEN_2011_ZRG_AllSites_Edit141102 copy.csv` -- NEVERMIND, FOUND IT
 - [ ] Should additional scripts be added? for example, PCA scripts, FCA scripts, other genetic analyses?
 
 
@@ -22,7 +23,7 @@
 ###### naming conventions
 How are we feeling about naming conventions now that we are using git and these things can be tracked?
 - [ ] remove date suffixes from file names
-
+- [ ] modify plotting routines so they are reproducible - saving to .svg or pdf?
 
 
 ### Data Assembly script

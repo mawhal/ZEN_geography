@@ -2,8 +2,8 @@
 #                                                                                ##
 # ZEN 2014: Global eelgrass ecosystem structure: compare site-level models       ##
 # Data are current as of 2017-04-24                                              ##
-# Emmett Duffy (duffye@si.edu)                                                   ##  
-# Last updated 2021-08-20                                                        ##
+# created by Emmett Duffy (duffye@si.edu)                                        ##  
+# Last updated 2021-10-10 by Matt Whalen (mawhal@gmail.com)                      ##
 #                                                                                ##
 ###################################################################################
 
@@ -86,10 +86,10 @@
 ###################################################################################
 
 # Load packages:
+library(tidyverse) # for ggplot, etc.
 library(psych) # for pairs panels
-library(ggplot2)
 library(piecewiseSEM) # for SEM fitting, and for partialResid
-library(nlme) # needed to run mixed models with lme
+library(nlme) # for mixed models with lme
 library(MuMIn) # for model averaging and AICc
 
 
@@ -97,35 +97,36 @@ library(MuMIn) # for model averaging and AICc
 # READ IN AND PREPARE DATA                                                        #
 ###################################################################################
 
+# NOTE: data/output folder contains files written to disk in script "ZEN_2014_data_assembly.R"
+
 # Read in zen2014 SITE-level data sets 
-ZEN_2014_site_means <- read.csv("ZEN_2014_site_means_20210315.csv",  header = TRUE)
+ZEN_2014_site_means <- read_csv("data/output/ZEN_2014_site_means_20210315.csv")
 ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
-# ZEN_2014_site_means_Atlantic <- read.csv("ZEN_2014_site_means_Atlantic_20210227.csv",  header = TRUE)
-ZEN_2014_site_means_Pacific <- read.csv("ZEN_2014_site_means_Pacific_20210314.csv",  header = TRUE)
-ZEN_2014_site_means_49_Atlantic <- read.csv("ZEN_2014_site_means_49_Atlantic_20210314.csv",  header = TRUE)
+# ZEN_2014_site_means_Atlantic <- read_csv("ZEN_2014_site_means_Atlantic_20210227.csv")
+ZEN_2014_site_means_Pacific <- read_csv("data/output/ZEN_2014_site_means_Pacific_20210314.csv")
+ZEN_2014_site_means_49_Atlantic <- read_csv("data/output/ZEN_2014_site_means_49_Atlantic_20210314.csv")
 
 # Recode Ocean to 0/1 so SEM can handle it. SITE level
 ZEN_2014_site_means_49$ocean.code <- ZEN_2014_site_means_49$Ocean
-ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Atlantic", "ocean.code"] = 0
-ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Pacific", "ocean.code"] = 1
+ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Atlantic", "ocean.code"] <- "0"
+ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Pacific", "ocean.code"] <- "1"
 ZEN_2014_site_means_49$ocean.code <- as.numeric(ZEN_2014_site_means_49$ocean.code)
 
 ZEN_2014_site_means_49_Atlantic$ocean.code <- ZEN_2014_site_means_49_Atlantic$Ocean
-ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Atlantic", "ocean.code"] = 0
-ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Pacific", "ocean.code"] = 1
+ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Atlantic", "ocean.code"] <- "0"
+ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Pacific", "ocean.code"] <- "1"
 ZEN_2014_site_means_49_Atlantic$ocean.code <- as.numeric(ZEN_2014_site_means_49_Atlantic$ocean.code)
 
 ZEN_2014_site_means_Pacific$ocean.code <- ZEN_2014_site_means_Pacific$Ocean
-ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Atlantic", "ocean.code"] = 0
-ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific", "ocean.code"] = 1
+ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Atlantic", "ocean.code"] <- "0"
+ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific", "ocean.code"] <- "1"
 ZEN_2014_site_means_Pacific$ocean.code <- as.numeric(ZEN_2014_site_means_Pacific$ocean.code)
 
-# Read in data For estimating leaf growth rate from Ruesink et al. (2018. Oikos)
-zmgrowth <- read.csv("ZEN_2011_ZRG_AllSites_Edit141102.csv",  header = TRUE)
+# Read in data For estimating leaf growth rate from Ruesink et al. 2018 -- https://onlinelibrary.wiley.com/doi/abs/10.1111/oik.04270
+zmgrowth <- read_csv("data/input/ZEN_2011_ZRG_AllSites_Edit141102.csv")
 
 # Read in zen2014 PLOT-level data sets for modeling (MINUS SW.A), with missing data imputed:
-ZEN_2014_plot <- read.csv("ZEN_2014_plot_20210430.csv", header = TRUE)
-names(ZEN_2014_plot)
+ZEN_2014_plot <- read_csv("data/output/ZEN_2014_plot_20210430.csv")
 
 
 ###################################################################################

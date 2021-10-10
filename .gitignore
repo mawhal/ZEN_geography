@@ -6,3 +6,6 @@
 # ignore excel files
 *.xls
 *.xlsx
+
+# ignore figures folder for now
+/figures
