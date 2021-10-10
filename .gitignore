@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# ignore excel files
+*.xls
+*.xlsx
