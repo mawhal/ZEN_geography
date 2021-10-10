@@ -1,5 +1,6 @@
 # To-do list for ZEN_geography repository
 
+- [ ] get someone to provide content for the README
 - [X] check outputs of model comparison script
 - [ ] check outputs of figures script
 - [ ] check outputs of data assembly script
