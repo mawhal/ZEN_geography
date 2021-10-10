@@ -102,7 +102,7 @@ library(MuMIn) # for model averaging and AICc
 # Read in zen2014 SITE-level data sets 
 ZEN_2014_site_means <- read_csv("data/output/ZEN_2014_site_means_20210315.csv")
 ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
-# ZEN_2014_site_means_Atlantic <- read_csv("ZEN_2014_site_means_Atlantic_20210227.csv")
+# ZEN_2014_site_means_Atlantic <- read_csv("data/output/ZEN_2014_site_means_Atlantic_20210227.csv")
 ZEN_2014_site_means_Pacific <- read_csv("data/output/ZEN_2014_site_means_Pacific_20210314.csv")
 ZEN_2014_site_means_49_Atlantic <- read_csv("data/output/ZEN_2014_site_means_49_Atlantic_20210314.csv")
 
@@ -149,8 +149,8 @@ names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Le
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.env.global"] <- "Env PCe1"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.env.global"] <- "Env PCe2"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC3.env.global"] <- "Env PCe3"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.zos.site"] <- "Eelgrass form PCz1"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.zos.site"] <- "Eelgrass form PCz2"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.zos.site"] <- "Eelgrass\nform PCz1"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.zos.site"] <- "Eelgrass\nform PCz2"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="FC1"] <- "Genetics FCA1"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="FC2"] <- "Genetics FCA2"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.AG.mass.site"] <- "AG mass (log)"
@@ -159,30 +159,35 @@ names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zo
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.sheath.length.site"] <- "Sheath L (log)"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.sheath.width.site"] <- "Sheath W (log)"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.longest.leaf.length.cm.site"] <- "Canopy ht (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.g.zostera.site"] <- "Periphyton mass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.g.plant.site"] <- "Mesograzer mass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.area.site"] <- "Periphyton mass/area (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.area.site"] <- "Mesograzer mass/area (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.abund.per.area.site"] <- "Mesograzer abund/area (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.g.zostera.site"] <- "Periphyton\nmass (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.g.plant.site"] <- "Mesograzer\nmass (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.area.site"] <- "Periphyton\nmass/area (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.area.site"] <- "Mesograzer\nmass/area (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.abund.per.area.site"] <- "Mesograzer\nabund/area (log)"
 
 # Correlates of environmental/oceanographic PC axes 
+svg("figures/pairs_pc_axes.svg", width = 12, height = 11)
 pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
   "Env PCe3", "SST mean", "SST range", "Salinity", "PAR", "day length", "NO3 (sqrt)", 
   "PO4 (log)", "Leaf %N (log)", "chl (log)")], 
   hist.col="gray", pch = 21, 
-  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 12, 
+  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = T, cex = 2, 
   bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
+dev.off()
 # PCe1: latitude/climate: high = warmer, brighter, less cloudy (lower latitude)
 # PCe2: nutrient status: high = high PO4, leaf N  
 # PCe3: estuarine: low salinity, variable temp, high chl
 
+
 # Correlations between environment and biology
+svg("figures/pairs_env+biol.svg", width = 12, height = 11 )
 pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
-  "Env PCe3", "Genetics FCA1", "Genetics FCA2", "Eelgrass form PCz1", "Eelgrass form PCz2",
-  "Periphyton mass (log)", "Mesograzer mass (log)", "Periphyton mass/area (log)", 
-  "Mesograzer mass/area (log)")], hist.col="gray", pch = 21, 
-  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 8, 
+  "Env PCe3", "Genetics FCA1", "Genetics FCA2", "Eelgrass\nform PCz1", "Eelgrass\nform PCz2",
+  "Periphyton\nmass (log)", "Mesograzer\nmass (log)", "Periphyton\nmass/area (log)", 
+  "Mesograzer\nmass/area (log)")], hist.col="gray", pch = 21, 
+  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = T, cex = 1.5, 
   bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
+dev.off()
 
 # Missing data? No.
 nrow(ZEN_2014_plot_49) # 980
@@ -4923,8 +4928,7 @@ varImpPlot(PC2.zos.rf) #
 
 PC2.zos.a.rf = randomForest(PC2.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2,
-                            , 
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_Atlantic)
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_49_Atlantic)
 
 # Examine summary output
 PC2.zos.a.rf # % Var explained: 10.92
