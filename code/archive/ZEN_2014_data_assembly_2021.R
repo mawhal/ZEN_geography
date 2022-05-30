@@ -3,7 +3,7 @@
 # ZEN 2014 Global eelgrass ecosystem structure: Data assembly                    ##
 # RAW data are current as of 2017-04-24                                          ##
 # Emmett Duffy (duffye@si.edu)                                                   ##  
-# Last updated 2022-05-29                                                        ##
+# Last updated 2020-03-13                                                        ##
 #                                                                                ##
 ###################################################################################
 
@@ -12,7 +12,7 @@
 #                                                                                 #
 # METADATA                                                                        #
 # LOAD PACKAGES                                                                   #
-# READ IN AND PREPARE DATA                                                        #
+# READ IN AND PREPARE DATA 
 # CREATE DERIVED VARIABLES                                                        #
 # EXPLORE DISTRIBUTIONS OF VARIABLES (PLOT LEVEL)                                 #
 # LOG TRANSFORMS                                                                  #
@@ -271,9 +271,6 @@ zen2014$gastropod.mass.per.area <-  zen2014$Gastropoda.mesograzer.plot.biomass.s
 zen2014$mesograzer.mass.per.area <-  zen2014$mesograzer.total.plot.biomass.std.mg.g * zen2014$Zostera.aboveground.mean.mass
 zen2014$periphyton.mass.per.area <-  zen2014$periphyton.mass.per.g.zostera * zen2014$Zostera.aboveground.mean.mass
 
-# Leaf C:N ratio
-zen2014$leaf.CN.ratio <-  zen2014$Leaf.PercC / zen2014$Leaf.PercN
-
 
 ###################################################################################
 # EXPLORE DISTRIBUTIONS OF VARIABLES (PLOT LEVEL)                                 #
@@ -413,7 +410,6 @@ ZEN_2014_site_means <- ddply(zen2014, c("Site"), summarize,
                              gast.pct.mass.site = mean(gast.pct.mass, na.rm = T), 
                              
                              Leaf.PercN.site = mean(Leaf.PercN, na.rm = T), 
-                             leaf.CN.ratio.site = mean(leaf.CN.ratio, na.rm = T), 
                              
                              log10.Macroalgae.pct.cover.site = mean(log10.pct.cover.macroalgae, na.rm = T),
                              log10.Zostera.AG.mass.site = mean(log10.Zostera.AG.mass, na.rm = T), 
@@ -485,6 +481,27 @@ ZEN_2014_site_means$log10.chlomean <- zen2014$log10.chlomean[match(ZEN_2014_site
 ZEN_2014_site_means$pop.density.2015 <- zen2014$pop.density.2015[match(ZEN_2014_site_means$Site, zen2014$Site)]
 
 names(ZEN_2014_site_means)
+
+# # Reorder by column name
+# ZEN_2014_site_means <- ZEN_2014_site_means[c("Site", "Ocean", "Coast", "Latitude", "Longitude", "Seagrass.pct.cover.site",
+#                                              "Macroalgae.pct.cover.site", "Zostera.AG.mass.site", "Zostera.BG.mass.site", "Zostera.shoots.core.site",
+#                                              "Zostera.longest.leaf.length.site", "Zostera.sheath.width.site", "Zostera.sheath.length.site",
+#                                              "epibiota.filter.site", "epibiota.zostera.marina.site", "periphyton.mass.per.g.zostera.site",
+#                                              "mesograzer.abund.per.g.plant.site", "crustacean.abund.per.g.plant.site", "gastropod.abund.per.g.plant.site",
+#                                              "mesograzer.mass.per.g.plant.site", "crustacean.mass.per.g.plant.site", "gastropod.mass.per.g.plant.site",
+#                                              "mesograzer.mass.per.area.site", "crustacean.mass.per.area.site", "gastropod.mass.per.area.site",
+#                                              "periphyton.mass.per.area.site", "grazer.richness.site", "log10.grazer.richness.site", "crust.pct.mass.site", "gast.pct.mass.site",
+#                                              "Leaf.PercN.site", "log10.Macroalgae.pct.cover.site", "log10.Zostera.AG.mass.site", "sqrt.Zostera.AG.mass.site",
+#                                              "log10.Zostera.BG.mass.site", "log10.Zostera.shoots.core.site", "log10.Zostera.sheath.width.site",
+#                                              "log10.Zostera.sheath.length.site", "log10.Zostera.longest.leaf.length.cm.site", "log10.periphyton.mass.per.g.zostera.site",
+#                                              "log10.mesograzer.abund.per.g.plant.site", "log10.crustacean.abund.per.g.plant.site", "log10.gastropod.abund.per.g.plant.site",
+#                                              "log10.mesograzer.mass.per.g.plant.site", "log10.crustacean.mass.per.g.plant.site", "log10.gastropod.mass.per.g.plant.site",
+#                                              "log10.mesograzer.abund.per.area.site", "log10.mesograzer.mass.per.area.site", "log10.crustacean.mass.per.area.site", "log10.gastropod.mass.per.area.site",
+#                                              "log10.periphyton.mass.per.area.site", "log10.Leaf.PercN.site", "log10.predation.gastropods.site", "predation.amphipods",
+#                                              "predation.squidpops", "predation.gastropods", "day.length", "log10.day.length", "Temperature.C", "Salinity.ppt",
+#                                              "sst.min", "sst.mean", "sst.max", "sst.range", "salinity", "parmean", "cloudmean", "precipitation", "nitrate", "sqrt.nitrate", "chlomean", "log10.chlomean",
+#                                              "phosphate", "log10.phosphate", "NP.ratio", "log10.mean.fetch", "pop.density.2015"
+# )]
 
 # Add genetic data to site means data frame
 ZEN_2014_site_means$FC1 <- zen2014_gen_fca$FC1[match(ZEN_2014_site_means$Site, zen2014_gen_fca$Site)]
@@ -1620,9 +1637,8 @@ write.csv(ZEN_2014_plot_49_Pacific, "ZEN_2014_plot_49_Pacific_20210227.csv", row
 write.csv(zen2014_imputed, "zen2014_imputed_20210227.csv", row.names = F)
 
 # Export zen2014 SITE-level data set
-write.csv(ZEN_2014_site_means, "ZEN_2014_site_means_20220529.csv", row.names = F)
+write.csv(ZEN_2014_site_means, "ZEN_2014_site_means_20210315.csv", row.names = F)
 
-write.csv(ZEN_2014_site_means_Atlantic, "ZEN_2014_site_means_Atlantic_20220529.csv", row.names = F)
 write.csv(ZEN_2014_site_means_49_Atlantic, "ZEN_2014_site_means_49_Atlantic_20210314.csv", row.names = F)
 write.csv(ZEN_2014_site_means_Pacific, "ZEN_2014_site_means_Pacific_20210314.csv", row.names = F)
 
