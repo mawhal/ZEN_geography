@@ -5,6 +5,7 @@
 - [ ] check outputs of figures script
 - [ ] check outputs of data assembly script
 - [ ] consider removing "2014" from script file names - year does not matter relative to purpose
+- [ ] add data/results tables for genetic analysis - see 
 
 
 
@@ -40,13 +41,13 @@ sum(is.na(ZEN_2014_plot_49$zperiphyton.perg)) # 0
 sum(is.na(ZEN_2014_plot_49$zmeso.mass.perg)) # 0
 
 - [X] Note that model comparison script used `ZEN_2014_site_means_Atlantic` instead of `ZEN_2014_site_means_49_Atlantic` which was not part of the zipped directory Whalen received. Code did not run, so Whalen updated to `ZEN_2014_site_means_49_Atlantic`
-- [ ] Whalen does not have column of data frame for `leaf.CN.ratio.site`
+- [X] Whalen does not have column of data frame for `leaf.CN.ratio.site`
 
 ### Data Assembly script
 ###### PACKAGES
 We might want shift away from ddply in plyr to just using tidyverse
 - [ ] replace `read.csv()` with `read_csv()`
-- [ ] randomForest --- was data actually imputed? make this clear early in the code
+- [X] randomForest --- was data actually imputed? make this clear early in the code
 
 ###### DATA SOURCES
 - [ ] Clarify input file origins. Links to other repos (github/doi), papers (doi), or people?
