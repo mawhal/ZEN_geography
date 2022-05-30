@@ -2,8 +2,8 @@
 #                                                                                ##
 # ZEN 2014: Global eelgrass ecosystem structure: compare site-level models       ##
 # Data are current as of 2017-04-24                                              ##
-# created by Emmett Duffy (duffye@si.edu)                                        ##  
-# Last updated 2021-10-10 by Matt Whalen (mawhal@gmail.com)                      ##
+# Emmett Duffy (duffye@si.edu)                                                   ##  
+# Last updated 2022-05-29                                                        ##
 #                                                                                ##
 ###################################################################################
 
@@ -86,10 +86,10 @@
 ###################################################################################
 
 # Load packages:
-library(tidyverse) # for ggplot, etc.
 library(psych) # for pairs panels
+library(ggplot2)
 library(piecewiseSEM) # for SEM fitting, and for partialResid
-library(nlme) # for mixed models with lme
+library(nlme) # needed to run mixed models with lme
 library(MuMIn) # for model averaging and AICc
 
 
@@ -97,36 +97,36 @@ library(MuMIn) # for model averaging and AICc
 # READ IN AND PREPARE DATA                                                        #
 ###################################################################################
 
-# NOTE: data/output folder contains files written to disk in script "ZEN_2014_data_assembly.R"
-
 # Read in zen2014 SITE-level data sets 
-ZEN_2014_site_means <- read_csv("data/output/ZEN_2014_site_means_20210315.csv")
+ZEN_2014_site_means <- read.csv("ZEN_2014_site_means_20220529.csv",  header = TRUE)
 ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
-# ZEN_2014_site_means_Atlantic <- read_csv("data/output/ZEN_2014_site_means_Atlantic_20210227.csv")
-ZEN_2014_site_means_Pacific <- read_csv("data/output/ZEN_2014_site_means_Pacific_20210314.csv")
-ZEN_2014_site_means_49_Atlantic <- read_csv("data/output/ZEN_2014_site_means_49_Atlantic_20210314.csv")
+# ZEN_2014_site_means_Atlantic <- read.csv("ZEN_2014_site_means_Atlantic_20210227.csv",  header = TRUE)
+ZEN_2014_site_means_Pacific <- read.csv("ZEN_2014_site_means_Pacific_20210314.csv",  header = TRUE)
+ZEN_2014_site_means_49_Atlantic <- read.csv("ZEN_2014_site_means_49_Atlantic_20210314.csv",  header = TRUE)
 
 # Recode Ocean to 0/1 so SEM can handle it. SITE level
 ZEN_2014_site_means_49$ocean.code <- ZEN_2014_site_means_49$Ocean
-ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Atlantic", "ocean.code"] <- "0"
-ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Pacific", "ocean.code"] <- "1"
+ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Atlantic", "ocean.code"] = 0
+ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Pacific", "ocean.code"] = 1
 ZEN_2014_site_means_49$ocean.code <- as.numeric(ZEN_2014_site_means_49$ocean.code)
 
 ZEN_2014_site_means_49_Atlantic$ocean.code <- ZEN_2014_site_means_49_Atlantic$Ocean
-ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Atlantic", "ocean.code"] <- "0"
-ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Pacific", "ocean.code"] <- "1"
+ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Atlantic", "ocean.code"] = 0
+ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Pacific", "ocean.code"] = 1
 ZEN_2014_site_means_49_Atlantic$ocean.code <- as.numeric(ZEN_2014_site_means_49_Atlantic$ocean.code)
 
 ZEN_2014_site_means_Pacific$ocean.code <- ZEN_2014_site_means_Pacific$Ocean
-ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Atlantic", "ocean.code"] <- "0"
-ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific", "ocean.code"] <- "1"
+ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Atlantic", "ocean.code"] = 0
+ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific", "ocean.code"] = 1
 ZEN_2014_site_means_Pacific$ocean.code <- as.numeric(ZEN_2014_site_means_Pacific$ocean.code)
 
-# Read in data For estimating leaf growth rate from Ruesink et al. 2018 -- https://onlinelibrary.wiley.com/doi/abs/10.1111/oik.04270
-zmgrowth <- read_csv("data/input/ZEN_2011_ZRG_AllSites_Edit141102.csv")
+# Read in data For estimating leaf growth rate from Ruesink et al. (2018. Oikos)
+zmgrowth <- read.csv("ZEN_2011_ZRG_AllSites_Edit141102.csv",  header = TRUE)
 
-# Read in zen2014 PLOT-level data sets for modeling (MINUS SW.A), with missing data imputed:
-ZEN_2014_plot <- read_csv("data/output/ZEN_2014_plot_20210430.csv")
+# NOTE: Following is NOT the file with imputed values and it has all 50 sites. Figure this out ...
+# # Read in zen2014 PLOT-level data sets for modeling, with missing data imputed:
+# ZEN_2014_plot <- read.csv("ZEN_2014_plot_20210430.csv", header = TRUE)
+# names(ZEN_2014_plot)
 
 
 ###################################################################################
@@ -149,8 +149,8 @@ names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Le
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.env.global"] <- "Env PCe1"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.env.global"] <- "Env PCe2"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC3.env.global"] <- "Env PCe3"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.zos.site"] <- "Eelgrass\nform PCz1"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.zos.site"] <- "Eelgrass\nform PCz2"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.zos.site"] <- "Eelgrass form PCz1"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.zos.site"] <- "Eelgrass form PCz2"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="FC1"] <- "Genetics FCA1"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="FC2"] <- "Genetics FCA2"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.AG.mass.site"] <- "AG mass (log)"
@@ -159,35 +159,30 @@ names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zo
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.sheath.length.site"] <- "Sheath L (log)"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.sheath.width.site"] <- "Sheath W (log)"
 names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.longest.leaf.length.cm.site"] <- "Canopy ht (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.g.zostera.site"] <- "Periphyton\nmass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.g.plant.site"] <- "Mesograzer\nmass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.area.site"] <- "Periphyton\nmass/area (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.area.site"] <- "Mesograzer\nmass/area (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.abund.per.area.site"] <- "Mesograzer\nabund/area (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.g.zostera.site"] <- "Periphyton mass (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.g.plant.site"] <- "Mesograzer mass (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.area.site"] <- "Periphyton mass/area (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.area.site"] <- "Mesograzer mass/area (log)"
+names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.abund.per.area.site"] <- "Mesograzer abund/area (log)"
 
 # Correlates of environmental/oceanographic PC axes 
-svg("figures/pairs_pc_axes.svg", width = 12, height = 11)
 pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
   "Env PCe3", "SST mean", "SST range", "Salinity", "PAR", "day length", "NO3 (sqrt)", 
   "PO4 (log)", "Leaf %N (log)", "chl (log)")], 
   hist.col="gray", pch = 21, 
-  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = T, cex = 2, 
+  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 12, 
   bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
-dev.off()
 # PCe1: latitude/climate: high = warmer, brighter, less cloudy (lower latitude)
 # PCe2: nutrient status: high = high PO4, leaf N  
 # PCe3: estuarine: low salinity, variable temp, high chl
 
-
 # Correlations between environment and biology
-svg("figures/pairs_env+biol.svg", width = 12, height = 11 )
 pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
-  "Env PCe3", "Genetics FCA1", "Genetics FCA2", "Eelgrass\nform PCz1", "Eelgrass\nform PCz2",
-  "Periphyton\nmass (log)", "Mesograzer\nmass (log)", "Periphyton\nmass/area (log)", 
-  "Mesograzer\nmass/area (log)")], hist.col="gray", pch = 21, 
-  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = T, cex = 1.5, 
+  "Env PCe3", "Genetics FCA1", "Genetics FCA2", "Eelgrass form PCz1", "Eelgrass form PCz2",
+  "Periphyton mass (log)", "Mesograzer mass (log)", "Periphyton mass/area (log)", 
+  "Mesograzer mass/area (log)")], hist.col="gray", pch = 21, 
+  smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 8, 
   bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
-dev.off()
 
 # Missing data? No.
 nrow(ZEN_2014_plot_49) # 980
@@ -4815,12 +4810,36 @@ par(op)
 # RANDOM FOREST ANALYSIS                                                          #
 ###################################################################################
 
-# Use random forest analysis as a check on robustness of the results from GLMs.
+# Use random forest analysis as a check on robustness of the results from GLMs. Random forest
+# analysis uses machine learning algorithms to rank the importance of predictor variables 
+# in a regression problem but sidesteps for the overfitting common in high-dimensional 
+# regression-type models, handles all types of variables, and is robust to different 
+# forms of relationships among them. 
+
+# First, test suggestion from co-authors that eelgrass canopy height may be influenced by 
+# exposure (fetch) and by light levels, indexed here by C:N ratio. 
 
 library(randomForest)
 
-ZEN_2014_plot_49$Ocean <- as.factor(ZEN_2014_plot_49$Ocean)
 ZEN_2014_site_means$Ocean <- as.factor(ZEN_2014_site_means$Ocean)
+
+# EELGRASS CANOPY HEIGHT as function of local variables:
+
+canopy.rf = randomForest(Zostera.longest.leaf.length.site  ~  Temperature.C + Salinity.ppt 
+  + day.length + leaf.CN.ratio.site + log10.mean.fetch + FC1 + FC2,
+  na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+
+# Examine summary output
+canopy.rf # % Var explained: 45.12
+
+# Plot error as a function of # of trees
+plot(canopy.rf) # Good. 100 trees is plenty.
+
+# Plot variable importance
+varImpPlot(canopy.rf) # NOTE: saving this as an object returns the numbers in the graph
+
+# RESULT: FC2 and FC2 are substantially better repdictros of canopy height than fetch or leaf C:N. 
+
 
 
 # EELGRASS GROWTH FORM PCz1 (FOREST-MEADOW AXIS) as function of local variables:
@@ -4928,7 +4947,8 @@ varImpPlot(PC2.zos.rf) #
 
 PC2.zos.a.rf = randomForest(PC2.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2,
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_49_Atlantic)
+                            , 
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_Atlantic)
 
 # Examine summary output
 PC2.zos.a.rf # % Var explained: 10.92
@@ -5049,7 +5069,7 @@ varImpPlot(peri.rf) #
 ###################################################################################
 
 # Eelgrass leaf C:N ratio (low values) is considered an indicator of light limitation. 
-# Any evidence that logh limitation is strionger in Atlantic? Answer: No. 
+# Any evidence that light limitation is stronger in Atlantic? Answer: No. 
 
 #  leaf length vs C:N ratio
 canopy.cn <- ggplot(ZEN_2014_site_means, aes(x = leaf.CN.ratio.site, y = log10.Zostera.longest.leaf.length.cm.site, group = Ocean, col = Ocean)) +
