@@ -49,10 +49,10 @@
 ###################################################################################
 
 # Load packages:
-library(plyr) # to use ddply below in fixing richness values      
-library(randomForest) # ndeeded for data imputation
-library(car) # needed or vif analysis
 library(tidyverse) # for reformatting epibiota data
+library(plyr) # to use ddply below in fixing richness values
+library(randomForest) # needed for data imputation
+library(car) # needed or vif analysis
 library(psych) # to visualize relationshiops in pairs panels
 
 
@@ -71,43 +71,53 @@ library(psych) # to visualize relationshiops in pairs panels
 # MAIN ZEN 2014 DATA SET
 # Read in summary data set for ZEN 2014:
 # IS THIS THE MOST RECENT, COMPLETE DATA FILE? PROBABLY SHOULD RE-EXTACT FROM DEFINITIVE MASTER EXCEL
-zen2014 <- read.csv("2017-03-16 ZEN Clean MASTER V3 JSL copy.csv", header = TRUE)
+zen2014 <- read.csv("data/input/2017-03-16 ZEN Clean MASTER V3 JSL copy.csv", header = TRUE)
 names(zen2014)
 
 # BIO-ORACLE CLIMATE AND ENVIRONMENTAL DATA
 # Read in Bio-ORACLE and WorldClim environmental data for ZEN sites from Matt Whalen's script:
-zen2014.env <- read.csv("ZEN_2014_data_environmental_20210124_copy.csv", header = TRUE)
+zen2014.env <- read.csv("data/input/ZEN_2014_data_environmental_20210124_copy.csv", header = TRUE)
 names(zen2014.env)
 
 # PERCENT COVER
 # Read in data on percent cover:
-zen2014.cover <- read.csv("ZEN_2014_R_PercentCover_by_plot_2016_01_06_modified_copy.csv", header = TRUE)
+zen2014.cover <- read.csv("data/input/ZEN_2014_R_PercentCover_by_plot_2016_01_06_modified_copy.csv", header = TRUE)
 names(zen2014.cover)
 # NOTE: WA.A was not able to collect percent cover data - NO DATA for this site. 
 
 # PREDATION INTENSITY
 # Read in data on predation intensity from amphipod tethering assay (Reynolds et al. 2017):
-zen2014.pred <- read.csv("ZEN_2014_R_Predation_by_site_2016_01_21_copy.csv", header = TRUE)
+zen2014.pred <- read.csv("data/input/ZEN_2014_R_Predation_by_site_2016_01_21_copy.csv", header = TRUE)
 names(zen2014.pred)
 
 # EPIFAUNA AND ASSOCIATED MACROPHYTE SAMPLES
 # Load epifauna data
-epifauna = read.csv("ZEN_2014_abund_traits_merge_2016-08-19_copy.csv")
-# Load macrophyte data
-macro = read.csv("ZEN_2014_DATA_MASTER_2016_08_24_EpifaunaMacrophytes_copy.csv")
+epifauna = read.csv("data/input/ZEN_2014_abund_traits_merge_2016-08-19_copy.csv")
+
+################################################################################
+# ----------  WHALEN UNABLE TO FIND THIS FILE
+# ----------  BUT, OBJECT `macro` NOT USED IN THE REST OF THE SCRIPT
+# # Load macrophyte data
+# macro = read.csv("ZEN_2014_DATA_MASTER_2016_08_24_EpifaunaMacrophytes_copy.csv")
+################################################################################
 
 # EELGRASS GENETICS
-zen2014_gen_fca <- read.csv("ZEN 2014 FCA scores 20201016.csv", header = TRUE)
-zen2014_gen_fca_atlantic <- read.csv("ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
-zen2014_gen_fca_pacific <- read.csv("ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
+zen2014_gen_fca <- read.csv("data/input/ZEN 2014 FCA scores 20201016.csv", header = TRUE)
+zen2014_gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
+zen2014_gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
 
 # EPIBIOTA 
 # Epibiota (periphyton) data were not calculated correctly in the summary 'Master" data file, 
 # specifically filtered material ("Epibiota filter") was not divided by the mass of Zostera scraped. 
 # So we have to regenerate these numbers from scratch. 
 
-# Read in the epibiota data
-zen2014.epibiota <- read.csv("ZEN_2014_epibiota_mass_2016_01_06.csv", header = TRUE)
+################################################################################
+# ----------  WHALEN UNABLE TO FIND THIS FILE
+# # Read in the epibiota data
+# zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_2016_01_06.csv", header = TRUE)
+# ----------  REPLACING WITH FILE THAT WAS INCLUDED IN REPO
+zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_2016_01_06 copy.csv", header = TRUE)
+################################################################################
 
 # First, Japan B separated "Chl large epiphytes filter" from "Epibiota filter", the latter of which are all zero. 
 # We need to  recode those labeled "Chl large epiphytes filter" as "Epibiota filter", so we can add them together. 
@@ -1198,8 +1208,8 @@ nrow(zen2014_49_imputed) # 980 - good
 # BUT can't include periphyton as predictor because biased by missing from entire site SW.A.
 
 # Export imputed data frames
-write.csv(zen2014_imputed, "zen2014_imputed_20210227.csv", row.names = F)
-write.csv(zen2014_49_imputed, "zen2014_imputed_49_20210227.csv", row.names = F)
+write.csv(zen2014_imputed, "data/output/zen2014_imputed_20210227.csv", row.names = F)
+write.csv(zen2014_49_imputed, "data/output/zen2014_imputed_49_20210227.csv", row.names = F)
 
 
 ###################################################################################
@@ -1360,6 +1370,9 @@ ZEN_2014_site_means_49_Atlantic$zPC2.env.global.atl <- scale(ZEN_2014_site_means
 ZEN_2014_site_means_49_Atlantic$zPC3.env.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC3.env.global)
 ZEN_2014_site_means_49_Atlantic$zFC1.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC1)
 ZEN_2014_site_means_49_Atlantic$zFC2.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC2)
+################################################################################
+# ------------------  WHALEN FOUND ERRORS IN SEVERAL OF THE FOLLOWING LINES. 
+# ------------------  NEEDS TO BE DEBUGGED
 ZEN_2014_site_means_49_Atlantic$zPC1.env.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC1.env.atl)
 ZEN_2014_site_means_49_Atlantic$zPC2.env.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC2.env.atl)
 ZEN_2014_site_means_49_Atlantic$zPC3.env.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC3.env.atl)
@@ -1369,6 +1382,9 @@ ZEN_2014_site_means_49_Atlantic$zperiphyton.area.atl <- scale(ZEN_2014_site_mean
 ZEN_2014_site_means_49_Atlantic$zperiphyton.perg.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
 ZEN_2014_site_means_49_Atlantic$zmesograzer.mass.area.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
 ZEN_2014_site_means_49_Atlantic$zmesograzer.mass.perg.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.g.plant.site)
+################################################################################
+
+
 
 # Create RANGE-scaled variables: SITE level (ATLANTIC 49)
 # This data set scales the variables using only Atlantic values. Omit SW.A as the plot-level data set does. 
