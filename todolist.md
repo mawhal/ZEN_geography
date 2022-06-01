@@ -2,10 +2,10 @@
 
 - [ ] get someone to provide content for the README
 - [X] check outputs of model comparison script
-- [ ] check outputs of figures script
 - [ ] check outputs of data assembly script
+- [ ] check outputs of figures script
 - [ ] consider removing "2014" from script file names - year does not matter relative to purpose
-- [ ] add data/results tables for genetic analysis - see 
+- [ ] add data/results tables for genetic analysis - see email from Marlene Jahnke
 
 
 
