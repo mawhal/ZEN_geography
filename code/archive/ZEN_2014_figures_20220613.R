@@ -361,7 +361,7 @@ pcz1.atl.coeffs.a <- ggplot(coeffs.atl.pcz1, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Eelgrass form PCz1 (Atlantic)") +theme(plot.title = element_text(hjust = 0.5))
 pcz1.atl.coeffs.a
-# pdf("pcz1.atl.coeffs.a.pdf", width = 6, height = 4); pcz1.atl.coeffs.a; dev.off() 
+pdf("pcz1.atl.coeffs.a.pdf", width = 6, height = 4); pcz1.atl.coeffs.a; dev.off() 
 
 
 # Eelgrass growth form PCz2 (ATLANTIC)
@@ -381,7 +381,7 @@ pcz2.atl.coeffs.a <- ggplot(coeffs.atl.pcz2, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Eelgrass form PCz2 (Atlantic)") +theme(plot.title = element_text(hjust = 0.5))
 pcz2.atl.coeffs.a
-# pdf("pcz2.atl.coeffs.a.pdf", width = 6, height = 4); pcz2.atl.coeffs.a; dev.off() 
+pdf("pcz2.atl.coeffs.a.pdf", width = 6, height = 4); pcz2.atl.coeffs.a; dev.off() 
 
 
 # Periphyton (ATLANTIC)
@@ -401,7 +401,7 @@ peri.atl.coeffs.a <- ggplot(coeffs.atl.peri, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Periphyton mass per g (Atlantic)") +theme(plot.title = element_text(hjust = 0.5))
 peri.atl.coeffs.a
-# pdf("peri.atl.coeffs.a.pdf", width = 6, height = 4); peri.atl.coeffs.a; dev.off() 
+pdf("peri.atl.coeffs.a.pdf", width = 6, height = 4); peri.atl.coeffs.a; dev.off() 
 
 
 # Mesograzers (ATLANTIC)
@@ -421,7 +421,7 @@ meso.atl.coeffs.a <- ggplot(coeffs.atl.meso, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Mesograzer mass per g (Atlantic)") +theme(plot.title = element_text(hjust = 0.5))
 meso.atl.coeffs.a
-# pdf("meso.atl.coeffs.a.pdf", width = 6, height = 4); meso.atl.coeffs.a; dev.off() 
+pdf("meso.atl.coeffs.a.pdf", width = 6, height = 4); meso.atl.coeffs.a; dev.off() 
 
 
 # PACIFIC 
@@ -449,7 +449,7 @@ pcz1.pac.coeffs.p <- ggplot(coeffs.pac.pcz1, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Eelgrass form PCz1 (Pacific)") +theme(plot.title = element_text(hjust = 0.5))
 pcz1.pac.coeffs.p
-# pdf("pcz1.pac.coeffs.p.pdf", width = 6, height = 4); pcz1.pac.coeffs.p; dev.off() 
+pdf("pcz1.pac.coeffs.p.pdf", width = 6, height = 4); pcz1.pac.coeffs.p; dev.off() 
 
 
 # Eelgrass growth form PCz2 (PACIFIC)
@@ -469,7 +469,7 @@ pcz2.pac.coeffs.p <- ggplot(coeffs.pac.pcz2, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Eelgrass form PCz2 (Pacific)") +theme(plot.title = element_text(hjust = 0.5))
 pcz2.pac.coeffs.p
-# pdf("pcz2.pac.coeffs.p.pdf", width = 6, height = 4); pcz2.pac.coeffs.p; dev.off() 
+pdf("pcz2.pac.coeffs.p.pdf", width = 6, height = 4); pcz2.pac.coeffs.p; dev.off() 
 
 
 # Periphyton (PACIFIC)
@@ -489,7 +489,7 @@ peri.pac.coeffs.p <- ggplot(coeffs.pac.peri, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Periphyton mass per g (Pacific)") +theme(plot.title = element_text(hjust = 0.5))
 peri.pac.coeffs.p
-# pdf("peri.pac.coeffs.p.pdf", width = 6, height = 4); peri.pac.coeffs.p; dev.off() 
+pdf("peri.pac.coeffs.p.pdf", width = 6, height = 4); peri.pac.coeffs.p; dev.off() 
 
 
 # Mesograzers (PACIFIC)
@@ -509,7 +509,7 @@ meso.pac.coeffs.p <- ggplot(coeffs.pac.meso, mapping = aes(x = predictor.order, 
   theme_bw() +
   ggtitle("Mesograzer mass per g (Pacific)") +theme(plot.title = element_text(hjust = 0.5))
 meso.pac.coeffs.p
-# pdf("meso.pac.coeffs.p.pdf", width = 6, height = 4); meso.pac.coeffs.p; dev.off() 
+pdf("meso.pac.coeffs.p.pdf", width = 6, height = 4); meso.pac.coeffs.p; dev.off() 
 
 
 ###################################################################################
@@ -564,7 +564,7 @@ summed_paths_atl_high_scale <- ggplot(zen_best_models_atlantic, aes(factor(predi
   ylab("Weighted mean of standardized effects\n") + xlab("") +
   facet_grid(response ~ .) 
 summed_paths_atl_high_scale
-# pdf("summed_paths_atl_high_scale.pdf", width = 3, height = 10); summed_paths_atl_high_scale; dev.off() 
+pdf("summed_paths_atl_high_scale.pdf", width = 3, height = 10); summed_paths_atl_high_scale; dev.off() 
 
 
 # Read in standardized coefficients from best models: PACIFIC
@@ -599,7 +599,7 @@ summed_paths_pac_high_scale <- ggplot(zen_best_models_pacific, aes(factor(predic
   ylab("Weighted mean of standardized effects\n") + xlab("") +
   facet_grid(response ~ .) 
 summed_paths_pac_high_scale
-# pdf("summed_paths_pac_high_scale.pdf", width = 3, height = 10); summed_paths_pac_high_scale; dev.off() 
+pdf("summed_paths_pac_high_scale.pdf", width = 3, height = 10); summed_paths_pac_high_scale; dev.off() 
 
 
 
@@ -639,7 +639,7 @@ summed_paths_pac_high_scale
 #   labs(x= "Longitude", y = "Latitude") +
 #   theme(axis.text = element_text(colour = "black"))
 # polarmap.sites
-# # pdf("polarmap.sites.pdf", width = 7, height = 7); polarmap.sites; dev.off()
+# pdf("polarmap.sites.pdf", width = 7, height = 7); polarmap.sites; dev.off()
 # 
 # 
 # # ZEN 2014 site map, colored by PCz1
@@ -652,7 +652,7 @@ summed_paths_pac_high_scale
 #   labs(x= "Longitude", y = "Latitude") +
 #   theme(axis.text = element_text(colour = "black"))
 # polarmap.pcz1
-# # pdf("polarmap.pcz1.pdf", width = 7, height = 7); polarmap.pcz1; dev.off()
+# pdf("polarmap.pcz1.pdf", width = 7, height = 7); polarmap.pcz1; dev.off()
 # 
 # 
 # # ZEN 2014 site map, colored by above-ground biomass
@@ -665,7 +665,7 @@ summed_paths_pac_high_scale
 #   labs(x= "Longitude", y = "Latitude") +
 #   theme(axis.text = element_text(colour = "black"))
 # polarmap.zag
-# # pdf("polarmap.zag.pdf", width = 7, height = 7); polarmap.zag; dev.off()
+# pdf("polarmap.zag.pdf", width = 7, height = 7); polarmap.zag; dev.off()
 
 
 ###################################################################################
@@ -701,7 +701,7 @@ pcz1.pce1.partial.plot <- ggplot(pcz1.pce1.partial, aes(x = (-xresid), y = yresi
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.pce1.partial.plot
-# pdf("pcz1.pce1.partial.plot.pdf", width = 4.5, height = 4); pcz1.pce1.partial.plot;  dev.off() 
+pdf("pcz1.pce1.partial.plot.pdf", width = 4.5, height = 4); pcz1.pce1.partial.plot;  dev.off() 
 
 
 # GLOBAL: EELGRASS GROWTH FORM (PCz1) vs GENETIC FC2 (Partial, site level)
@@ -725,7 +725,7 @@ pcz1.fc2.partial.plot <- ggplot(pcz1.fc2.partial, aes(x = xresid, y = yresid, gr
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.fc2.partial.plot
-# pdf("pcz1.fc2.partial.plot.pdf",width = 4.5, height = 4); pcz1.fc2.partial.plot;  dev.off() 
+pdf("pcz1.fc2.partial.plot.pdf",width = 4.5, height = 4); pcz1.fc2.partial.plot;  dev.off() 
 
 
 # GLOBAL: EELGRASS BIOMASS (inverse PCz2) vs ENVIRONMENT PCe3 (Partial, site level)
@@ -757,7 +757,7 @@ pcz2.pce3.partial.plot <- ggplot(pcz2.pce3.partial, aes(x = xresid, y = -yresid,
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.pce3.partial.plot
-# pdf("pcz2.pce3.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce3.partial.plot;  dev.off() 
+pdf("pcz2.pce3.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce3.partial.plot;  dev.off() 
 
 
 # GLOBAL: EELGRASS BIOMASS (inverse PCz2) vs EELGRASS GENETICS FC2 (Partial, site level)
@@ -784,7 +784,7 @@ pcz2.fc2.partial.plot <- ggplot(pcz2.fc2.partial, aes(x = xresid, y = (-yresid),
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.fc2.partial.plot
-# pdf("pcz2.fc2.partial.plot.pdf",width = 4.5, height = 4); pcz2.fc2.partial.plot;  dev.off() 
+pdf("pcz2.fc2.partial.plot.pdf",width = 4.5, height = 4); pcz2.fc2.partial.plot;  dev.off() 
 
 
 # GLOBAL: PERIPHYTON vs EELGRASS GENETICS FC2 (Partial, site level)
@@ -817,7 +817,7 @@ peri.fc2.partial.plot <- ggplot(peri.fc2.partial, aes(x = xresid, y = (-yresid),
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.fc2.partial.plot
-# pdf("peri.fc2.partial.plot.pdf",width = 4.5, height = 4); peri.fc2.partial.plot;  dev.off() 
+pdf("peri.fc2.partial.plot.pdf",width = 4.5, height = 4); peri.fc2.partial.plot;  dev.off() 
 
 
 # GLOBAL: PERIPHYTON vs ENVIRONMENT PCe1 (Partial, site level)
@@ -844,7 +844,7 @@ peri.pce1.partial.plot <- ggplot(peri.pce1.partial, aes(x = xresid, y = (-yresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pce1.partial.plot
-# pdf("peri.pce1.partial.plot.pdf",width = 4.5, height = 4); peri.pce1.partial.plot;  dev.off() 
+pdf("peri.pce1.partial.plot.pdf",width = 4.5, height = 4); peri.pce1.partial.plot;  dev.off() 
 
 
 # GLOBAL: PERIPHYTON PER G EELGRASS vs EELGRASS FORM PCz1 (Partial, site level)
@@ -877,7 +877,7 @@ peri.perg.pcz1.partial.plot <- ggplot(peri.perg.pcz1.partial, aes(x = xresid, y 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.perg.pcz1.partial.plot
-# pdf("peri.perg.pcz1.partial.plot.pdf",width = 4.5, height = 4); peri.perg.pcz1.partial.plot;  dev.off() 
+pdf("peri.perg.pcz1.partial.plot.pdf",width = 4.5, height = 4); peri.perg.pcz1.partial.plot;  dev.off() 
 
 
 # GLOBAL: PERIPHYTON PER AREA vs EELGRASS FORM PCz1 (Partial, site level)
@@ -910,7 +910,7 @@ peri.area.pcz1.partial.plot <- ggplot(peri.area.pcz1.partial, aes(x = xresid, y 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.area.pcz1.partial.plot
-# pdf("peri.area.pcz1.partial.plot.pdf",width = 4.5, height = 4); peri.area.pcz1.partial.plot;  dev.off() 
+pdf("peri.area.pcz1.partial.plot.pdf",width = 4.5, height = 4); peri.area.pcz1.partial.plot;  dev.off() 
 
 
 # GLOBAL: PERIPHYTON PER AREA vs EELGRASS GENETICS FC2 (Partial, site level)
@@ -938,7 +938,7 @@ peri.fc2.partial.plot <- ggplot(peri.fc2.partial, aes(x = xresid, y = (yresid), 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.fc2.partial.plot
-# pdf("peri.fc2.partial.plot.pdf",width = 4.5, height = 4); peri.fc2.partial.plot;  dev.off() 
+pdf("peri.fc2.partial.plot.pdf",width = 4.5, height = 4); peri.fc2.partial.plot;  dev.off() 
 
 
 # GLOBAL: MESOGRAZER BIOMASS  vs ENVIRONMENT PCe3 (Partial, site level)
@@ -971,7 +971,7 @@ meso.pce3.partial.plot <- ggplot(meso.pce3.partial, aes(x = xresid, y = yresid, 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pce3.partial.plot
-# pdf("meso.pce3.partial.plot.pdf",width = 4.5, height = 4); meso.pce3.partial.plot;  dev.off() 
+pdf("meso.pce3.partial.plot.pdf",width = 4.5, height = 4); meso.pce3.partial.plot;  dev.off() 
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER G EELGRASS vs MEADOW FORM Pz1 (Partial, site level)
@@ -1004,7 +1004,7 @@ meso.pcz1.partial.plot <- ggplot(meso.pcz1.partial, aes(x = xresid, y = yresid, 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pcz1.partial.plot
-# pdf("meso.pcz1.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.partial.plot;  dev.off() 
+pdf("meso.pcz1.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.partial.plot;  dev.off() 
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER AREA vs EELGRASS FORM PCz2 (RAW, site level)
@@ -1025,7 +1025,7 @@ meso.area.pcz2.plot <- ggplot(ZEN_2014_site_means_49, aes(x = -PC2.zos.site, y =
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.area.pcz2.plot
-# pdf("meso.area.pcz2.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.plot;  dev.off() 
+pdf("meso.area.pcz2.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.plot;  dev.off() 
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER G EELGRASS vs EELGRASS FORM PCz2 (Partial, site level)
@@ -1051,7 +1051,7 @@ meso.perg.pcz2.partial.plot <- ggplot(meso.perg.pcz2.partial, aes(x = xresid, y 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.perg.pcz2.partial.plot
-# pdf("meso.perg.pcz2.partial.plot.pdf",width = 4.5, height = 4); meso.perg.pcz2.partial.plot;  dev.off() 
+pdf("meso.perg.pcz2.partial.plot.pdf",width = 4.5, height = 4); meso.perg.pcz2.partial.plot;  dev.off() 
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER AREA vs EELGRASS FORM PCz2 (Partial, site level)
@@ -1083,7 +1083,7 @@ meso.area.pcz2.partial.plot <- ggplot(meso.area.pcz2.partial, aes(x = xresid, y 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.area.pcz2.partial.plot
-# pdf("meso.area.pcz2.partial.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.partial.plot;  dev.off() 
+pdf("meso.area.pcz2.partial.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.partial.plot;  dev.off() 
 
 
 ###################################################################################
@@ -1120,7 +1120,7 @@ pcz1.pce1.a.partial.plot <- ggplot(pcz1.pce1.a.partial, aes(x = (-xresid), y = y
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.pce1.a.partial.plot
-# pdf("pcz1.pce1.a.partial.plot.pdf",width = 4.5, height = 4); pcz1.pce1.a.partial.plot;  dev.off() 
+pdf("pcz1.pce1.a.partial.plot.pdf",width = 4.5, height = 4); pcz1.pce1.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: EELGRASS GROWTH FORM (PCz1) vs GENETIC FC2 (Partial, site level)
@@ -1147,7 +1147,7 @@ pcz1.fc2.a.partial.plot <- ggplot(pcz1.fc2.a.partial, aes(x = xresid, y = yresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.fc2.a.partial.plot
-# pdf("pcz1.fc2.a.partial.plot.pdf",width = 4.5, height = 4); pcz1.fc2.a.partial.plot;  dev.off() 
+pdf("pcz1.fc2.a.partial.plot.pdf",width = 4.5, height = 4); pcz1.fc2.a.partial.plot;  dev.off() 
 
 # NOTE: Use inverse of PCz2 so positive values indicate high biomass
 
@@ -1182,7 +1182,7 @@ pcz2.pce1.a.partial.plot <- ggplot(pcz2.pce1.a.partial, aes(x = -xresid, y = -yr
   ) +
 geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.pce1.a.partial.plot
-# pdf("pcz2.pce1.a.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce1.a.partial.plot;  dev.off() 
+pdf("pcz2.pce1.a.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce1.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: EELGRASS BIOMASS (inverse PCz2) vs ENVIRONMENT PCe3 (Partial, site level)
@@ -1208,7 +1208,7 @@ pcz2.pce3.a.partial.plot <- ggplot(pcz2.pce3.a.partial, aes(x = xresid, y = -yre
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.pce3.a.partial.plot
-# pdf("pcz2.pce3.a.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce3.a.partial.plot;  dev.off() 
+pdf("pcz2.pce3.a.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce3.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: EELGRASS BIOMASS (inverse PCz2) vs GENETICS FC2 (Partial, site level)
@@ -1234,7 +1234,7 @@ pcz2.fc2.a.partial.plot <- ggplot(pcz2.fc2.a.partial, aes(x = xresid, y = -yresi
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.fc2.a.partial.plot
-# pdf("pcz2.fc2.a.partial.plot.pdf",width = 4.5, height = 4); pcz2.fc2.a.partial.plot;  dev.off() 
+pdf("pcz2.fc2.a.partial.plot.pdf",width = 4.5, height = 4); pcz2.fc2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: PERIPHYTON PER G EELGRASS vs EELGRASS FORM PCz1 (Partial, site level)
@@ -1265,7 +1265,7 @@ peri.pcz1.a.partial.plot <- ggplot(peri.pcz1.a.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pcz1.a.partial.plot
-# pdf("peri.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz1.a.partial.plot;  dev.off() 
+pdf("peri.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz1.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: PERIPHYTON PER AREA vs EELGRASS FORM PCz1 (Partial, site level)
@@ -1297,7 +1297,7 @@ peri.pcz1.a.partial.plot <- ggplot(peri.pcz1.a.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pcz1.a.partial.plot
-# pdf("peri.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz1.a.partial.plot;  dev.off() 
+pdf("peri.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz1.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: PERIPHYTON PER AREA vs EELGRASS BIOMASS (-PCz2) (Partial, site level)
@@ -1322,7 +1322,7 @@ peri.pcz2.a.partial.plot <- ggplot(peri.pcz2.a.partial, aes(x = xresid, y = -yre
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pcz2.a.partial.plot
-# pdf("peri.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz2.a.partial.plot;  dev.off() 
+pdf("peri.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: PERIPHYTON PER AREA vs NUTRIENT STATUS (PCe2) (Partial, site level)
@@ -1354,7 +1354,7 @@ peri.pce2.a.partial.plot <- ggplot(peri.pce2.a.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pce2.a.partial.plot
-# pdf("peri.pce2.a.partial.plot.pdf",width = 4.5, height = 4); peri.pce2.a.partial.plot;  dev.off() 
+pdf("peri.pce2.a.partial.plot.pdf",width = 4.5, height = 4); peri.pce2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: PERIPHYTON PER G EELGRASS vs EELGRASS BIOMASS PCz2 (Partial, site level)
@@ -1385,7 +1385,7 @@ peri.pcz2.a.partial.plot <- ggplot(peri.pcz2.a.partial, aes(x = xresid, y = -yre
   ) # +
   # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pcz2.a.partial.plot
-# pdf("peri.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz2.a.partial.plot;  dev.off() 
+pdf("peri.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); peri.pcz2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: MESOGRAZER BIOMASS PER G PLANT vs ENVIRONMENT PCe3 (Partial, site level)
@@ -1417,7 +1417,7 @@ meso.pce3.a.partial.plot <- ggplot(meso.pce3.a.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pce3.a.partial.plot
-# pdf("meso.pce3.a.partial.plot.pdf",width = 4.5, height = 4); meso.pce3.a.partial.plot;  dev.off() 
+pdf("meso.pce3.a.partial.plot.pdf",width = 4.5, height = 4); meso.pce3.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: MESOGRAZER BIOMASS PER G PLANT vs GENETICS FC2 (Partial, site level)
@@ -1443,7 +1443,7 @@ meso.fc2.a.partial.plot <- ggplot(meso.fc2.a.partial, aes(x = xresid, y = yresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.fc2.a.partial.plot
-# pdf("meso.fc2.a.partial.plot.pdf",width = 4.5, height = 4); meso.fc2.a.partial.plot;  dev.off() 
+pdf("meso.fc2.a.partial.plot.pdf",width = 4.5, height = 4); meso.fc2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: MESOGRAZER BIOMASS PER G PLANT vs MEADOW FORM (PCz1) (Partial, site level)
@@ -1469,7 +1469,7 @@ meso.pcz1.a.partial.plot <- ggplot(meso.pcz1.a.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pcz1.a.partial.plot
-# pdf("meso.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.a.partial.plot;  dev.off() 
+pdf("meso.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: MESOGRAZER BIOMASS PER G PLANT vs EELGRASS BIOMASS (-PCz2) (Partial, site level)
@@ -1495,7 +1495,7 @@ meso.perg.pcz2.a.partial.plot <- ggplot(meso.perg.pcz2.a.partial, aes(x = xresid
   ) # +
   # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.perg.pcz2.a.partial.plot
-# pdf("meso.perg.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); meso.perg.pcz2.a.partial.plot;  dev.off() 
+pdf("meso.perg.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); meso.perg.pcz2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: MESOGRAZER BIOMASS PER AREA vs MEADOW FORM (PCz1) (Partial, site level)
@@ -1526,7 +1526,7 @@ meso.pcz1.a.partial.plot <- ggplot(meso.pcz1.a.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pcz1.a.partial.plot
-# pdf("meso.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.a.partial.plot;  dev.off() 
+pdf("meso.pcz1.a.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.a.partial.plot;  dev.off() 
 
 
 
@@ -1553,7 +1553,7 @@ meso.area.pcz2.a.partial.plot <- ggplot(meso.area.pcz2.a.partial, aes(x = xresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.area.pcz2.a.partial.plot
-# pdf("meso.area.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.a.partial.plot;  dev.off() 
+pdf("meso.area.pcz2.a.partial.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.a.partial.plot;  dev.off() 
 
 
 # ATLANTIC: MESOGRAZER BIOMASS PER AREA vs ESTUARINE CONDITIONS (PCe3) (Partial, site level)
@@ -1579,7 +1579,7 @@ meso.area.pce3.a.partial.plot <- ggplot(meso.area.pce3.a.partial, aes(x = xresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.area.pce3.a.partial.plot
-# pdf("meso.area.pce3.a.partial.plot.pdf",width = 4.5, height = 4); meso.area.pce3.a.partial.plot;  dev.off() 
+pdf("meso.area.pce3.a.partial.plot.pdf",width = 4.5, height = 4); meso.area.pce3.a.partial.plot;  dev.off() 
 
 
 ###################################################################################
@@ -1614,7 +1614,7 @@ pcz1.pce1.p.partial.plot <- ggplot(pcz1.pce1.p.partial, aes(x = -xresid, y = yre
   ) # +
   # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.pce1.p.partial.plot
-# pdf("pcz1.pce1.p.partial.plot.pdf",width = 4.5, height = 4); pcz1.pce1.p.partial.plot;  dev.off() 
+pdf("pcz1.pce1.p.partial.plot.pdf",width = 4.5, height = 4); pcz1.pce1.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: EELGRASS GROWTH FORM (PCz1) vs GENETIC FC2 (Partial, site level)
@@ -1640,7 +1640,7 @@ pcz1.fc2.p.partial.plot <- ggplot(pcz1.fc2.p.partial, aes(x = xresid, y = yresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.fc2.p.partial.plot
-# pdf("pcz1.fc2.p.partial.plot.pdf",width = 4.5, height = 4); pcz1.fc2.p.partial.plot;  dev.off() 
+pdf("pcz1.fc2.p.partial.plot.pdf",width = 4.5, height = 4); pcz1.fc2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: EELGRASS BIOMASS (inverse PCz2) vs (inverse) ENVIRONMENT PCe1 (Partial, site level)
@@ -1670,7 +1670,7 @@ pcz2.pce1.p.partial.plot <- ggplot(pcz2.pce1.p.partial, aes(x = -xresid, y = -yr
   ) # +
 # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.pce1.p.partial.plot
-# pdf("pcz2.pce1.p.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce1.p.partial.plot;  dev.off() 
+pdf("pcz2.pce1.p.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce1.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: EELGRASS BIOMASS (inverse PCz2) vs ENVIRONMENT PCe3 (Partial, site level)
@@ -1700,7 +1700,7 @@ pcz2.pce3.p.partial.plot <- ggplot(pcz2.pce3.p.partial, aes(x = xresid, y = -yre
   ) # +
 # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.pce3.p.partial.plot
-# pdf("pcz2.pce3.p.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce3.p.partial.plot;  dev.off() 
+pdf("pcz2.pce3.p.partial.plot.pdf",width = 4.5, height = 4); pcz2.pce3.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: EELGRASS BIOMASS (inverse PCz2) vs GENETIC FC2 (Partial, site level)
@@ -1726,7 +1726,7 @@ pcz2.fc2.p.partial.plot <- ggplot(pcz2.fc2.p.partial, aes(x = xresid, y = -yresi
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2.fc2.p.partial.plot
-# pdf("pcz2.fc2.p.partial.plot.pdf",width = 4.5, height = 4); pcz2.fc2.p.partial.plot;  dev.off() 
+pdf("pcz2.fc2.p.partial.plot.pdf",width = 4.5, height = 4); pcz2.fc2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: PERIPHYTON PER G EELGRASS vs EELGRASS FORM PCz1 (Partial, site level)
@@ -1758,7 +1758,7 @@ peri.pcz1.p.partial.plot <- ggplot(peri.pcz1.p.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pcz1.p.partial.plot
-# pdf("peri.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); peri.pcz1.p.partial.plot;  dev.off() 
+pdf("peri.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); peri.pcz1.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: PERIPHYTON PER AREA vs EELGRASS FORM PCz1 (Partial, site level)
@@ -1788,7 +1788,7 @@ peri.area.pcz1.p.partial.plot <- ggplot(peri.area.pcz1.p.partial, aes(x = xresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.area.pcz1.p.partial.plot
-# pdf("peri.area.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); peri.area.pcz1.p.partial.plot;  dev.off() 
+pdf("peri.area.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); peri.area.pcz1.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: PERIPHYTON PER AREA vs EELGRASS BIOMASS PCz2 (Partial, site level)
@@ -1813,7 +1813,7 @@ peri.area.pcz2.p.partial.plot <- ggplot(peri.area.pcz2.p.partial, aes(x = xresid
   ) # +
 # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.area.pcz2.p.partial.plot
-# pdf("peri.area.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); peri.area.pcz2.p.partial.plot;  dev.off() 
+pdf("peri.area.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); peri.area.pcz2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: PERIPHYTON PER AREA vs NUTRIENT STATUS (PCe2) (Partial, site level)
@@ -1843,7 +1843,7 @@ peri.area.pce2.p.partial.plot <- ggplot(peri.area.pce2.p.partial, aes(x = xresid
   ) # +
   # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.area.pce2.p.partial.plot
-# pdf("peri.area.pce2.p.partial.plot.pdf",width = 4.5, height = 4); peri.area.pce2.p.partial.plot;  dev.off() 
+pdf("peri.area.pce2.p.partial.plot.pdf",width = 4.5, height = 4); peri.area.pce2.p.partial.plot;  dev.off() 
 
 
 
@@ -1870,7 +1870,7 @@ peri.perg.pcz2.p.partial.plot <- ggplot(peri.perg.pcz2.p.partial, aes(x = xresid
   ) # +
   # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.perg.pcz2.p.partial.plot
-# pdf("peri.perg.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); peri.perg.pcz2.p.partial.plot;  dev.off() 
+pdf("peri.perg.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); peri.perg.pcz2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: PERIPHYTON vs LATITUDE/CLIMATE PCe1 (Partial, site level)
@@ -1895,7 +1895,7 @@ peri.pce1.partial.plot <- ggplot(peri.pce1.partial, aes(x = xresid, y = yresid, 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pce1.partial.plot
-# pdf("peri.pce1.partial.plot.pdf",width = 4.5, height = 4); peri.pce1.partial.plot;  dev.off() 
+pdf("peri.pce1.partial.plot.pdf",width = 4.5, height = 4); peri.pce1.partial.plot;  dev.off() 
 
 
 # PACIFIC: PERIPHYTON vs EELGRASS GENETICS FCA2 (Partial, site level)
@@ -1920,7 +1920,7 @@ peri.fca2.p.partial.plot <- ggplot(peri.fca2.p.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.fca2.p.partial.plot
-# pdf("peri.fca2.p.partial.plot.pdf",width = 4.5, height = 4); peri.fca2.p.partial.plot;  dev.off() 
+pdf("peri.fca2.p.partial.plot.pdf",width = 4.5, height = 4); peri.fca2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER G PLANT vs ENVIRONMENT PCe3 (Partial, site level)
@@ -1951,7 +1951,7 @@ meso.pce3.p.partial.plot <- ggplot(meso.pce3.p.partial, aes(x = xresid, y = yres
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pce3.p.partial.plot
-# pdf("meso.pce3.p.partial.plot.pdf",width = 4.5, height = 4); meso.pce3.p.partial.plot;  dev.off() 
+pdf("meso.pce3.p.partial.plot.pdf",width = 4.5, height = 4); meso.pce3.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER G PLANT vs GENETIC FC2 (Partial, site level)
@@ -1978,7 +1978,7 @@ meso.fc2.p.partial.plot <- ggplot(meso.fc2.p.partial, aes(x = xresid, y = yresid
   ) # +
   # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.fc2.p.partial.plot
-# pdf("meso.fc2.p.partial.plot.pdf",width = 4.5, height = 4); meso.fc2.p.partial.plot;  dev.off() 
+pdf("meso.fc2.p.partial.plot.pdf",width = 4.5, height = 4); meso.fc2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER G PLANT vs MEADOW FORM (PCz1) (Partial, site level)
@@ -2004,7 +2004,7 @@ meso.pcz1.p.partial.plot <- ggplot(meso.pcz1.p.partial, aes(x = xresid, y = yres
   ) # +
 # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pcz1.p.partial.plot
-# pdf("meso.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.p.partial.plot;  dev.off() 
+pdf("meso.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER G PLANT vs (inverse) EELGRASS BIOMASS (PCz2) (Partial, site level)
@@ -2030,7 +2030,7 @@ meso.perg.pcz2.p.partial.plot <- ggplot(meso.perg.pcz2.p.partial, aes(x = xresid
   ) # +
 # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.perg.pcz2.p.partial.plot
-# pdf("meso.perg.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); meso.perg.pcz2.p.partial.plot;  dev.off() 
+pdf("meso.perg.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); meso.perg.pcz2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER AREA vs MEADOW FORM (PCz1) (Partial, site level)
@@ -2061,7 +2061,7 @@ meso.pcz1.p.partial.plot <- ggplot(meso.pcz1.p.partial, aes(x = xresid, y = yres
   ) +
 geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pcz1.p.partial.plot
-# pdf("meso.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.p.partial.plot;  dev.off() 
+pdf("meso.pcz1.p.partial.plot.pdf",width = 4.5, height = 4); meso.pcz1.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER AREA vs EELGRASS BIOMASS (-PCz2) (Partial, site level)
@@ -2087,7 +2087,7 @@ meso.area.pcz2.p.partial.plot <- ggplot(meso.area.pcz2.p.partial, aes(x = xresid
   ) # +
 # geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.area.pcz2.p.partial.plot
-# pdf("meso.area.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.p.partial.plot;  dev.off() 
+pdf("meso.area.pcz2.p.partial.plot.pdf",width = 4.5, height = 4); meso.area.pcz2.p.partial.plot;  dev.off() 
 
 
 # PACIFIC: MESOGRAZER BIOMASS PER AREA vs ESTUARINE COINDITIONS (PCe3) (Partial, site level)
@@ -2118,7 +2118,7 @@ meso.area.pce3.p.partial.plot <- ggplot(meso.area.pce3.p.partial, aes(x = xresid
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.area.pce3.p.partial.plot
-# pdf("meso.area.pce3.p.partial.plot.pdf",width = 4.5, height = 4); meso.area.pce3.p.partial.plot;  dev.off() 
+pdf("meso.area.pce3.p.partial.plot.pdf",width = 4.5, height = 4); meso.area.pce3.p.partial.plot;  dev.off() 
 
 
 # MESOGRAZERS vs ENVIRONMENT PCe3 (RAW, site level)
@@ -2139,10 +2139,439 @@ meso.pce3.plot <- ggplot(ZEN_2014_site_means, aes(x = zPC3.env.global, y = log10
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso.pce3.plot
-# pdf("meso.pce3.plot.pdf",width = 4.5, height = 4); meso.pce3.plot;  dev.off() 
+pdf("meso.pce3.plot.pdf",width = 4.5, height = 4); meso.pce3.plot;  dev.off() 
+
+
+###################################################################################
+# FIGURES: 3D PLOTS                                                               #
+###################################################################################
+
+# See: http://www.sthda.com/english/wiki/impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization
+
+library("plot3D")
+library("plot3Drgl") # for interactive viosualization of the 3D plot
+
+# NOTES: We use the same axis ranges in all graphs so Atlantic and Pacific can be directly compared
+
+###################################################################################
+# FIGURES: 3D PLOTS OF EELGRASS FORM (PCz1)                                       #
+# FIGURES: 3D PLOTS OF EELGRASS BIOMASS (PCz2)                                    #
+# FIGURES: 3D PLOTS OF PERIPHYTON PER AREA                                        #
+# FIGURES: 3D PLOTS OF MESOGRAZER MASS PER AREA                                   #
+###################################################################################
+
+
+###################################################################################
+# FIGURES: 3D PLOTS OF EELGRASS FORM (PCz1)                                       #
+###################################################################################
+
+# EELGRASS FORM (PCZ1): PLOT BY CLIMATE/LATITUDE (PCE1) AND GENETIC FC2 - GLOBAL
+
+x <- ZEN_2014_site_means_49$PC1.env.global
+y <- ZEN_2014_site_means_49$FC2
+z <- ZEN_2014_site_means_49$PC1.zos.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-2.6, 3.4), ylim = c(-900, 2000), zlim = c(-2.6, 3.3), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Climate/latitude", ylab = "Eelgrass genetic FC2", zlab = "Eelgrass form",  
+          colvar = ZEN_2014_site_means_49$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+
+# Add regression plane to 3d figure
+
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 16, cex = 2, col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          bty = "g",
+          theta = -120, phi = 5, ticktype = "detailed",
+          xlim = c(-2.6, 3.4), ylim = c(-900, 2000), zlim = c(-2.6, 3.3), 
+          xlab = "Climate/latitude", ylab = "Eelgrass genetic FC2", zlab = "Eelgrass form",  
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() # Clear visualization of how Atlantic sites are way above plane of Pacific. 
+
+
+# EELGRASS FORM (PCZ1): PLOT BY CLIMATE/LATITUDE (PCE1) AND GENETIC FC2 - ATLANTIC
+
+x <- ZEN_2014_site_means_49_Atlantic$PC1.env.global
+y <- ZEN_2014_site_means_49_Atlantic$FC2
+z <- ZEN_2014_site_means_49_Atlantic$PC1.zos.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-2.6, 3.4), ylim = c(-900, 2000), zlim = c(-2.6, 3.3), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Climate/latitude", ylab = "Eelgrass genetic FC2", zlab = "Eelgrass form",  
+          colvar = ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+
+# Add regression plane to 3d figure
+
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 16, cex = 2, col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          bty = "g",
+          theta = -120, phi = 5, ticktype = "detailed",
+          xlim = c(-2.6, 3.4), ylim = c(-900, 2000), zlim = c(-2.6, 3.3), 
+          xlab = "Climate/latitude", ylab = "Eelgrass genetic FC2", zlab = "Eelgrass form",  
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() # This is friggin' awesome!
+
+
+###################################################################################
+# FIGURES: 3D PLOTS OF PERIPHYTON PER AREA                                        #
+###################################################################################
+
+# PERIPHYTON MASS PER AREA: PLOT BY EELGRASS FORM (PCZ1) AND BIOMASS (PCZ2) - ATLANTIC
+
+x <- ZEN_2014_site_means_49_Atlantic$PC1.zos.site
+y <- ZEN_2014_site_means_49_Atlantic$PC2.zos.site
+z <- ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          # xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(-1.1, 2.6), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass form", ylab = "Eelgrass biomass", zlab = "periphyton mass",  
+          colvar = ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+
+# Add regression plane to 3d figure
+
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 16, cex = 2, col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          bty = "g", ticktype = "detailed",
+          theta = 220, phi = 10, 
+          # xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(0, 4.7), 
+          xlab = "Eelgrass form", ylab = "Eelgrass biomass", zlab = "periphyton mass",  
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() 
 
 
 
+# PERIPHYTON MASS PER AREA: PLOT BY EELGRASS FORM (PCZ1) AND NUTRIENTS (PCE2) - ATLANTIC
+
+x <- ZEN_2014_site_means_49_Atlantic$PC1.zos.site
+y <- ZEN_2014_site_means_49_Atlantic$PC2.env.global
+z <- ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-3.8, 3.9), ylim = c(-3.5, 2.7), zlim = c(-1, 2.6), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass form", ylab = "Nutrient status", zlab = "periphyton",  
+          colvar = ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          add = FALSE, clab = c("periphyton", "mass (log)"))
+
+# Add regression plane to 3d figure
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+# grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid(x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+
+scatter3D(x, y, z, pch = 16, cex = 2, col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          bty = "g",
+          theta = 50, phi = 10, 
+          ticktype = "detailed",
+          xlim = c(-3.8, 3.9), ylim = c(-3.5, 2.7), zlim = c(-1, 2.6), 
+          xlab = "Eelgrass form", ylab = "Nutrient status", zlab = "Periphyton mass ",   
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() 
+
+
+# PERIPHYTON MASS PER AREA: PLOT BY EELGRASS FORM (PCZ1) AND NUTRIENTS (PCE2) - PACIFIC
+
+x <- ZEN_2014_site_means_Pacific$PC1.zos.site
+y <- ZEN_2014_site_means_Pacific$PC2.env.global
+z <- ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.area.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-3.8, 3.9), ylim = c(-3.5, 2.7), zlim = c(-1, 2.6), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass form", ylab = "Nutrient status", zlab = "periphyton",  
+          colvar = ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("palegreen", "limegreen", "darkgreen")),
+          add = FALSE, clab = c("periphyton", "mass (log)"))
+
+# Add regression plane to 3d figure
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+# grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid(x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+
+scatter3D(x, y, z, pch = 16, cex = 2, 
+          col = ramp.col(c("palegreen", "limegreen", "darkgreen")),
+          bty = "g",
+          theta = 50, phi = 10, 
+          ticktype = "detailed",
+          xlim = c(-3.8, 3.9), ylim = c(-3.5, 2.7), zlim = c(-1, 2.6), 
+          xlab = "Eelgrass form", ylab = "Nutrient status", zlab = "Periphyton mass ",   
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() 
+
+
+
+###################################################################################
+# FIGURES: 3D PLOTS OF MESOGRAZER MASS PER AREA                                   #
+###################################################################################
+
+# MESOGRAZER MASS PER AREA: PLOT BY EELGRASS FORM (PCZ1) AND BIOMASS (PCZ2) - ATLANTIC
+
+x <- ZEN_2014_site_means_49_Atlantic$PC1.zos.site
+y <- ZEN_2014_site_means_49_Atlantic$PC2.zos.site
+z <- ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(0, 4.7), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass form", ylab = "Eelgrass biomass", zlab = "grazer mass ",  
+          colvar = ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+
+# Add regression plane to 3d figure
+
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 16, cex = 2, col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          bty = "g", ticktype = "detailed",
+          theta = 220, phi = 10, 
+          # xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(0, 4.7), 
+          xlab = "Eelgrass form", ylab = "Eelgrass biomass", zlab = "grazer mass ",   
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() # This is friggin' awesome!
+
+
+
+# MESOGRAZER MASS PER AREA: PLOT BY EELGRASS BIOMASS (PCZ2) AND ESTUARINE CONDITIONS (PCE3) - ATLANTIC
+
+x2 <- -ZEN_2014_site_means_49_Atlantic$PC2.zos.site
+y2 <- ZEN_2014_site_means_49_Atlantic$PC3.env.global
+z2 <- ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site
+
+scatter3D(-x2, y2, z2, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-2.6, 3.3), ylim = c(-2.8, 2.6), zlim = c(0, 4.7), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass biomass", ylab = "Estuarine conditons", zlab = "grazer mass ",  
+          colvar = ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+
+# Add regression plane to 3d figure
+# Fit model with only these variables
+fit2 <- lm(z2 ~ x2 + y2)
+# predict values on regular xy grid
+# grid.lines = 26
+x2.pred <- seq(min(x2), max(x2), length.out = grid.lines)
+y2.pred <- seq(min(y2), max(y2), length.out = grid.lines)
+x2y2 <- expand.grid(x2 = x2.pred, y2 = y2.pred)
+z2.pred <- matrix(predict(fit2, newdata = x2y2), 
+                  nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit2)
+# scatter plot with regression plane
+
+scatter3D(x2, y2, z2, pch = 16, cex = 2, col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          bty = "g",
+          theta =-50, phi = 10, # This looks good for this graph
+          ticktype = "detailed",
+          xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(0, 4.7), 
+          xlab = "Eelgrass biomass", ylab = "Estuarine conditons", zlab = "grazer mass ",   
+          surf = list(x = x2.pred, y = y2.pred, z = z2.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() 
+
+
+# MESOGRAZER MASS PER AREA: PLOT BY EELGRASS BIOMASS (PCZ2) AND ESTUARINE CONDITIONS (PCE3) - PACIFIC
+
+x2 <- -ZEN_2014_site_means_Pacific$PC2.zos.site
+y2 <- ZEN_2014_site_means_Pacific$PC3.env.global
+z2 <- ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.area.site
+
+scatter3D(-x2, y2, z2, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-2.6, 3.3), ylim = c(-2.8, 2.6), zlim = c(0, 4.7), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass biomass", ylab = "Estuarine conditons", zlab = "grazer mass ",  
+          colvar = ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("palegreen", "limegreen", "darkgreen")),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+
+# Add regression plane to 3d figure
+# Fit model with only these variables
+fit2 <- lm(z2 ~ x2 + y2)
+# predict values on regular xy grid
+# grid.lines = 26
+x2.pred <- seq(min(x2), max(x2), length.out = grid.lines)
+y2.pred <- seq(min(y2), max(y2), length.out = grid.lines)
+x2y2 <- expand.grid(x2 = x2.pred, y2 = y2.pred)
+z2.pred <- matrix(predict(fit2, newdata = x2y2), 
+                  nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit2)
+# scatter plot with regression plane
+
+scatter3D(x2, y2, z2, pch = 16, cex = 2, col = ramp.col(c("palegreen", "limegreen", "darkgreen")),
+          bty = "g",
+          theta =-50, phi = 10, # This looks good for this graph
+          ticktype = "detailed",
+          xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(0, 4.7), 
+          xlab = "Eelgrass biomass", ylab = "Estuarine conditons", zlab = "grazer mass ",   
+          surf = list(x = x2.pred, y = y2.pred, z = z2.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() 
+
+# MESOGRAZER MASS PER AREA: PLOT BY EELGRASS BIOMASS (PCZ2) AND ESTUARINE CONDITIONS (PCE3) - GLOBAL
+
+x <- ZEN_2014_site_means_49$PC2.zos.site
+y <- ZEN_2014_site_means_49$PC3.env.global
+z <- ZEN_2014_site_means_49$log10.mesograzer.mass.per.area.site
+
+scatter3D(x, y, z, 
+          bty = "g", # back panels and grid lines are visible
+          xlim = c(-2.6, 3.3), ylim = c(-2.8, 2.6), zlim = c(0, 4.7), 
+          theta = 20, phi = 25, 
+          type = "h", ticktype = "detailed",
+          xlab = "Eelgrass biomass", ylab = "Estuarine conditons", zlab = "grazer mass ",  
+          colvar = ZEN_2014_site_means_49$log10.mesograzer.mass.per.area.site, 
+          pch = 16, cex = 1.5, 
+          col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          # col.var = as.factor(ZEN_2014_site_means_49$Ocean), 
+          # col = c("navyblue", "green"),
+          add = FALSE, clab = c("mesograzer", "mass (log)"))
+# Can't get tis to color symbols by ocean
+
+# Add regression plane to 3d figure
+
+# Fit model with only these variables
+fit <- lm(z ~ x + y)
+# predict values on regular xy grid
+grid.lines = 26
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(fit, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# fitted points for droplines to surface
+fitpoints <- predict(fit)
+# scatter plot with regression plane
+scatter3D(x, y, z, pch = 16, cex = 2, 
+          # col = ramp.col(c("turquoise1", "skyblue1", "navyblue")),
+          col.var = as.factor(ZEN_2014_site_means_49$Ocean), 
+          col = c("navyblue", "green"),
+          
+          bty = "g",
+          theta = 30, phi = 5, ticktype = "detailed",
+          xlim = c(-3.8, 4), ylim = c(-2.6, 3.3), zlim = c(0, 4.7), 
+          xlab = "Eelgrass biomass", ylab = "Estuarine conditons", zlab = "grazer mass ",   
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints))
+
+# Create an interactive plot that can be rotated in all directions
+plotrgl() 
 
 
 ###################################################################################
@@ -2168,7 +2597,7 @@ can.shoots <- ggplot(ZEN_2014_site_means, aes(x = log10.Zostera.shoots.core.site
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 can.shoots
-# pdf("can.shoots.pdf",width = 4.5, height = 4); can.shoots;  dev.off() 
+pdf("can.shoots.pdf",width = 4.5, height = 4); can.shoots;  dev.off() 
 
 
 # GLOBAL: EELGRASS ABOVE-GROUND BIOMASS vs SHOOT DENSITY (RAW data, site level)
@@ -2189,7 +2618,7 @@ zag.shoots <- ggplot(ZEN_2014_site_means, aes(x = log10.Zostera.shoots.core.site
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 zag.shoots
-# pdf("zag.shoots.pdf",width = 4.5, height = 4); zag.shoots;  dev.off()
+pdf("zag.shoots.pdf",width = 4.5, height = 4); zag.shoots;  dev.off()
 
 
 # GLOBAL: EELGRASS ABOVE-GROUND BIOMASS vs GROWTH FORM (PCZ1) (RAW data, site level)
@@ -2210,7 +2639,7 @@ zag_pcz1 <- ggplot(ZEN_2014_site_means, aes(x = PC1.zos.site, y = log10.Zostera.
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 zag_pcz1
-# pdf("zag_pcz1.pdf",width = 4.5, height = 4); zag_pcz1;  dev.off()
+pdf("zag_pcz1.pdf",width = 4.5, height = 4); zag_pcz1;  dev.off()
 
 
 # GLOBAL: CANOPY HEIGHT vs GROWTH FORM (PCZ1) (RAW data, site level)
@@ -2231,7 +2660,7 @@ can_pcz1 <- ggplot(ZEN_2014_site_means, aes(x = PC1.zos.site, y = log10.Zostera.
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 can_pcz1
-# pdf("can_pcz1.pdf",width = 4.5, height = 4); can_pcz1;  dev.off()
+pdf("can_pcz1.pdf",width = 4.5, height = 4); can_pcz1;  dev.off()
 
 
 # GLOBAL: SHOOT DENSITY vs GROWTH FORM (PCZ1) (RAW data, site level)
@@ -2252,7 +2681,7 @@ shoots_pcz1 <- ggplot(ZEN_2014_site_means, aes(x = PC1.zos.site, y = log10.Zoste
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 shoots_pcz1
-# pdf("shoots_pcz1.pdf",width = 4.5, height = 4); shoots_pcz1;  dev.off()
+pdf("shoots_pcz1.pdf",width = 4.5, height = 4); shoots_pcz1;  dev.off()
 
 
 # GLOBAL: EELGRASS BIOMASS (-PCz2) vs GROWTH FORM (PCZ1) (RAW data, site level)
@@ -2273,7 +2702,7 @@ pcz2_pcz1 <- ggplot(ZEN_2014_site_means, aes(x = PC1.zos.site, y = -PC2.zos.site
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz2_pcz1
-# pdf("pcz2_pcz1.pdf",width = 4.5, height = 4); pcz2_pcz1;  dev.off()
+pdf("pcz2_pcz1.pdf",width = 4.5, height = 4); pcz2_pcz1;  dev.off()
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER AREA vs GROWTH FORM (PCZ1) (RAW data, site level)
@@ -2294,7 +2723,7 @@ meso_pcz1 <- ggplot(ZEN_2014_site_means, aes(x = PC1.zos.site, y = log10.mesogra
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso_pcz1
-# pdf("meso_pcz1.pdf",width = 4.5, height = 4); meso_pcz1;  dev.off()
+pdf("meso_pcz1.pdf",width = 4.5, height = 4); meso_pcz1;  dev.off()
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER AREA vs EELGRASS ABOVE-GROUND BIOMASS (RAW data, site level)
@@ -2315,7 +2744,7 @@ meso_zag <- ggplot(ZEN_2014_site_means, aes(x = log10.Zostera.AG.mass.site, y = 
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso_zag
-# pdf("meso_zag.pdf",width = 4.5, height = 4); meso_zag;  dev.off()
+pdf("meso_zag.pdf",width = 4.5, height = 4); meso_zag;  dev.off()
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER AREA vs CANOIPY HEIGHT (RAW data, site level)
@@ -2336,7 +2765,7 @@ meso_can <- ggplot(ZEN_2014_site_means, aes(x = log10.Zostera.longest.leaf.lengt
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso_can
-# pdf("meso_can.pdf",width = 4.5, height = 4); meso_can;  dev.off()
+pdf("meso_can.pdf",width = 4.5, height = 4); meso_can;  dev.off()
 
 
 # GLOBAL: MESOGRAZER BIOMASS PER AREA vs SHOOT DENSITY (RAW data, site level)
@@ -2357,7 +2786,7 @@ meso_shoots <- ggplot(ZEN_2014_site_means, aes(x = log10.Zostera.shoots.core.sit
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 meso_shoots
-# pdf("meso_shoots.pdf",width = 4.5, height = 4); meso_shoots;  dev.off()
+pdf("meso_shoots.pdf",width = 4.5, height = 4); meso_shoots;  dev.off()
 
 
 
@@ -2379,7 +2808,7 @@ fc2.shoots <- ggplot(ZEN_2014_site_means, aes(x = FC2, y = log10.Zostera.shoots.
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 fc2.shoots
-# pdf("fc2.shoots.pdf",width = 4.5, height = 4); fc2.shoots;  dev.off() 
+pdf("fc2.shoots.pdf",width = 4.5, height = 4); fc2.shoots;  dev.off() 
 
 
 # GLOBAL: CANOPY HEIGHT vs GENETIC FCA2 (RAW data, site level)
@@ -2400,7 +2829,7 @@ can.fc2 <- ggplot(ZEN_2014_site_means, aes(x = FC2, y = log10.Zostera.longest.le
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 can.fc2
-# pdf("can.fc2.pdf",width = 4.5, height = 4); can.fc2;  dev.off() 
+pdf("can.fc2.pdf",width = 4.5, height = 4); can.fc2;  dev.off() 
 
 
 # GLOBAL: EELGRASS ABOVE-GROUND BIOMASS vs GENETIC FCA2 (RAW data, site level)
@@ -2421,7 +2850,7 @@ zag.fc2 <- ggplot(ZEN_2014_site_means, aes(x = FC2, y = log10.Zostera.AG.mass.si
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 zag.fc2
-# pdf("zag.fc2.pdf",width = 4.5, height = 4); zag.fc2;  dev.off()
+pdf("zag.fc2.pdf",width = 4.5, height = 4); zag.fc2;  dev.off()
 
 
 
@@ -2443,7 +2872,7 @@ peri.pcz1 <- ggplot(ZEN_2014_site_means_49, aes(x = PC1.zos.site, y = log10.peri
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri.pcz1
-# pdf("peri.pcz1.pdf",width = 4.5, height = 4); peri.pcz1;  dev.off() 
+pdf("peri.pcz1.pdf",width = 4.5, height = 4); peri.pcz1;  dev.off() 
 
 
 # GLOBAL: PERIPHYTON vs NUTRIENTS (PCe2) (RAW data, site level)
@@ -2464,6 +2893,6 @@ peri_pce2 <- ggplot(ZEN_2014_site_means, aes(x = PC2.env.global, y = log10.perip
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 peri_pce2
-# pdf("peri_pce2.pdf",width = 4.5, height = 4); peri_pce2;  dev.off() 
+pdf("peri_pce2.pdf",width = 4.5, height = 4); peri_pce2;  dev.off() 
 
 

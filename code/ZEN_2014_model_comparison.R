@@ -91,18 +91,20 @@ library(ggplot2)
 library(piecewiseSEM) # for SEM fitting, and for partialResid
 library(nlme) # needed to run mixed models with lme
 library(MuMIn) # for model averaging and AICc
-
+library(tidyverse) # for summarizing data
 
 ###################################################################################
 # READ IN AND PREPARE DATA                                                        #
 ###################################################################################
 
 # Read in zen2014 SITE-level data sets 
-ZEN_2014_site_means <- read.csv("ZEN_2014_site_means_20220529.csv",  header = TRUE)
+ZEN_2014_site_means <- read.csv("data/output/ZEN_2014_site_means.csv",  header = TRUE)
 ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
 # ZEN_2014_site_means_Atlantic <- read.csv("ZEN_2014_site_means_Atlantic_20210227.csv",  header = TRUE)
-ZEN_2014_site_means_Pacific <- read.csv("ZEN_2014_site_means_Pacific_20210314.csv",  header = TRUE)
-ZEN_2014_site_means_49_Atlantic <- read.csv("ZEN_2014_site_means_49_Atlantic_20210314.csv",  header = TRUE)
+# ZEN_2014_site_means_Pacific <- read.csv("ZEN_2014_site_means_Pacific_20210314.csv",  header = TRUE)
+ZEN_2014_site_means_Pacific <- read.csv("data/output/ZEN_2014_site_means_Pacific.csv",  header = TRUE)
+# ZEN_2014_site_means_49_Atlantic <- read.csv("ZEN_2014_site_means_49_Atlantic_20210314.csv",  header = TRUE)
+ZEN_2014_site_means_49_Atlantic <- read.csv("data/output/ZEN_2014_site_means_49_Atlantic.csv",  header = TRUE)
 
 # Recode Ocean to 0/1 so SEM can handle it. SITE level
 ZEN_2014_site_means_49$ocean.code <- ZEN_2014_site_means_49$Ocean
@@ -121,12 +123,12 @@ ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific",
 ZEN_2014_site_means_Pacific$ocean.code <- as.numeric(ZEN_2014_site_means_Pacific$ocean.code)
 
 # Read in data For estimating leaf growth rate from Ruesink et al. (2018. Oikos)
-zmgrowth <- read.csv("ZEN_2011_ZRG_AllSites_Edit141102.csv",  header = TRUE)
+zmgrowth <- read.csv("data/input/ZEN_2011_ZRG_AllSites_Edit141102.csv",  header = TRUE)
 
 # NOTE: Following is NOT the file with imputed values and it has all 50 sites. Figure this out ...
-# # Read in zen2014 PLOT-level data sets for modeling, with missing data imputed:
-# ZEN_2014_plot <- read.csv("ZEN_2014_plot_20210430.csv", header = TRUE)
-# names(ZEN_2014_plot)
+# Read in zen2014 PLOT-level data sets for modeling, with missing data imputed:
+ZEN_2014_plot <- read.csv("data/output/ZEN_2014_plot.csv", header = TRUE)
+names(ZEN_2014_plot)
 
 
 ###################################################################################
@@ -183,19 +185,24 @@ pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "En
   "Mesograzer mass/area (log)")], hist.col="gray", pch = 21, 
   smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 8, 
   bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
+dev.off()
 
-# Missing data? No.
-nrow(ZEN_2014_plot_49) # 980
-sum(is.na(ZEN_2014_plot_49$ocean.code)) # 0
-sum(is.na(ZEN_2014_plot_49$zPC1.env.global)) # 0
-sum(is.na(ZEN_2014_plot_49$zPC2.env.global)) # 0
-sum(is.na(ZEN_2014_plot_49$zPC3.env.global)) # 0
-sum(is.na(ZEN_2014_plot_49$zFC1)) # 0
-sum(is.na(ZEN_2014_plot_49$zFC2)) # 0
-sum(is.na(ZEN_2014_plot_49$zPC1.zos)) # 0
-sum(is.na(ZEN_2014_plot_49$zPC2.zos)) # 0
-sum(is.na(ZEN_2014_plot_49$zperiphyton.perg)) # 0
-sum(is.na(ZEN_2014_plot_49$zmeso.mass.perg)) # 0
+
+################################################################################
+##------ WHALEN NOT SEEING ANY PLOT-LEVEL DATA HERE, DELETE THESE LINES?
+# # Missing data? No.
+# nrow(ZEN_2014_plot_49) # 980
+# sum(is.na(ZEN_2014_plot_49$ocean.code)) # 0
+# sum(is.na(ZEN_2014_plot_49$zPC1.env.global)) # 0
+# sum(is.na(ZEN_2014_plot_49$zPC2.env.global)) # 0
+# sum(is.na(ZEN_2014_plot_49$zPC3.env.global)) # 0
+# sum(is.na(ZEN_2014_plot_49$zFC1)) # 0
+# sum(is.na(ZEN_2014_plot_49$zFC2)) # 0
+# sum(is.na(ZEN_2014_plot_49$zPC1.zos)) # 0
+# sum(is.na(ZEN_2014_plot_49$zPC2.zos)) # 0
+# sum(is.na(ZEN_2014_plot_49$zperiphyton.perg)) # 0
+# sum(is.na(ZEN_2014_plot_49$zmeso.mass.perg)) # 0
+################################################################################
 
 
 ###################################################################################
@@ -4430,7 +4437,7 @@ summary(meso.area.site.g.1.raw)
 # Use data from ZEN 2011 experiment to derive general equation predicting eelgrass 
 # leaf extension from sheath length and sheath width (see Ruesink et al. 2018 Oikos). 
 
-names(zmgrowth) 
+# names(zmgrowth) 
 
 # Streamline to only variables for use in modeling
 zmgrowth_slim <- subset(zmgrowth, select = c(Site, Sum.extension.per.d, Sheath.total.length, Sheath.width, 
@@ -4466,11 +4473,13 @@ ZEN_2014_plot$log10.leaf.extension.per.day <- log10(ZEN_2014_plot$leaf.extension
 hist(ZEN_2014_plot$leaf.extension.per.day) 
 hist(ZEN_2014_plot$log10.leaf.extension.per.day) 
 
+
 # Obtain estimated mean leaf extension rates by site
-temp <- ddply(ZEN_2014_plot, c("Site"), summarize, 
-              leaf.extension.per.day.site = mean(leaf.extension.per.day, na.rm = T),
-              log10.leaf.extension.per.day.site = mean(log10.leaf.extension.per.day, na.rm = T)
-)
+temp <- ZEN_2014_plot %>% 
+  group_by(Site) %>% 
+  summarize(  leaf.extension.per.day.site = mean(leaf.extension.per.day, na.rm = T),
+              log10.leaf.extension.per.day.site = mean(log10.leaf.extension.per.day, na.rm = T) )
+
 
 # Add leaf extension rate back to site-level data ets for modeling
 ZEN_2014_site_means_49$leaf.extension.per.day.site <- temp$leaf.extension.per.day.site[match(ZEN_2014_site_means_49$Site, temp$Site)]
@@ -4484,7 +4493,7 @@ ZEN_2014_site_means_Pacific$log10.leaf.extension.per.day.site <- temp$log10.leaf
 
 hist(ZEN_2014_site_means_49$leaf.extension.per.day.site) # highly non-normal. 
 hist(ZEN_2014_site_means_49$log10.leaf.extension.per.day.site) # Better. Bimodal - Atl vs Pac?
-
+################################################################################
 
 ###################################################################################
 # GLM: EELGRASS PRODUCTIVITY (GLOBAL) - MODEL USING SITE MEANS                    #
@@ -4793,6 +4802,7 @@ plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scal
 plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
 plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
 par(op)
+dev.off()
 # RESULTS:  Good. 
 
 # RESULTS and INTERPRETATION: In the Atlantic, leaf extension rate decreases with
@@ -4838,7 +4848,7 @@ plot(canopy.rf) # Good. 100 trees is plenty.
 # Plot variable importance
 varImpPlot(canopy.rf) # NOTE: saving this as an object returns the numbers in the graph
 
-# RESULT: FC2 and FC2 are substantially better repdictros of canopy height than fetch or leaf C:N. 
+# RESULT: FC2 and FC2 are substantially better predictors of canopy height than fetch or leaf C:N. 
 
 
 
@@ -4947,8 +4957,8 @@ varImpPlot(PC2.zos.rf) #
 
 PC2.zos.a.rf = randomForest(PC2.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2,
-                            , 
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_Atlantic)
+                            #, 
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_49_Atlantic)
 
 # Examine summary output
 PC2.zos.a.rf # % Var explained: 10.92
@@ -5088,8 +5098,7 @@ canopy.cn <- ggplot(ZEN_2014_site_means, aes(x = leaf.CN.ratio.site, y = log10.Z
         axis.title = element_text(size = rel(1.5))
   ) 
 canopy.cn
-pdf("canopy.cn.pdf",width = 6.5, height = 6); canopy.cn;  dev.off() 
-
+ggsave( "figures/canopy_cn.png", canopy.cn, width = 6.5, height = 6 )
 
 # Does exposure (indexed by fetch) correlate with leaf length? Answer: No.
 
@@ -5110,8 +5119,7 @@ canopy.fetch <- ggplot(ZEN_2014_site_means, aes(x = log10.mean.fetch, y = log10.
         axis.title = element_text(size = rel(1.5))
   ) 
 canopy.fetch
-pdf("canopy.fetch.pdf",width = 6.5, height = 6); canopy.fetch;  dev.off() 
-
+ggsave( "figures/canopy_fetch.png", canopy.fetch, width = 6.5, height = 6 )
 
 ###################################################################################
 # MISCELLANEOUS FIGURES                                                           #
