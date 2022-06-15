@@ -19,5 +19,7 @@ Duffy, J.E., et al. 2022. A Pleistocene legacy structures variation in modern se
 - `model_comparison` - constructs and compares linear models of site-level data
 - `figures` - generates figures of data and model outputs
 
+`ZEN_geography.Rproj` is an R project file through which all R code should be run, noting that file paths called in `code` actual begin in the parent directory
+
 ### NOTES
 Genetic analyses are not included in this repository. For analysis of genetic diversity spectra and isolation by distance, see https://zenodo.org/record/3660013#.YWF8C0bMLpJ
