@@ -11,6 +11,7 @@ Duffy, J.E., et al. 2022. A Pleistocene legacy structures variation in modern se
 `data/` contains 
 - `input/` contains data from the project and previous projects
 - `output/` contains data the result from the R scripts located in `code/`
+- `popgen` contains microsatellite data
 
 `code/` contains R code associated with the project listed in order of running:
 - `environmental_vars_precip` - gathers WorldClim precipitation data.
