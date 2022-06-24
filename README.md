@@ -12,7 +12,8 @@ contact: DuffyE@si.edu
 `data/` contains 
 - `input/` contains data from the project and previous projects
 - `output/` contains data the result from the R scripts located in `code/`
-- `popgen` contains microsatellite data
+- `popgen/` contains microsatellite data
+- `SEM_path_calculation/` contains an excel file (all sheets saved as .csv files) used to calculate and organize piecewise structural equation modeling path coefficients 
 
 `code/` contains R code associated with the project listed in order of running:
 - `environmental_vars_precip` - gathers WorldClim precipitation data.
