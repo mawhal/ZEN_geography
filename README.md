@@ -10,10 +10,10 @@ contact: DuffyE@si.edu
 
 ### Guide to this repository
 `data/` contains 
-- `input/` contains data from the project and previous projects
-- `output/` contains data the result from the R scripts located in `code/`
-- `popgen/` contains microsatellite data
-- `SEM_path_calculation/` contains an excel file (all sheets saved as .csv files) used to calculate and organize piecewise structural equation modeling path coefficients 
+- `input/` contains data from the project and previous projects used as inputs in scripts located in `code/`
+- `output/` contains data and results from the R scripts located in `code/`
+- `popgen/` contains eelgrass microsatellite data
+- `evol_envir_path_calculations/` contains an excel file (all sheets saved as .csv files) used to calculate and organize direct and indirect paths for comparing effects of evolutionary history and environment on eelgrass ecosystem components
 
 `code/` contains R code associated with the project listed in order of running:
 - `environmental_vars_precip` - gathers WorldClim precipitation data.
