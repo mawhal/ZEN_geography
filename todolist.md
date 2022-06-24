@@ -9,6 +9,7 @@
 - [X] add pop gen data - see email from Marlene -  we made it sound like dryad would be the location, but maybe github is okay?
 - [ ] check minor differences in output from lm's in `ZEN_2014_model_comparison_site_means_range_standardized.R`
 - [ ] streamline the data assembly script. Because we use site level data for most things, no need for ALL? of the random forest work there
+- [ ] check to see if MarineGEO has a git profile. We can transfer ownership of the repo to them
 
 ### Zipped data file sent by Emmett
 - [X] One file with Zostera Relative Growth rates does not seem to be used, or maybe I am missing something?  `ZEN_2011_ZRG_AllSites_Edit141102 copy.csv` -- NEVERMIND, FOUND IT
