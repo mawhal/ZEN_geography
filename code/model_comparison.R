@@ -3,7 +3,7 @@
 # ZEN 2014: Global eelgrass ecosystem structure: compare site-level models       ##
 # Data are current as of 2017-04-24                                              ##
 # Emmett Duffy (duffye@si.edu)                                                   ##  
-# Last updated 2022-05-29                                                        ##
+# updated 2022-06-28 by Matt Whalen                                                        ##
 #                                                                                ##
 ###################################################################################
 
@@ -122,8 +122,8 @@ ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Atlantic"
 ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific", "ocean.code"] = 1
 ZEN_2014_site_means_Pacific$ocean.code <- as.numeric(ZEN_2014_site_means_Pacific$ocean.code)
 
-# Read in data For estimating leaf growth rate from Ruesink et al. (2018. Oikos)
-zmgrowth <- read.csv("data/input/ZEN_2011_ZRG_AllSites_Edit141102.csv",  header = TRUE)
+# Read in data For estimating leaf growth rate from Ruesink et al. 2018. Oikos <https://onlinelibrary.wiley.com/doi/abs/10.1111/oik.04270>
+zmgrowth <- read.csv("data/input/ZEN_2011_ZRG.csv", header = TRUE)
 
 # NOTE: Following is NOT the file with imputed values and it has all 50 sites. Figure this out ...
 # Read in zen2014 PLOT-level data sets for modeling, with missing data imputed:

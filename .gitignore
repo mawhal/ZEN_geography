@@ -6,3 +6,7 @@
 
 # ignore figures folder for now
 /figures
+
+# ignore archive folders
+/data/input/archive
+/data/input/archive

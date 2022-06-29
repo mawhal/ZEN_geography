@@ -3,7 +3,7 @@
 # ZEN 2014 Global eelgrass ecosystem structure: Data assembly                    ##
 # RAW data are current as of 2017-04-24                                          ##
 # Emmett Duffy (duffye@si.edu)                                                   ##  
-# Last updated 2022-05-29                                                        ##
+# updated 2022-06-28 by Matt Whalen                                                        ##
 #                                                                                ##
 ###################################################################################
 
@@ -58,62 +58,40 @@ library(plyr) # to use ddply below in fixing richness values
 
 
 ###################################################################################
-# READ IN AND PREPARE DATA                                                        #
+# READ AND PREPARE DATA                                                           #
 ###################################################################################
-
-# Summary of data files required:
-# 2017-03-16 ZEN Clean MASTER V3 JSL copy.csv
-# ...
 
 # MAIN ZEN 2014 DATA SET
 # Read in summary data set for ZEN 2014:
-# IS THIS THE MOST RECENT, COMPLETE DATA FILE? PROBABLY SHOULD RE-EXTACT FROM DEFINITIVE MASTER EXCEL
-zen2014 <- read.csv("data/input/2017-03-16 ZEN Clean MASTER V3 JSL copy.csv", header = TRUE)
-# names(zen2014)
+zen2014 <- read.csv("data/input/ZEN_2014_main_data.csv", header = TRUE)
+
+# General site data
+sites <- read.csv("data/input/ZEN_2014_site_metadata.csv", header = TRUE)
 
 # BIO-ORACLE CLIMATE AND ENVIRONMENTAL DATA
 # Read in Bio-ORACLE and WorldClim environmental data for ZEN sites from Matt Whalen's script:
-zen2014.env <- read.csv("data/ouput/ZEN_2014_data_environmental.csv", header = TRUE)
-# names(zen2014.env)
+zen2014.env <- read.csv("data/output/ZEN_2014_environmental.csv", header = TRUE)
 
 # PERCENT COVER
 # Read in data on percent cover:
-zen2014.cover <- read.csv("data/input/ZEN_2014_R_PercentCover_by_plot_2016_01_06_modified_copy.csv", header = TRUE)
-# names(zen2014.cover)
+zen2014.cover <- read.csv("data/input/ZEN_2014_percent_cover_plot.csv", header = TRUE)
 # NOTE: WA.A was not able to collect percent cover data - NO DATA for this site. 
 
 # PREDATION INTENSITY
 # Read in data on predation intensity from amphipod tethering assay (Reynolds et al. 2017):
-zen2014.pred <- read.csv("data/input/ZEN_2014_R_Predation_by_site_2016_01_21_copy.csv", header = TRUE)
-# names(zen2014.pred)
+zen2014.pred <- read.csv("data/input/ZEN_2014_predation_site.csv", header = TRUE)
 
-# EPIFAUNA AND ASSOCIATED MACROPHYTE SAMPLES
-# Load epifauna data
-epifauna = read.csv("data/input/ZEN_2014_abund_traits_merge_2016-08-19_copy.csv")
-
-################################################################################
-# ----------  WHALEN UNABLE TO FIND THIS FILE
-# ----------  BUT, OBJECT `macro` NOT USED IN THE REST OF THE SCRIPT
-# # Load macrophyte data
-# macro = read.csv("ZEN_2014_DATA_MASTER_2016_08_24_EpifaunaMacrophytes_copy.csv")
-################################################################################
 
 # EELGRASS GENETICS
-zen2014_gen_fca <- read.csv("data/input/ZEN 2014 FCA scores 20201016.csv", header = TRUE)
-zen2014_gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
-zen2014_gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
+zen2014_gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
+# zen2014_gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
+# zen2014_gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
 
 # EPIBIOTA 
-# Epibiota (periphyton) data were not calculated correctly in the summary 'Master" data file, 
+# Epibiota (periphyton) data were not calculated correctly in the summary 'main" data file, 
 # specifically filtered material ("Epibiota filter") was not divided by the mass of Zostera scraped. 
 # So we have to regenerate these numbers from scratch. 
-
-################################################################################
-# ----------  WHALEN UNABLE TO FIND THIS FILE
-# # Read in the epibiota data
-# zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_2016_01_06.csv", header = TRUE)
-# ----------  REPLACING WITH FILE THAT WAS INCLUDED IN REPO
-zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_2016_01_06 copy.csv", header = TRUE)
+zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_recalc.csv", header = TRUE)
 ################################################################################
 
 # First, Japan B separated "Chl large epiphytes filter" from "Epibiota filter", the latter of which are all zero. 
@@ -129,9 +107,6 @@ levels(zen2014.epibiota$Species)[levels(zen2014.epibiota$Species) == "Epibiota P
 zen2014.epibiota <- subset(zen2014.epibiota, select = c(Site, Site.Code, Subsite, 
   Sampling.Time, Plot.ID, Unique.ID, Species, Taxa, Group, Type, Dry.Mass.g.))
 
-# # Read in the epibiota data
-# zen2014.epibiota <- read.csv("ZEN_2014_epibiota_mass_2016_01_06_JSBfixed.csv", header = TRUE)
-# names(zen2014.epibiota)
 
 # Recode second sampling time as 1 for LI
 zen2014.epibiota$Site.Code <- as.factor(zen2014.epibiota$Site.Code)
