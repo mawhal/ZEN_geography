@@ -498,12 +498,6 @@ ZEN_2014_site_means_Pacific <- droplevels(subset(ZEN_2014_site_means, Ocean == "
 ZEN_2014_site_means_49_Atlantic <- droplevels(subset(ZEN_2014_site_means_Atlantic, Site != "SW.A"))
 
 
-# Incorporate genetic FCA axes done separately by ocean
-ZEN_2014_site_means_Atlantic$FC1.atl <- zen2014_gen_fca_atlantic$fca1.atl[match(ZEN_2014_site_means_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
-ZEN_2014_site_means_Atlantic$FC2.atl <- zen2014_gen_fca_atlantic$fca2.atl[match(ZEN_2014_site_means_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
-ZEN_2014_site_means_Pacific$FC1.pac <- zen2014_gen_fca_pacific$fca1.pac[match(ZEN_2014_site_means_Pacific$Site, zen2014_gen_fca_pacific$Site)]
-ZEN_2014_site_means_Pacific$FC2.pac <- zen2014_gen_fca_pacific$fca2.pac[match(ZEN_2014_site_means_Pacific$Site, zen2014_gen_fca_pacific$Site)]
-
 
 ###################################################################################
 # PCA - ENVIRONMENTAL VARIABLES (GLOBAL)                                          #
@@ -1487,15 +1481,15 @@ ZEN_2014_plot_49$rperiphyton.perg <- range01(ZEN_2014_plot_49$log10.periphyton.m
 # NOTE: for following, add FC1 and FC2 to the plot data set above. Then add (and scalke) the ocean-specific genetc scores below.
 # Create separate PLOT-level data sets by Ocean (49) and add ocean PC scores 
 ZEN_2014_plot_49_Atlantic <- droplevels(subset(ZEN_2014_plot_49, Ocean == "Atlantic"))
-ZEN_2014_plot_49_Atlantic$FC1.atl <- zen2014_gen_fca_atlantic$fca1.atl[match(ZEN_2014_plot_49_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
-ZEN_2014_plot_49_Atlantic$FC2.atl <- zen2014_gen_fca_atlantic$fca2.atl[match(ZEN_2014_plot_49_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
+# ZEN_2014_plot_49_Atlantic$FC1.atl <- zen2014_gen_fca_atlantic$fca1.atl[match(ZEN_2014_plot_49_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
+# ZEN_2014_plot_49_Atlantic$FC2.atl <- zen2014_gen_fca_atlantic$fca2.atl[match(ZEN_2014_plot_49_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
 ZEN_2014_plot_49_Atlantic$PC1.env.atl <- ZEN_2014_site_means_Atlantic$PC1.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
 ZEN_2014_plot_49_Atlantic$PC2.env.atl <- ZEN_2014_site_means_Atlantic$PC2.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
 ZEN_2014_plot_49_Atlantic$PC3.env.atl <- ZEN_2014_site_means_Atlantic$PC3.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
 
 ZEN_2014_plot_49_Pacific <- droplevels(subset(ZEN_2014_plot_49, Ocean == "Pacific"))
-ZEN_2014_plot_49_Pacific$FC1.pac <- zen2014_gen_fca_pacific$fca1.pac[match(ZEN_2014_plot_49_Pacific$Site, zen2014_gen_fca_pacific$Site)]
-ZEN_2014_plot_49_Pacific$FC2.pac <- zen2014_gen_fca_pacific$fca2.pac[match(ZEN_2014_plot_49_Pacific$Site, zen2014_gen_fca_pacific$Site)]
+# ZEN_2014_plot_49_Pacific$FC1.pac <- zen2014_gen_fca_pacific$fca1.pac[match(ZEN_2014_plot_49_Pacific$Site, zen2014_gen_fca_pacific$Site)]
+# ZEN_2014_plot_49_Pacific$FC2.pac <- zen2014_gen_fca_pacific$fca2.pac[match(ZEN_2014_plot_49_Pacific$Site, zen2014_gen_fca_pacific$Site)]
 ZEN_2014_plot_49_Pacific$PC1.env.pac <- ZEN_2014_site_means_Pacific$PC1.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
 ZEN_2014_plot_49_Pacific$PC2.env.pac <- ZEN_2014_site_means_Pacific$PC2.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
 ZEN_2014_plot_49_Pacific$PC3.env.pac <- ZEN_2014_site_means_Pacific$PC3.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]

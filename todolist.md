@@ -1,15 +1,13 @@
 # To-do list for ZEN_geography repository
 
-- [X] get someone to provide content for the README
 - [X] check outputs of model comparison script
 - [X] check outputs of data assembly script
 - [X] check outputs of figures script
-- [X] consider removing "2014" from script file names - year does not matter relative to purpose
 - [X] add zenodo link to genetic analysis - see email from Marlene Jahnke
 - [X] add pop gen data - see email from Marlene -  we made it sound like dryad would be the location, but maybe github is okay?
 - [ ] check minor differences in output from lm's in `ZEN_2014_model_comparison_site_means_range_standardized.R`
 - [ ] streamline the data assembly script. Because we use site level data for most things, no need for ALL? of the random forest work there
-- [ ] check to see if MarineGEO has a git profile. We can transfer ownership of the repo to them
+- [ ] check to see if MarineGEO has a git profile (in lieu of email?). We can transfer ownership of the repo to them
 
 ### Zipped data file sent by Emmett
 - [X] One file with Zostera Relative Growth rates does not seem to be used, or maybe I am missing something?  `ZEN_2011_ZRG_AllSites_Edit141102 copy.csv` -- NEVERMIND, FOUND IT

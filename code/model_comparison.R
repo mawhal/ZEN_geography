@@ -128,7 +128,6 @@ zmgrowth <- read.csv("data/input/ZEN_2011_ZRG.csv", header = TRUE)
 # NOTE: Following is NOT the file with imputed values and it has all 50 sites. Figure this out ...
 # Read in zen2014 PLOT-level data sets for modeling, with missing data imputed:
 ZEN_2014_plot <- read.csv("data/output/ZEN_2014_plot.csv", header = TRUE)
-names(ZEN_2014_plot)
 
 
 ###################################################################################
@@ -4435,9 +4434,7 @@ summary(meso.area.site.g.1.raw)
 ###################################################################################
 
 # Use data from ZEN 2011 experiment to derive general equation predicting eelgrass 
-# leaf extension from sheath length and sheath width (see Ruesink et al. 2018 Oikos). 
-
-# names(zmgrowth) 
+# leaf extension from sheath length and sheath width (see Ruesink et al. 2018 Oikos) <https://onlinelibrary.wiley.com/doi/abs/10.1111/oik.04270>
 
 # Streamline to only variables for use in modeling
 zmgrowth_slim <- subset(zmgrowth, select = c(Site, Sum.extension.per.d, Sheath.total.length, Sheath.width, 
