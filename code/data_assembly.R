@@ -63,73 +63,73 @@ library(plyr) # to use ddply below in fixing richness values
 
 # MAIN ZEN 2014 DATA SET
 # Read in summary data set for ZEN 2014:
-zen2014 <- read.csv("data/input/ZEN_2014_main_data.csv", header = TRUE)
+d <- read.csv("data/input/ZEN_2014_main_data.csv", header = TRUE)
 
 # General site data
 sites <- read.csv("data/input/ZEN_2014_site_metadata.csv", header = TRUE)
 
 # BIO-ORACLE CLIMATE AND ENVIRONMENTAL DATA
 # Read in Bio-ORACLE and WorldClim environmental data for ZEN sites from Matt Whalen's script:
-zen2014.env <- read.csv("data/output/ZEN_2014_environmental.csv", header = TRUE)
+env <- read.csv("data/output/ZEN_2014_environmental.csv", header = TRUE)
 
 # PERCENT COVER
 # Read in data on percent cover:
-zen2014.cover <- read.csv("data/input/ZEN_2014_percent_cover_plot.csv", header = TRUE)
+cover <- read.csv("data/input/ZEN_2014_percent_cover_plot.csv", header = TRUE)
 # NOTE: WA.A was not able to collect percent cover data - NO DATA for this site. 
 
 # PREDATION INTENSITY
 # Read in data on predation intensity from amphipod tethering assay (Reynolds et al. 2017):
-zen2014.pred <- read.csv("data/input/ZEN_2014_predation_site.csv", header = TRUE)
+pred <- read.csv("data/input/ZEN_2014_predation_site.csv", header = TRUE)
 
 
 # EELGRASS GENETICS
-zen2014_gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
-# zen2014_gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
-# zen2014_gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
+d.gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
+# d.gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
+# d.gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
 
 # EPIBIOTA 
 # Epibiota (periphyton) data were not calculated correctly in the summary 'main" data file, 
 # specifically filtered material ("Epibiota filter") was not divided by the mass of Zostera scraped. 
 # So we have to regenerate these numbers from scratch. 
-zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_recalc.csv", header = TRUE)
+epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_recalc.csv", header = TRUE)
 ################################################################################
 
 # First, Japan B separated "Chl large epiphytes filter" from "Epibiota filter", the latter of which are all zero. 
 # We need to  recode those labeled "Chl large epiphytes filter" as "Epibiota filter", so we can add them together. 
-zen2014.epibiota$Species <- as.factor(zen2014.epibiota$Species)
-levels(zen2014.epibiota$Species)[levels(zen2014.epibiota$Species) == "Chl Large Epiphytes Filter"] <- "Epibiota filter"
-# levels(zen2014.epibiota$Species) #This appears to have worked ...
+epibiota$Species <- as.factor(epibiota$Species)
+levels(epibiota$Species)[levels(epibiota$Species) == "Chl Large Epiphytes Filter"] <- "Epibiota filter"
+# levels(epibiota$Species) #This appears to have worked ...
 
 # Second, Oregon A misnamed the epibiota filters ...
-levels(zen2014.epibiota$Species)[levels(zen2014.epibiota$Species) == "Epibiota Packet"] <- "Epibiota filter"
+levels(epibiota$Species)[levels(epibiota$Species) == "Epibiota Packet"] <- "Epibiota filter"
 
 # Subset to only the variables of interest here
-zen2014.epibiota <- subset(zen2014.epibiota, select = c(Site, Site.Code, Subsite, 
+epibiota <- subset(epibiota, select = c(Site, Site.Code, Subsite, 
   Sampling.Time, Plot.ID, Unique.ID, Species, Taxa, Group, Type, Dry.Mass.g.))
 
 
 # Recode second sampling time as 1 for LI
-zen2014.epibiota$Site.Code <- as.factor(zen2014.epibiota$Site.Code)
-zen2014.epibiota[zen2014.epibiota$Site.Code == "LI" & zen2014.epibiota$Sampling.Time == "1", "Sampling.Time"] = 3
-zen2014.epibiota[zen2014.epibiota$Site.Code == "LI" & zen2014.epibiota$Sampling.Time == "2", "Sampling.Time"] = 1
+epibiota$Site.Code <- as.factor(epibiota$Site.Code)
+epibiota[epibiota$Site.Code == "LI" & epibiota$Sampling.Time == "1", "Sampling.Time"] = 3
+epibiota[epibiota$Site.Code == "LI" & epibiota$Sampling.Time == "2", "Sampling.Time"] = 1
 
 # Regenerate Unique IDs
-zen2014.epibiota$Unique.ID = as.character(zen2014.epibiota$Unique.ID)
-zen2014.epibiota[zen2014.epibiota$Site.Code == "LI", "Unique.ID"] = 
-  paste(zen2014.epibiota[zen2014.epibiota$Site.Code == "LI", "Site.Code"], 
-        zen2014.epibiota[zen2014.epibiota$Site.Code == "LI", "Subsite"], 
-        zen2014.epibiota[zen2014.epibiota$Site.Code == "LI", "Sampling.Time"], 
-        zen2014.epibiota[zen2014.epibiota$Site.Code == "LI", "Plot.ID"],
+epibiota$Unique.ID = as.character(epibiota$Unique.ID)
+epibiota[epibiota$Site.Code == "LI", "Unique.ID"] = 
+  paste(epibiota[epibiota$Site.Code == "LI", "Site.Code"], 
+        epibiota[epibiota$Site.Code == "LI", "Subsite"], 
+        epibiota[epibiota$Site.Code == "LI", "Sampling.Time"], 
+        epibiota[epibiota$Site.Code == "LI", "Plot.ID"],
         sep = ".")
 
-zen2014.epibiota$Unique.ID = as.factor(zen2014.epibiota$Unique.ID)
+epibiota$Unique.ID = as.factor(epibiota$Unique.ID)
 
 # Include only first sampling time
-zen2014.epibiota = subset(zen2014.epibiota, Sampling.Time == "1")
+epibiota = subset(epibiota, Sampling.Time == "1")
 
 
 # create new wide-form data frame containing only the dry mass data
-epibiota.temp <- zen2014.epibiota %>%
+epibiota.temp <- epibiota %>%
   # only take along columns that are unique, otherwise output is staggered in chunks
   select(Unique.ID, Species, Dry.Mass.g.) %>%
   # group the data by species and sample
@@ -141,7 +141,7 @@ epibiota.temp <- zen2014.epibiota %>%
 # ################################################################################
 # # ----------  WHALEN UPGRADING THIS TO USE TIDYVERSE
 # # create new wide-form data frame containing only the dry mass data
-# epibiota.temp <- zen2014.epibiota %>%
+# epibiota.temp <- epibiota %>%
 #   # only take along columns that are unique, otherwise output is staggered in chunks
 #   select(Unique.ID, Species, Dry.Mass.g.) %>%
 #   # group the data by species and sample
@@ -163,83 +163,83 @@ epibiota.temp <- subset(epibiota.temp, select = c(Unique.ID, epibiota.filter, ep
 epibiota.temp$periphyton.mass.per.g.zostera <- epibiota.temp$epibiota.filter / epibiota.temp$epibiota.zostera.marina
 
 # Add raw and normalized periphyton data back into main data frame
-zen2014$epibiota.filter <- epibiota.temp$epibiota.filter[match(zen2014$Unique.ID, epibiota.temp$Unique.ID)]
-zen2014$epibiota.zostera.marina <- epibiota.temp$epibiota.zostera.marina[match(zen2014$Unique.ID, epibiota.temp$Unique.ID)]
-zen2014$periphyton.mass.per.g.zostera <- epibiota.temp$periphyton.mass.per.g.zostera[match(zen2014$Unique.ID, epibiota.temp$Unique.ID)]
+d$epibiota.filter <- epibiota.temp$epibiota.filter[match(d$Unique.ID, epibiota.temp$Unique.ID)]
+d$epibiota.zostera.marina <- epibiota.temp$epibiota.zostera.marina[match(d$Unique.ID, epibiota.temp$Unique.ID)]
+d$periphyton.mass.per.g.zostera <- epibiota.temp$periphyton.mass.per.g.zostera[match(d$Unique.ID, epibiota.temp$Unique.ID)]
 
 # Remove miscalculated periphyton variable from summary data set
-zen2014 <- subset(zen2014, select = -c(Epibiota.Periphyton))
+d <- subset(d, select = -c(Epibiota.Periphyton))
 
 
 #### CLEAN UP AND CONSOLIDATE
 # Convert categorical variables to factors
-zen2014$Site.Code <- as.factor(zen2014$Site.Code)
-zen2014$Ocean <- as.factor(zen2014$Ocean)
+d$Site.Code <- as.factor(d$Site.Code)
+d$Ocean <- as.factor(d$Ocean)
 
 # Rename Long Island sites 
-zen2014$Site <- as.factor(zen2014$Site)
-levels(zen2014$Site)[levels(zen2014$Site)=="LI.1"] <- "LI.A"
-levels(zen2014$Site)[levels(zen2014$Site)=="LI.2"] <- "LI.B"
+d$Site <- as.factor(d$Site)
+levels(d$Site)[levels(d$Site)=="LI.1"] <- "LI.A"
+levels(d$Site)[levels(d$Site)=="LI.2"] <- "LI.B"
 
 
 # Rename misspelled or confusing variables
-names(zen2014)[names(zen2014)=="Mean.Sheath.Width.cm."] <- "Zostera.sheath.width"
-names(zen2014)[names(zen2014)=="Mean.Shealth.Length.cm."] <- "Zostera.sheath.length"
-names(zen2014)[names(zen2014)=="Mean.Longest.Leaft.Length.cm."] <- "Zostera.longest.leaf.length"
-names(zen2014)[names(zen2014)=="Mean.Above.Zmarina.g"] <- "Zostera.aboveground.mean.mass"
-names(zen2014)[names(zen2014)=="Mean.Below.Zmarina.g"] <- "Zostera.belowground.mean.mass"
-names(zen2014)[names(zen2014)=="Shoots.Zmarina.per.m2"] <- "Zostera.shoots.per.m2.core"
-names(zen2014)[names(zen2014)=="Mean.Fetch"] <- "mean.fetch"
-names(zen2014)[names(zen2014)=="PopDens2"] <- "pop.density.2015"
-names(zen2014)[names(zen2014)=="mesograzer.total.site.richness"] <- "grazer.richness.site"
+names(d)[names(d)=="Mean.Sheath.Width.cm."] <- "Zostera.sheath.width"
+names(d)[names(d)=="Mean.Shealth.Length.cm."] <- "Zostera.sheath.length"
+names(d)[names(d)=="Mean.Longest.Leaft.Length.cm."] <- "Zostera.longest.leaf.length"
+names(d)[names(d)=="Mean.Above.Zmarina.g"] <- "Zostera.aboveground.mean.mass"
+names(d)[names(d)=="Mean.Below.Zmarina.g"] <- "Zostera.belowground.mean.mass"
+names(d)[names(d)=="Shoots.Zmarina.per.m2"] <- "Zostera.shoots.per.m2.core"
+names(d)[names(d)=="Mean.Fetch"] <- "mean.fetch"
+names(d)[names(d)=="PopDens2"] <- "pop.density.2015"
+names(d)[names(d)=="mesograzer.total.site.richness"] <- "grazer.richness.site"
 
-names(zen2014.cover)[names(zen2014.cover)=="PercBare"] <- "pct.cover.bare"
-names(zen2014.cover)[names(zen2014.cover)=="PercMacroalgae"] <- "pct.cover.macroalgae"
-names(zen2014.cover)[names(zen2014.cover)=="PercSeagrass"] <- "pct.cover.seagrass"
+names(cover)[names(cover)=="PercBare"] <- "pct.cover.bare"
+names(cover)[names(cover)=="PercMacroalgae"] <- "pct.cover.macroalgae"
+names(cover)[names(cover)=="PercSeagrass"] <- "pct.cover.seagrass"
 
 
 # MESOGRAZER SITE RICHNESS: FIX MISSING VALUES 
 # Create vector of plots with missing values to see what is missing:
-missing.richness <- zen2014[is.na(zen2014$grazer.richness.site), c(3,7)] # columns 3 and 7 are Site, Unique.ID
+missing.richness <- d[is.na(d$grazer.richness.site), c(3,7)] # columns 3 and 7 are Site, Unique.ID
 # replace all site richness values with "mean" for that site. First, create vector of means:
-temp <- zen2014 %>% 
+temp <- d %>% 
   group_by( Site) %>% 
   summarize( grazer.richness.site = mean(grazer.richness.site, na.rm = T))
 # But CR.A has NO mesograzers at all so returns NaN.  Assume species pool is same as for CR.B (S = 3) and replace:
 # temp$grazer.richness.site[is.na(temp$grazer.richness.site)] <- 3 # CR.A grazer richness now  = 3
 temp$grazer.richness.site[temp$Site == "CR.A" ] <- 3 # CR.A grazer richness now  = 3
 
-zen2014$grazer.richness.site <- temp$grazer.richness.site[match(zen2014$Site, temp$Site)]
+d$grazer.richness.site <- temp$grazer.richness.site[match(d$Site, temp$Site)]
 
 
 # Add cover and predation data to main ZEN dataframe:
-zen2014$pct.cover.bare <- zen2014.cover$pct.cover.bare[match(zen2014$Unique.ID, zen2014.cover$Unique.ID)]
-zen2014$pct.cover.macroalgae <- zen2014.cover$pct.cover.macroalgae[match(zen2014$Unique.ID, zen2014.cover$Unique.ID)]
-zen2014$pct.cover.seagrass <- zen2014.cover$pct.cover.seagrass[match(zen2014$Unique.ID, zen2014.cover$Unique.ID)]
+d$pct.cover.bare <- cover$pct.cover.bare[match(d$Unique.ID, cover$Unique.ID)]
+d$pct.cover.macroalgae <- cover$pct.cover.macroalgae[match(d$Unique.ID, cover$Unique.ID)]
+d$pct.cover.seagrass <- cover$pct.cover.seagrass[match(d$Unique.ID, cover$Unique.ID)]
 
-zen2014$predation.amphipods <- zen2014.pred$Mean.Pred.Amphipod[match(zen2014$Site, zen2014.pred$Site)]
-zen2014$predation.gastropods <- zen2014.pred$Mean.Pred.Gastropod[match(zen2014$Site, zen2014.pred$Site)]
-zen2014$predation.squidpops <- zen2014.pred$Mean.Pred.Squid[match(zen2014$Site, zen2014.pred$Site)]
+d$predation.amphipods <- pred$Mean.Pred.Amphipod[match(d$Site, pred$Site)]
+d$predation.gastropods <- pred$Mean.Pred.Gastropod[match(d$Site, pred$Site)]
+d$predation.squidpops <- pred$Mean.Pred.Squid[match(d$Site, pred$Site)]
 
 
 # Add BioOracle environmental data to main ZEN dataframe:
-zen2014$sst.min <- zen2014.env$sstmin[match(zen2014$Site, zen2014.env$Site)]
-zen2014$sst.mean <- zen2014.env$sstmean[match(zen2014$Site, zen2014.env$Site)]
-zen2014$sst.max <- zen2014.env$sstmax[match(zen2014$Site, zen2014.env$Site)]
-zen2014$sst.range <- zen2014.env$sstrange[match(zen2014$Site, zen2014.env$Site)]
-zen2014$chlomean <- zen2014.env$chlomean[match(zen2014$Site, zen2014.env$Site)]
-zen2014$nitrate <- zen2014.env$nitrate[match(zen2014$Site, zen2014.env$Site)]
-zen2014$parmean <- zen2014.env$parmean[match(zen2014$Site, zen2014.env$Site)]
-zen2014$cloudmean <- zen2014.env$cloudmean[match(zen2014$Site, zen2014.env$Site)]
-zen2014$day.length <- zen2014.env$Day.length.hours[match(zen2014$Site, zen2014.env$Site)]
-zen2014$ph <- zen2014.env$ph[match(zen2014$Site, zen2014.env$Site)]
-zen2014$phosphate <- zen2014.env$phosphate[match(zen2014$Site, zen2014.env$Site)]
-zen2014$salinity <- zen2014.env$salinity[match(zen2014$Site, zen2014.env$Site)]
-zen2014$precipitation <- zen2014.env$precip[match(zen2014$Site, zen2014.env$Site)]
+d$sst.min <- env$sstmin[match(d$Site, env$Site)]
+d$sst.mean <- env$sstmean[match(d$Site, env$Site)]
+d$sst.max <- env$sstmax[match(d$Site, env$Site)]
+d$sst.range <- env$sstrange[match(d$Site, env$Site)]
+d$chlomean <- env$chlomean[match(d$Site, env$Site)]
+d$nitrate <- env$nitrate[match(d$Site, env$Site)]
+d$parmean <- env$parmean[match(d$Site, env$Site)]
+d$cloudmean <- env$cloudmean[match(d$Site, env$Site)]
+d$day.length <- env$Day.length.hours[match(d$Site, env$Site)]
+d$ph <- env$ph[match(d$Site, env$Site)]
+d$phosphate <- env$phosphate[match(d$Site, env$Site)]
+d$salinity <- env$salinity[match(d$Site, env$Site)]
+d$precipitation <- env$precip[match(d$Site, env$Site)]
 
 # Reorder variables 'Coast': WP to EA 
-zen2014$Coast <- as.factor(zen2014$Coast)
-zen2014$Coast <- factor(zen2014$Coast, levels = c("West Pacific", "East Pacific", "West Atlantic", "East Atlantic"))
+d$Coast <- as.factor(d$Coast)
+d$Coast <- factor(d$Coast, levels = c("West Pacific", "East Pacific", "West Atlantic", "East Atlantic"))
 
 
 
@@ -248,23 +248,23 @@ zen2014$Coast <- factor(zen2014$Coast, levels = c("West Pacific", "East Pacific"
 ###################################################################################
 
 # # Create variables for water column stiochiometry
-# zen2014$NP.ratio <-  zen2014$nitrate / zen2014$phosphate
-# hist(zen2014$NP.ratio) # not too far from normal
-# zen2014$PARP.ratio <-  zen2014$parmean / zen2014$phosphate
+# d$NP.ratio <-  d$nitrate / d$phosphate
+# hist(d$NP.ratio) # not too far from normal
+# d$PARP.ratio <-  d$parmean / d$phosphate
 
 # Percentage of crustaceans and gastropods among the mesograzers
-zen2014$crust.pct.mass <-  zen2014$Malacostraca.mesograzer.plot.biomass.std.mg.g / zen2014$mesograzer.total.plot.biomass.std.mg.g
-zen2014$gast.pct.mass <-  zen2014$Gastropoda.mesograzer.plot.biomass.std.mg.g / zen2014$mesograzer.total.plot.biomass.std.mg.g
+d$crust.pct.mass <-  d$Malacostraca.mesograzer.plot.biomass.std.mg.g / d$mesograzer.total.plot.biomass.std.mg.g
+d$gast.pct.mass <-  d$Gastropoda.mesograzer.plot.biomass.std.mg.g / d$mesograzer.total.plot.biomass.std.mg.g
 
 # grazer and periphyton nunmbers per unit bottom area (i.e., core)
-zen2014$mesograzer.abund.per.area <-  zen2014$mesograzer.total.plot.abund.std.g * zen2014$Zostera.aboveground.mean.mass
-zen2014$crustacean.mass.per.area <-  zen2014$Malacostraca.mesograzer.plot.biomass.std.mg.g * zen2014$Zostera.aboveground.mean.mass
-zen2014$gastropod.mass.per.area <-  zen2014$Gastropoda.mesograzer.plot.biomass.std.mg.g * zen2014$Zostera.aboveground.mean.mass
-zen2014$mesograzer.mass.per.area <-  zen2014$mesograzer.total.plot.biomass.std.mg.g * zen2014$Zostera.aboveground.mean.mass
-zen2014$periphyton.mass.per.area <-  zen2014$periphyton.mass.per.g.zostera * zen2014$Zostera.aboveground.mean.mass
+d$mesograzer.abund.per.area <-  d$mesograzer.total.plot.abund.std.g * d$Zostera.aboveground.mean.mass
+d$crustacean.mass.per.area <-  d$Malacostraca.mesograzer.plot.biomass.std.mg.g * d$Zostera.aboveground.mean.mass
+d$gastropod.mass.per.area <-  d$Gastropoda.mesograzer.plot.biomass.std.mg.g * d$Zostera.aboveground.mean.mass
+d$mesograzer.mass.per.area <-  d$mesograzer.total.plot.biomass.std.mg.g * d$Zostera.aboveground.mean.mass
+d$periphyton.mass.per.area <-  d$periphyton.mass.per.g.zostera * d$Zostera.aboveground.mean.mass
 
 # Leaf C:N ratio
-zen2014$leaf.CN.ratio <-  zen2014$Leaf.PercC / zen2014$Leaf.PercN
+d$leaf.CN.ratio <-  d$Leaf.PercC / d$Leaf.PercN
 
 
 ###################################################################################
@@ -274,29 +274,29 @@ zen2014$leaf.CN.ratio <-  zen2014$Leaf.PercC / zen2014$Leaf.PercN
 # Examine frequency distribution of sites by environmental factor
 # par(mfrow = c(1,1))
 # par(mfrow = c(2,4))
-# hist(zen2014$Latitude, col = "cyan", main = "Surveys by latitude")    
-# hist(zen2014$Longitude, col = "cyan", main = "Surveys by longitude")    
-# hist(zen2014$Temperature.C, col = "cyan", main = "Surveys by temperature")    
-# hist(zen2014$Salinity.ppt, col = "cyan", main = "Surveys by salinity")    
-# hist(zen2014$pop.density.2015, col = "cyan", main = "Surveys by population density")    
-# hist(zen2014$day.length, col = "cyan", main = "Surveys by day length")    
-# hist(zen2014$mean.fetch, col = "cyan", main = "Surveys by mean fetch")    
+# hist(d$Latitude, col = "cyan", main = "Surveys by latitude")    
+# hist(d$Longitude, col = "cyan", main = "Surveys by longitude")    
+# hist(d$Temperature.C, col = "cyan", main = "Surveys by temperature")    
+# hist(d$Salinity.ppt, col = "cyan", main = "Surveys by salinity")    
+# hist(d$pop.density.2015, col = "cyan", main = "Surveys by population density")    
+# hist(d$day.length, col = "cyan", main = "Surveys by day length")    
+# hist(d$mean.fetch, col = "cyan", main = "Surveys by mean fetch")    
 # 
-# hist(zen2014$Zostera.aboveground.mean.mass, col = "cyan", main = "Surveys by Zostera AG biomass")    
-# hist(zen2014$periphyton.mass.per.g.zostera, col = "cyan", main = "Surveys by periphyton biomass")    
-# hist(zen2014$Malacostraca.mesograzer.plot.abund.std.g, col = "cyan", main = "Surveys by crustacean biomass")    
-# hist(zen2014$Gastropoda.mesograzer.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by gastropod biomass")    
-# hist(zen2014$grazer.richness.site, col = "cyan", main = "Surveys by mesograzer richness")    
+# hist(d$Zostera.aboveground.mean.mass, col = "cyan", main = "Surveys by Zostera AG biomass")    
+# hist(d$periphyton.mass.per.g.zostera, col = "cyan", main = "Surveys by periphyton biomass")    
+# hist(d$Malacostraca.mesograzer.plot.abund.std.g, col = "cyan", main = "Surveys by crustacean biomass")    
+# hist(d$Gastropoda.mesograzer.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by gastropod biomass")    
+# hist(d$grazer.richness.site, col = "cyan", main = "Surveys by mesograzer richness")    
 # 
-# hist(zen2014$mesograzer.total.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by mesograzer biomass")    
-# hist(zen2014$epifauna.total.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by mobile epifauna biomass")    
+# hist(d$mesograzer.total.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by mesograzer biomass")    
+# hist(d$epifauna.total.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by mobile epifauna biomass")    
 # 
-# hist(zen2014$pct.cover.seagrass, col = "cyan", main = "Surveys by seagrass % cover")    
-# hist(zen2014$pct.cover.macroalgae, col = "cyan", main = "Surveys by macroalgal % cover")    
+# hist(d$pct.cover.seagrass, col = "cyan", main = "Surveys by seagrass % cover")    
+# hist(d$pct.cover.macroalgae, col = "cyan", main = "Surveys by macroalgal % cover")    
 # 
-# hist(zen2014$predation.amphipods, col = "cyan", main = "Surveys by amphipod loss to predation")    
-# hist(zen2014$predation.gastropods, col = "cyan", main = "Surveys by gastropod loss to predation")    
-# hist(zen2014$predation.squidpops, col = "cyan", main = "Surveys by squidpop loss to predation")    
+# hist(d$predation.amphipods, col = "cyan", main = "Surveys by amphipod loss to predation")    
+# hist(d$predation.gastropods, col = "cyan", main = "Surveys by gastropod loss to predation")    
+# hist(d$predation.squidpops, col = "cyan", main = "Surveys by squidpop loss to predation")    
 
 
 ###################################################################################
@@ -305,67 +305,67 @@ zen2014$leaf.CN.ratio <-  zen2014$Leaf.PercC / zen2014$Leaf.PercN
 
 # NOTE: For many variables I add a constant roughly equal to the smallest value recorded 
 
-zen2014$log10.Zostera.AG.mass <- log10(zen2014$Zostera.aboveground.mean.mass + 1) 
-zen2014$log10.Zostera.BG.mass <- log10(zen2014$Zostera.belowground.mean.mass + 1) 
-zen2014$log10.Zostera.shoots.core <- log10(zen2014$Zostera.shoots.per.m2.core) 
-zen2014$log10.Zostera.sheath.width <- log10(zen2014$Zostera.sheath.width) 
-zen2014$log10.Zostera.sheath.length <- log10(zen2014$Zostera.sheath.length) 
-zen2014$log10.Zostera.longest.leaf.length <- log10(zen2014$Zostera.longest.leaf.length) 
+d$log10.Zostera.AG.mass <- log10(d$Zostera.aboveground.mean.mass + 1) 
+d$log10.Zostera.BG.mass <- log10(d$Zostera.belowground.mean.mass + 1) 
+d$log10.Zostera.shoots.core <- log10(d$Zostera.shoots.per.m2.core) 
+d$log10.Zostera.sheath.width <- log10(d$Zostera.sheath.width) 
+d$log10.Zostera.sheath.length <- log10(d$Zostera.sheath.length) 
+d$log10.Zostera.longest.leaf.length <- log10(d$Zostera.longest.leaf.length) 
 
-zen2014$log10.epibiota.filter <- log10(zen2014$epibiota.filter) 
-zen2014$log10.epibiota.zostera.marina <- log10(zen2014$epibiota.zostera.marina) 
-zen2014$log10.periphyton.mass.per.g.zostera <- log10(zen2014$periphyton.mass.per.g.zostera + 0.001) 
-zen2014$log10.periphyton.mass.per.area <- log10(zen2014$periphyton.mass.per.area + 0.1) 
+d$log10.epibiota.filter <- log10(d$epibiota.filter) 
+d$log10.epibiota.zostera.marina <- log10(d$epibiota.zostera.marina) 
+d$log10.periphyton.mass.per.g.zostera <- log10(d$periphyton.mass.per.g.zostera + 0.001) 
+d$log10.periphyton.mass.per.area <- log10(d$periphyton.mass.per.area + 0.1) 
 
-zen2014$log10.mesograzer.abund.per.g.plant <- log10(zen2014$mesograzer.total.plot.abund.std.g + 0.01) 
-zen2014$log10.crustacean.abund.per.g.plant <- log10(zen2014$Malacostraca.mesograzer.plot.abund.std.g + 0.01) 
-zen2014$log10.gastropod.abund.per.g.plant <- log10(zen2014$Gastropoda.mesograzer.plot.abund.std.g + 0.01) 
+d$log10.mesograzer.abund.per.g.plant <- log10(d$mesograzer.total.plot.abund.std.g + 0.01) 
+d$log10.crustacean.abund.per.g.plant <- log10(d$Malacostraca.mesograzer.plot.abund.std.g + 0.01) 
+d$log10.gastropod.abund.per.g.plant <- log10(d$Gastropoda.mesograzer.plot.abund.std.g + 0.01) 
 
-zen2014$log10.mesograzer.mass.per.g.plant <- log10(zen2014$mesograzer.total.plot.biomass.std.mg.g + 0.01) 
-zen2014$log10.crustacean.mass.per.g.plant <- log10(zen2014$Malacostraca.mesograzer.plot.biomass.std.mg.g + 0.01) 
-zen2014$log10.gastropod.mass.per.g.plant <- log10(zen2014$Gastropoda.mesograzer.plot.biomass.std.mg.g + 0.01) 
+d$log10.mesograzer.mass.per.g.plant <- log10(d$mesograzer.total.plot.biomass.std.mg.g + 0.01) 
+d$log10.crustacean.mass.per.g.plant <- log10(d$Malacostraca.mesograzer.plot.biomass.std.mg.g + 0.01) 
+d$log10.gastropod.mass.per.g.plant <- log10(d$Gastropoda.mesograzer.plot.biomass.std.mg.g + 0.01) 
 
-zen2014$log10.mesograzer.abund.per.area <-  log10(zen2014$mesograzer.abund.per.area + 1) 
+d$log10.mesograzer.abund.per.area <-  log10(d$mesograzer.abund.per.area + 1) 
 
-zen2014$log10.crustacean.mass.per.area <-  log10(zen2014$crustacean.mass.per.area + 1) 
-zen2014$log10.gastropod.mass.per.area <-  log10(zen2014$gastropod.mass.per.area + 1) 
-zen2014$log10.mesograzer.mass.per.area <-  log10(zen2014$mesograzer.mass.per.area + 1) 
+d$log10.crustacean.mass.per.area <-  log10(d$crustacean.mass.per.area + 1) 
+d$log10.gastropod.mass.per.area <-  log10(d$gastropod.mass.per.area + 1) 
+d$log10.mesograzer.mass.per.area <-  log10(d$mesograzer.mass.per.area + 1) 
 
-zen2014$log10.grazer.richness.site <- log10(zen2014$grazer.richness.site + 1) 
+d$log10.grazer.richness.site <- log10(d$grazer.richness.site + 1) 
 
-zen2014$log10.day.length <- log10(zen2014$day.length) 
-zen2014$log10.Leaf.PercN <- log10(zen2014$Leaf.PercN) 
-zen2014$sqrt.nitrate <- sqrt(zen2014$nitrate) 
-zen2014$log10.phosphate <- log10(zen2014$phosphate) 
-zen2014$log10.chlomean <- log10(zen2014$chlomean) 
-zen2014$log10.mean.fetch <- log10(zen2014$mean.fetch) 
+d$log10.day.length <- log10(d$day.length) 
+d$log10.Leaf.PercN <- log10(d$Leaf.PercN) 
+d$sqrt.nitrate <- sqrt(d$nitrate) 
+d$log10.phosphate <- log10(d$phosphate) 
+d$log10.chlomean <- log10(d$chlomean) 
+d$log10.mean.fetch <- log10(d$mean.fetch) 
 
-zen2014$log10.pct.cover.bare <- log10(zen2014$pct.cover.bare)
-zen2014$log10.pct.cover.macroalgae <- log10(zen2014$pct.cover.macroalgae + 0.1)
-zen2014$log10.pct.cover.seagrass <- log10(zen2014$pct.cover.seagrass)
-zen2014$sqrt.pct.cover.seagrass <- sqrt(zen2014$pct.cover.seagrass)
+d$log10.pct.cover.bare <- log10(d$pct.cover.bare)
+d$log10.pct.cover.macroalgae <- log10(d$pct.cover.macroalgae + 0.1)
+d$log10.pct.cover.seagrass <- log10(d$pct.cover.seagrass)
+d$sqrt.pct.cover.seagrass <- sqrt(d$pct.cover.seagrass)
 
-zen2014$log10.predation.amphipods <- log10(zen2014$predation.amphipods)
-zen2014$log10.predation.gastropods <- log10(zen2014$predation.gastropods)
-zen2014$log10.predation.squidpops <- log10(zen2014$predation.squidpops)
+d$log10.predation.amphipods <- log10(d$predation.amphipods)
+d$log10.predation.gastropods <- log10(d$predation.gastropods)
+d$log10.predation.squidpops <- log10(d$predation.squidpops)
 
 
-# hist(zen2014$nitrate)
-# hist(zen2014$sqrt.nitrate)
+# hist(d$nitrate)
+# hist(d$sqrt.nitrate)
 # 
-# hist(zen2014$log10.Zostera.AG.mass)
+# hist(d$log10.Zostera.AG.mass)
 # 
-# hist(zen2014$log10.pct.cover.bare)
-# hist(zen2014$log10.pct.cover.macroalgae)
-# hist(zen2014$log10.pct.cover.seagrass) # Raw data are better
+# hist(d$log10.pct.cover.bare)
+# hist(d$log10.pct.cover.macroalgae)
+# hist(d$log10.pct.cover.seagrass) # Raw data are better
 # 
-# hist(zen2014$log10.predation.amphipods)    
-# hist(zen2014$log10.predation.gastropods) # better than raw  
-# hist(zen2014$log10.predation.squidpops) # worse than raw 
+# hist(d$log10.predation.amphipods)    
+# hist(d$log10.predation.gastropods) # better than raw  
+# hist(d$log10.predation.squidpops) # worse than raw 
 
 # Change values of NaN to NA:
-zen2014[zen2014 == "NaN"] = NA 
-zen2014[zen2014 == "-Inf"] = NA 
+d[d == "NaN"] = NA 
+d[d == "-Inf"] = NA 
 
 
 ###################################################################################
@@ -375,7 +375,7 @@ zen2014[zen2014 == "-Inf"] = NA
 # CAN THIS GO AFTER IMPUTATION SECTION? SHOULD IT? 
 
 # Obtain mean values per site
-ZEN_2014_site_means <- zen2014 %>% 
+ZEN_2014_site_means <- d %>% 
   group_by(Site) %>% 
   dplyr::summarize( Seagrass.pct.cover.site = mean(pct.cover.seagrass, na.rm = T),
              Macroalgae.pct.cover.site = mean(pct.cover.macroalgae, na.rm = T),
@@ -436,48 +436,48 @@ ZEN_2014_site_means <- zen2014 %>%
              log10.predation.gastropods.site = mean(log10.predation.gastropods, na.rm = T)  )
 
 # Add in predation data (already site level)
-ZEN_2014_site_means$predation.amphipods <- zen2014$predation.amphipods[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$predation.squidpops <- zen2014$predation.squidpops[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$predation.gastropods <- zen2014$predation.gastropods[match(ZEN_2014_site_means$Site, zen2014$Site)]
+ZEN_2014_site_means$predation.amphipods <- d$predation.amphipods[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$predation.squidpops <- d$predation.squidpops[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$predation.gastropods <- d$predation.gastropods[match(ZEN_2014_site_means$Site, d$Site)]
 
-ZEN_2014_site_means$grazer.richness.site <- zen2014$grazer.richness.site[match(ZEN_2014_site_means$Site, zen2014$Site)]
+ZEN_2014_site_means$grazer.richness.site <- d$grazer.richness.site[match(ZEN_2014_site_means$Site, d$Site)]
 
 # Change values of NaN to NA:
 ZEN_2014_site_means[ZEN_2014_site_means == "NaN"] = NA 
 
 # Add site-level environmental (and other) variables back in
-ZEN_2014_site_means$Ocean <- zen2014$Ocean[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$Coast <- zen2014$Coast[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$Latitude <- zen2014$Latitude[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$Longitude <- zen2014$Longitude[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$Temperature.C <- zen2014$Temperature.C[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$Salinity.ppt <- zen2014$Salinity.ppt[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$log10.mean.fetch <- zen2014$log10.mean.fetch[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$day.length <- zen2014$day.length[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$log10.day.length <- zen2014$log10.day.length[match(ZEN_2014_site_means$Site, zen2014$Site)]
+ZEN_2014_site_means$Ocean <- d$Ocean[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$Coast <- d$Coast[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$Latitude <- d$Latitude[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$Longitude <- d$Longitude[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$Temperature.C <- d$Temperature.C[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$Salinity.ppt <- d$Salinity.ppt[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$log10.mean.fetch <- d$log10.mean.fetch[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$day.length <- d$day.length[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$log10.day.length <- d$log10.day.length[match(ZEN_2014_site_means$Site, d$Site)]
 
-ZEN_2014_site_means$sst.min <- zen2014$sst.min[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$sst.mean <- zen2014$sst.mean[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$sst.max <- zen2014$sst.max[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$sst.range <- zen2014$sst.range[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$salinity <- zen2014$salinity[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$parmean <- zen2014$parmean[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$cloudmean <- zen2014$cloudmean[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$precipitation <- zen2014$precipitation[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$nitrate <- zen2014$nitrate[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$sqrt.nitrate <- zen2014$sqrt.nitrate[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$ph <- zen2014$ph[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$phosphate <- zen2014$phosphate[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$log10.phosphate <- zen2014$log10.phosphate[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$NP.ratio <- zen2014$NP.ratio[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$chlomean <- zen2014$chlomean[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$log10.chlomean <- zen2014$log10.chlomean[match(ZEN_2014_site_means$Site, zen2014$Site)]
-ZEN_2014_site_means$pop.density.2015 <- zen2014$pop.density.2015[match(ZEN_2014_site_means$Site, zen2014$Site)]
+ZEN_2014_site_means$sst.min <- d$sst.min[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$sst.mean <- d$sst.mean[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$sst.max <- d$sst.max[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$sst.range <- d$sst.range[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$salinity <- d$salinity[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$parmean <- d$parmean[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$cloudmean <- d$cloudmean[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$precipitation <- d$precipitation[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$nitrate <- d$nitrate[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$sqrt.nitrate <- d$sqrt.nitrate[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$ph <- d$ph[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$phosphate <- d$phosphate[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$log10.phosphate <- d$log10.phosphate[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$NP.ratio <- d$NP.ratio[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$chlomean <- d$chlomean[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$log10.chlomean <- d$log10.chlomean[match(ZEN_2014_site_means$Site, d$Site)]
+ZEN_2014_site_means$pop.density.2015 <- d$pop.density.2015[match(ZEN_2014_site_means$Site, d$Site)]
 
 
 # Add genetic data to site means data frame
-ZEN_2014_site_means$FC1 <- zen2014_gen_fca$FC1[match(ZEN_2014_site_means$Site, zen2014_gen_fca$Site)]
-ZEN_2014_site_means$FC2 <- zen2014_gen_fca$FC2[match(ZEN_2014_site_means$Site, zen2014_gen_fca$Site)]
+ZEN_2014_site_means$FC1 <- d.gen_fca$FC1[match(ZEN_2014_site_means$Site, d.gen_fca$Site)]
+ZEN_2014_site_means$FC2 <- d.gen_fca$FC2[match(ZEN_2014_site_means$Site, d.gen_fca$Site)]
 
 # For boxplots, reorder variable 'Coast': WP to EA
 ZEN_2014_site_means$Coast <- factor(ZEN_2014_site_means$Coast, levels = c("West Pacific", "East Pacific", "West Atlantic", "East Atlantic"))
@@ -688,28 +688,28 @@ ZEN_2014_site_means_Pacific <- subset(ZEN_2014_site_means_Pacific, select = -c(P
 # valid AIC model comparisons. 
 
 # # How many observations are missing for each variable?
-# sum(is.na(zen2014$pct.cover.seagrass)) # 60
-# sum(is.na(zen2014$pct.cover.macroalgae)) # 60
-# sum(is.na(zen2014$log10.Zostera.AG.mass)) # 24
-# sum(is.na(zen2014$log10.Zostera.shoots.core)) # 15
-# sum(is.na(zen2014$Zostera.longest.leaf.length)) # 0
-# sum(is.na(zen2014$Leaf.PercN)) # 14
-# sum(is.na(zen2014$Temperature.C)) # 0
-# sum(is.na(zen2014$Salinity.ppt)) # 0
-# sum(is.na(zen2014$pop.density.2015)) # 20 huh?
-# sum(is.na(zen2014$GenotypicRichness)) # 0
-# sum(is.na(zen2014$AllelicRichness)) # 0 
-# sum(is.na(zen2014$grazer.richness.site)) # 0
-# sum(is.na(zen2014$log10.periphyton.mass.per.g.zostera)) # 4
-# sum(is.na(zen2014$log10.mesograzer.abund.per.g.plant)) # 9
-# sum(is.na(zen2014$log10.crustacean.abund.per.g.plant)) # 9 
-# sum(is.na(zen2014$log10.gastropod.abund.per.g.plant)) # 9
+# sum(is.na(d$pct.cover.seagrass)) # 60
+# sum(is.na(d$pct.cover.macroalgae)) # 60
+# sum(is.na(d$log10.Zostera.AG.mass)) # 24
+# sum(is.na(d$log10.Zostera.shoots.core)) # 15
+# sum(is.na(d$Zostera.longest.leaf.length)) # 0
+# sum(is.na(d$Leaf.PercN)) # 14
+# sum(is.na(d$Temperature.C)) # 0
+# sum(is.na(d$Salinity.ppt)) # 0
+# sum(is.na(d$pop.density.2015)) # 20 huh?
+# sum(is.na(d$GenotypicRichness)) # 0
+# sum(is.na(d$AllelicRichness)) # 0 
+# sum(is.na(d$grazer.richness.site)) # 0
+# sum(is.na(d$log10.periphyton.mass.per.g.zostera)) # 4
+# sum(is.na(d$log10.mesograzer.abund.per.g.plant)) # 9
+# sum(is.na(d$log10.crustacean.abund.per.g.plant)) # 9 
+# sum(is.na(d$log10.gastropod.abund.per.g.plant)) # 9
 
 # Look at percentage of values missing for each variable
 # First create function to calculate % of missing values infor each variable in a data frame… 
 pMiss <- function(x){sum(is.na(x))/length(x)*100}
 # # Now apply it to the data frame: 
-# apply(zen2014,2,pMiss)
+# apply(d,2,pMiss)
 
 # Results: Most variables have fewer < 4% missing. Exceptions are cover bare (42%), 
 # predation (16%), the mean body mass variables, which are missing ~25% of values because 
@@ -744,14 +744,14 @@ pMiss <- function(x){sum(is.na(x))/length(x)*100}
 # proceed to the grazer variables that depend on these grass variables
 
 # # Remind me which variables are missing data:
-# apply(zen2014,2,pMiss)
+# apply(d,2,pMiss)
 
 # create a temporary dataframe used to model (impute) the missing values
-y <- zen2014
+y <- d
 
 # LEAF % NITROGEN
 # # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.Leaf.PercN)) # 14
+# sum(is.na(d$log10.Leaf.PercN)) # 14
 
 leafN.rf = randomForest(log10.Leaf.PercN ~ Ocean + Coast + Latitude + Longitude 
                         + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
@@ -773,7 +773,7 @@ y[is.na(y$log10.Leaf.PercN),
 
 # ZOSTERA SHOOT DENSITY
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.Zostera.shoots.core)) # 15
+# sum(is.na(d$log10.Zostera.shoots.core)) # 15
 shootdensity.rf = randomForest(log10.Zostera.shoots.core ~ Ocean + Coast + Latitude + Longitude 
                                + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                                + log10.chlomean
@@ -795,7 +795,7 @@ y[is.na(y$log10.Zostera.shoots.core),
 
 # ZOSTERA ABOVE-GROUND BIOMASS
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.Zostera.AG.mass)) # 24
+# sum(is.na(d$log10.Zostera.AG.mass)) # 24
 ZAG.rf = randomForest(log10.Zostera.AG.mass ~ Ocean + Coast + Latitude + Longitude 
                       # + sst.mean + Salinity.ppt + parmean + log10.nitrate + log10.phosphate
                       + log10.chlomean 
@@ -818,7 +818,7 @@ y[is.na(y$log10.Zostera.AG.mass),
 
 # ZOSTERA BELOW-GROUND BIOMASS
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.Zostera.BG.mass)) # 29
+# sum(is.na(d$log10.Zostera.BG.mass)) # 29
 ZBG.rf = randomForest(log10.Zostera.BG.mass ~ Ocean + Coast + Latitude + Longitude 
                       # + sst.mean + Salinity.ppt + parmean + log10.nitrate + log10.phosphate
                       + log10.chlomean 
@@ -841,7 +841,7 @@ y[is.na(y$log10.Zostera.BG.mass),
 
 # CRUSTACEAN mesograzer biomass
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.crustacean.mass.per.g.plant)) # 9
+# sum(is.na(d$log10.crustacean.mass.per.g.plant)) # 9
 crust.rf = randomForest(log10.crustacean.mass.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
                         + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                         + log10.chlomean
@@ -863,7 +863,7 @@ y[is.na(y$log10.crustacean.mass.per.g.plant),
 
 # GASTROPOD mesograzer biomass
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.gastropod.mass.per.g.plant)) # 9
+# sum(is.na(d$log10.gastropod.mass.per.g.plant)) # 9
 gast.rf = randomForest(log10.gastropod.mass.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
                        + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                        + log10.chlomean
@@ -885,7 +885,7 @@ y[is.na(y$log10.gastropod.mass.per.g.plant),
 
 # total MESOGRAZER biomass
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.mesograzer.mass.per.g.plant)) # 9
+# sum(is.na(d$log10.mesograzer.mass.per.g.plant)) # 9
 meso.rf = randomForest(log10.mesograzer.mass.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
                        + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                        + log10.chlomean 
@@ -907,7 +907,7 @@ y[is.na(y$log10.mesograzer.mass.per.g.plant),
 
 # total MESOGRAZER abundance
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.mesograzer.abund.per.g.plant)) # 9
+# sum(is.na(d$log10.mesograzer.abund.per.g.plant)) # 9
 meso.abund.rf = randomForest(log10.mesograzer.abund.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
                              + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                              + log10.chlomean 
@@ -929,7 +929,7 @@ y[is.na(y$log10.mesograzer.abund.per.g.plant),
 
 # CRUSTACEAN mesograzer biomass PER AREA
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.crustacean.mass.per.area)) # 33
+# sum(is.na(d$log10.crustacean.mass.per.area)) # 33
 crust.area.rf = randomForest(log10.crustacean.mass.per.area ~ Ocean + Coast + Latitude + Longitude 
                              + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                              + log10.chlomean 
@@ -951,7 +951,7 @@ y[is.na(y$log10.crustacean.mass.per.area),
 
 # GASTROPOD mesograzer biomass PER AREA
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.gastropod.mass.per.area)) # 33
+# sum(is.na(d$log10.gastropod.mass.per.area)) # 33
 gast.area.rf = randomForest(log10.gastropod.mass.per.area ~ Ocean + Coast + Latitude + Longitude 
                             + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                             + log10.chlomean
@@ -973,7 +973,7 @@ y[is.na(y$log10.gastropod.mass.per.area),
 
 # total MESOGRAZER biomass PER AREA
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.mesograzer.mass.per.area)) # 33
+# sum(is.na(d$log10.mesograzer.mass.per.area)) # 33
 meso.area.rf = randomForest(log10.mesograzer.mass.per.area ~ Ocean + Coast + Latitude + Longitude 
                             + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                             + log10.chlomean 
@@ -995,7 +995,7 @@ y[is.na(y$log10.mesograzer.mass.per.area),
 
 # total MESOGRAZER abundance PER AREA
 # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(zen2014$log10.mesograzer.abund.per.area)) # 33
+# sum(is.na(d$log10.mesograzer.abund.per.area)) # 33
 meso.abund.area.rf = randomForest(log10.mesograzer.abund.per.area ~ Ocean + Coast + Latitude + Longitude 
                                   + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                                   + log10.chlomean 
@@ -1042,45 +1042,45 @@ colnames(imputed.values.y)[2:13] <- c("log10.Zostera.shoots.core.imputed",
 
 
 # Integrate the imputed values back into master data set 
-zen2014_imputed <- zen2014
+d.imputed <- d
 
-zen2014_imputed$log10.Zostera.shoots.core.imputed <- 
-  imputed.values.y$log10.Zostera.shoots.core.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.Zostera.shoots.core.imputed <- 
+  imputed.values.y$log10.Zostera.shoots.core.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.Zostera.AG.mass.imputed <- 
-  imputed.values.y$log10.Zostera.AG.mass.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.Zostera.AG.mass.imputed <- 
+  imputed.values.y$log10.Zostera.AG.mass.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.Zostera.BG.mass.imputed <- 
-  imputed.values.y$log10.Zostera.BG.mass.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.Zostera.BG.mass.imputed <- 
+  imputed.values.y$log10.Zostera.BG.mass.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.Leaf.PercN.imputed <- 
-  imputed.values.y$log10.Leaf.PercN.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.Leaf.PercN.imputed <- 
+  imputed.values.y$log10.Leaf.PercN.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.crustacean.mass.per.g.plant.imputed <- 
-  imputed.values.y$log10.crustacean.mass.per.g.plant.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.crustacean.mass.per.g.plant.imputed <- 
+  imputed.values.y$log10.crustacean.mass.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.crustacean.mass.per.area.imputed <- 
-  imputed.values.y$log10.crustacean.mass.per.area.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.crustacean.mass.per.area.imputed <- 
+  imputed.values.y$log10.crustacean.mass.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.gastropod.mass.per.g.plant.imputed <- 
-  imputed.values.y$log10.gastropod.mass.per.g.plant.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.gastropod.mass.per.g.plant.imputed <- 
+  imputed.values.y$log10.gastropod.mass.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.gastropod.mass.per.area.imputed <- 
-  imputed.values.y$log10.gastropod.mass.per.area.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.gastropod.mass.per.area.imputed <- 
+  imputed.values.y$log10.gastropod.mass.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.mesograzer.mass.per.g.plant.imputed <- 
-  imputed.values.y$log10.mesograzer.mass.per.g.plant.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.mesograzer.mass.per.g.plant.imputed <- 
+  imputed.values.y$log10.mesograzer.mass.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.mesograzer.mass.per.area.imputed <- 
-  imputed.values.y$log10.mesograzer.mass.per.area.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.mesograzer.mass.per.area.imputed <- 
+  imputed.values.y$log10.mesograzer.mass.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.mesograzer.abund.per.g.plant.imputed <- 
-  imputed.values.y$log10.mesograzer.abund.per.g.plant.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.mesograzer.abund.per.g.plant.imputed <- 
+  imputed.values.y$log10.mesograzer.abund.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 
-zen2014_imputed$log10.mesograzer.abund.per.area.imputed <- 
-  imputed.values.y$log10.mesograzer.abund.per.area.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
+d.imputed$log10.mesograzer.abund.per.area.imputed <- 
+  imputed.values.y$log10.mesograzer.abund.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
 # 
-# nrow(zen2014_imputed) # 1000 - good
+# nrow(d.imputed) # 1000 - good
 
 
 # PERIPHYTON
@@ -1091,17 +1091,17 @@ zen2014_imputed$log10.mesograzer.abund.per.area.imputed <-
 
 # First, we subset the dataframe of imputed values created above. After we derive imputed values for 
 # periphyton, we will paste them back inot this dataframe: 
-zen2014_49_imputed <- droplevels(subset(zen2014_imputed, Site != "SW.A"))
+d.49_imputed <- droplevels(subset(d.imputed, Site != "SW.A"))
 
 # Second: To rigorously estimate imputed values for a variable (in this case periphyton), we should use only 
 # empirical data, so we next subset the original (pre-imputation) dataframe for this purpose:
-zen2014_49 <- droplevels(subset(zen2014, Site != "SW.A"))
-x <- zen2014_49
+d.49 <- droplevels(subset(d, Site != "SW.A"))
+x <- d.49
 
 # PERIPHYTON mass per g Zostera
 # Use random forest to impute missing values for periphyton in the reduced dataframe (49 sites). 
 # First build predictive model:
-# sum(is.na(zen2014_49$log10.periphyton.mass.per.g.zostera)) # 4
+# sum(is.na(d.49$log10.periphyton.mass.per.g.zostera)) # 4
 peri.rf = randomForest(log10.periphyton.mass.per.g.zostera ~ Ocean + Coast + Latitude + Longitude 
                        + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
                        + log10.chlomean
@@ -1124,7 +1124,7 @@ x[is.na(x$log10.periphyton.mass.per.g.zostera),
 # PERIPHYTON mass per AREA
 # Use random forest to impute missing values for periphyton in the reduced dataframe (49 sites). 
 # First build predictive model:
-# sum(is.na(zen2014_49$log10.periphyton.mass.per.area)) # 28
+# sum(is.na(d.49$log10.periphyton.mass.per.area)) # 28
 peri.area.rf = randomForest(log10.periphyton.mass.per.area ~ Ocean + Coast + Latitude 
                             + Longitude
                             + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
@@ -1154,15 +1154,15 @@ colnames(imputed.values.x)[2:3] <- c("log10.periphyton.mass.per.g.zostera.impute
 
 # Now paste the imputed values for periphyton back into the 49-site dataframe with the other 
 # imputed variables created above:
-zen2014_49_imputed$log10.periphyton.mass.per.g.zostera.imputed <- 
-  imputed.values.x$log10.periphyton.mass.per.g.zostera.imputed[match(zen2014_49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
-# sum(is.na(zen2014_49_imputed$log10.periphyton.mass.per.g.zostera.imputed)) # 0
+d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed <- 
+  imputed.values.x$log10.periphyton.mass.per.g.zostera.imputed[match(d.49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
+# sum(is.na(d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed)) # 0
 
-zen2014_49_imputed$log10.periphyton.mass.per.area.imputed <- 
-  imputed.values.x$log10.periphyton.mass.per.area.imputed[match(zen2014_49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
-# sum(is.na(zen2014_49_imputed$log10.periphyton.mass.per.area.imputed)) # 0
-# nrow(zen2014_imputed) # 1000 - good
-# nrow(zen2014_49_imputed) # 980 - good
+d.49_imputed$log10.periphyton.mass.per.area.imputed <- 
+  imputed.values.x$log10.periphyton.mass.per.area.imputed[match(d.49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
+# sum(is.na(d.49_imputed$log10.periphyton.mass.per.area.imputed)) # 0
+# nrow(d.imputed) # 1000 - good
+# nrow(d.49_imputed) # 980 - good
 
 # Summary: We can now build and compare models that will have same number of observations
 # BUT can't include periphyton as predictor because biased by missing from entire site SW.A.
@@ -1180,7 +1180,7 @@ zen2014_49_imputed$log10.periphyton.mass.per.area.imputed <-
 # PCA - EELGRASS VARIABLES (PLOT LEVEL)                                           
 
 # Create data frame containing the ZEN 2014 eelgrass morphological variables
-zos.morph.plot.2 <- zen2014_imputed[c("log10.Zostera.AG.mass.imputed", "log10.Zostera.BG.mass.imputed", 
+zos.morph.plot.2 <- d.imputed[c("log10.Zostera.AG.mass.imputed", "log10.Zostera.BG.mass.imputed", 
   "log10.Zostera.shoots.core.imputed", "log10.Zostera.sheath.length", "log10.Zostera.sheath.width", "log10.Zostera.longest.leaf.length")]
 
 # Compute PCAs
@@ -1214,7 +1214,7 @@ summary(zos.morph.plot.2.pca)
 
 # Output PCA scores and combine with plot data frame
 zos.morph.plot.2.pca.scores <- zos.morph.plot.2.pca$x
-ZEN_2014_plot <- cbind(zen2014_imputed, zos.morph.plot.2.pca.scores) 
+ZEN_2014_plot <- cbind(d.imputed, zos.morph.plot.2.pca.scores) 
 
 # Rename PCA variables 1-2 and cull PC3-4
 names(ZEN_2014_plot)[names(ZEN_2014_plot)=="PC1"] <- "PC1.zos"
@@ -1415,9 +1415,9 @@ ZEN_2014_site_means_Pacific$rmesograzer.mass.perg.pac <- range01(ZEN_2014_site_m
 # Subset PLOT data to 49 sites for modeling (SW.A has no periphyton data)
 ZEN_2014_plot_49 <- droplevels(subset(ZEN_2014_plot, Site != "SW.A"))
 ZEN_2014_plot_49$log10.periphyton.mass.per.g.zostera.imputed <- 
-  zen2014_49_imputed$log10.periphyton.mass.per.g.zostera.imputed[match(ZEN_2014_plot_49$Unique.ID, zen2014_49_imputed$Unique.ID)]
+  d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed[match(ZEN_2014_plot_49$Unique.ID, d.49_imputed$Unique.ID)]
 ZEN_2014_plot_49$log10.periphyton.mass.per.area.imputed <- 
-  zen2014_49_imputed$log10.periphyton.mass.per.area.imputed[match(ZEN_2014_plot_49$Unique.ID, zen2014_49_imputed$Unique.ID)]
+  d.49_imputed$log10.periphyton.mass.per.area.imputed[match(ZEN_2014_plot_49$Unique.ID, d.49_imputed$Unique.ID)]
 
 # Create scaled variables: PLOT level (49 sites: minus SW.A with no periphyton data)
 ZEN_2014_plot_49$zLatitude <- scale(ZEN_2014_plot_49$Latitude)
@@ -1513,8 +1513,8 @@ ZEN_2014_plot_49_Pacific$zmeso.perg.pac <- scale(ZEN_2014_plot_49_Pacific$log10.
 
 
 # # Add periphyton data back to the PCA data frame (must be a a better way to do this ...)
-# ZEN_2014_plot_49_PCA$log10.periphyton.mass.per.area.imputed <- zen2014_49_imputed$log10.periphyton.mass.per.area.imputed[match(ZEN_2014_plot_49_PCA$Unique.ID, zen2014_49_imputed$Unique.ID)]
-# ZEN_2014_plot_49_PCA$log10.periphyton.mass.per.g.zostera.imputed <- zen2014_49_imputed$log10.periphyton.mass.per.g.zostera.imputed[match(ZEN_2014_plot_49_PCA$Unique.ID, zen2014_49_imputed$Unique.ID)]
+# ZEN_2014_plot_49_PCA$log10.periphyton.mass.per.area.imputed <- d.49_imputed$log10.periphyton.mass.per.area.imputed[match(ZEN_2014_plot_49_PCA$Unique.ID, d.49_imputed$Unique.ID)]
+# ZEN_2014_plot_49_PCA$log10.periphyton.mass.per.g.zostera.imputed <- d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed[match(ZEN_2014_plot_49_PCA$Unique.ID, d.49_imputed$Unique.ID)]
 
 
 ###################################################################################
@@ -1554,13 +1554,13 @@ apply(ZEN_2014_plot_49_noNA, 2, function(x) any(is.na(x))) # predation.squidpops
 ###################################################################################
 
 # # Include only first sampling time
-# zen2014.epibiota = subset(zen2014.epibiota, Sampling.Time == "1")
+# epibiota = subset(epibiota, Sampling.Time == "1")
 
 # # Create separate dataframes for each coast
-# zen2014_imputed_WA <- subset(zen2014_49_imputed, Coast == "West Atlantic")
-# zen2014_imputed_EA <- subset(zen2014_49_imputed, Coast == "East Atlantic")
-# zen2014_imputed_WP <- subset(zen2014_49_imputed, Coast == "West Pacific")
-# zen2014_imputed_EP <- subset(zen2014_49_imputed, Coast == "East Pacific")
+# d.imputed_WA <- subset(d.49_imputed, Coast == "West Atlantic")
+# d.imputed_EA <- subset(d.49_imputed, Coast == "East Atlantic")
+# d.imputed_WP <- subset(d.49_imputed, Coast == "West Pacific")
+# d.imputed_EP <- subset(d.49_imputed, Coast == "East Pacific")
 
 
 # Create reduced data sets
@@ -1584,18 +1584,18 @@ ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A")
 # OUTPUT CURATED DATA SETS                                                        #
 ###################################################################################
 
-# Export zen2014 PLOT-level data set for modeling (MINUS SW.A): missing data imputed
+# Export PLOT-level data set for modeling (MINUS SW.A): missing data imputed
 write.csv(ZEN_2014_plot, "data/output/ZEN_2014_plot.csv", row.names = F)
 write.csv(ZEN_2014_plot_49_noNA, "data/output/ZEN_2014_plot_49_noNA.csv", row.names = F)
 
-# Export zen2014 PLOT-level data set, separately by ocean, for modeling (MINUS SW.A): missing data imputed
+# Export PLOT-level data set, separately by ocean, for modeling (MINUS SW.A): missing data imputed
 write.csv(ZEN_2014_plot_49_Atlantic, "data/output/ZEN_2014_plot_49_Atlantic.csv", row.names = F)
 write.csv(ZEN_2014_plot_49_Pacific, "data/output/ZEN_2014_plot_49_Pacific.csv", row.names = F)
 
-# Export zen2014 PLOT-level data set for all 50 sites (includes NAs) 
-write.csv(zen2014_imputed, "data/output/ZEN_2014_imputed.csv", row.names = F)
+# Export PLOT-level data set for all 50 sites (includes NAs) 
+write.csv(d.imputed, "data/output/ZEN_2014_imputed.csv", row.names = F)
 
-# Export zen2014 SITE-level data set
+# Export SITE-level data set
 write.csv(ZEN_2014_site_means, "data/output/ZEN_2014_site_means.csv", row.names = F)
 
 write.csv(ZEN_2014_site_means_Atlantic, "data/output/ZEN_2014_site_means_Atlantic.csv", row.names = F)
