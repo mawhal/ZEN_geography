@@ -127,8 +127,6 @@ zen2014.epibiota$Unique.ID = as.factor(zen2014.epibiota$Unique.ID)
 # Include only first sampling time
 zen2014.epibiota = subset(zen2014.epibiota, Sampling.Time == "1")
 
-# names(zen2014.epibiota)
-
 
 # create new wide-form data frame containing only the dry mass data
 epibiota.temp <- zen2014.epibiota %>%
@@ -156,7 +154,6 @@ epibiota.temp <- zen2014.epibiota %>%
 # # No idea how or why 'Dry.Mass.g.' changed to 'Dry.mass.g' but the code somehow did this and won't work without it ...
 # ################################################################################
 
-# names(epibiota.temp)
 # rename some variables 
 names(epibiota.temp)[names(epibiota.temp)=="Epibiota filter"] <- "epibiota.filter"
 names(epibiota.temp)[names(epibiota.temp)=="Zostera marina"] <- "epibiota.zostera.marina"
@@ -248,7 +245,6 @@ zen2014$precipitation <- zen2014.env$precip[match(zen2014$Site, zen2014.env$Site
 zen2014$Coast <- as.factor(zen2014$Coast)
 zen2014$Coast <- factor(zen2014$Coast, levels = c("West Pacific", "East Pacific", "West Atlantic", "East Atlantic"))
 
-# names(zen2014)
 
 
 ###################################################################################
@@ -373,8 +369,7 @@ zen2014$log10.predation.squidpops <- log10(zen2014$predation.squidpops)
 
 # Change values of NaN to NA:
 zen2014[zen2014 == "NaN"] = NA 
-zen2014[zen2014 == "Inf"] = NA 
-# names(zen2014)
+zen2014[zen2014 == "-Inf"] = NA 
 
 
 ###################################################################################
@@ -483,7 +478,6 @@ ZEN_2014_site_means$chlomean <- zen2014$chlomean[match(ZEN_2014_site_means$Site,
 ZEN_2014_site_means$log10.chlomean <- zen2014$log10.chlomean[match(ZEN_2014_site_means$Site, zen2014$Site)]
 ZEN_2014_site_means$pop.density.2015 <- zen2014$pop.density.2015[match(ZEN_2014_site_means$Site, zen2014$Site)]
 
-# names(ZEN_2014_site_means)
 
 # Add genetic data to site means data frame
 ZEN_2014_site_means$FC1 <- zen2014_gen_fca$FC1[match(ZEN_2014_site_means$Site, zen2014_gen_fca$Site)]
@@ -561,7 +555,6 @@ names(ZEN_2014_site_means)[names(ZEN_2014_site_means)=="PC2"] <- "PC2.env.global
 names(ZEN_2014_site_means)[names(ZEN_2014_site_means)=="PC3"] <- "PC3.env.global"
 ZEN_2014_site_means <- subset(ZEN_2014_site_means, select = -c(PC4,PC5,PC6, PC7, PC8))
 
-# names(ZEN_2014_site_means)
 
 
 ###################################################################################
@@ -624,7 +617,6 @@ names(ZEN_2014_site_means_Atlantic)[names(ZEN_2014_site_means_Atlantic)=="PC1"] 
 names(ZEN_2014_site_means_Atlantic)[names(ZEN_2014_site_means_Atlantic)=="PC2"] <- "PC2.env.atl"
 names(ZEN_2014_site_means_Atlantic)[names(ZEN_2014_site_means_Atlantic)=="PC3"] <- "PC3.env.atl"
 ZEN_2014_site_means_Atlantic <- subset(ZEN_2014_site_means_Atlantic, select = -c(PC4,PC5,PC6, PC7, PC8))
-# names(ZEN_2014_site_means_Atlantic)
 
 
 ###################################################################################
@@ -688,8 +680,6 @@ names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC1"] <-
 names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC2"] <- "PC2.env.pac"
 names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC3"] <- "PC3.env.pac"
 ZEN_2014_site_means_Pacific <- subset(ZEN_2014_site_means_Pacific, select = -c(PC4,PC5,PC6, PC7, PC8))
-
-# names(ZEN_2014_site_means_Pacific)
 
 
 ###################################################################################
@@ -1038,7 +1028,6 @@ imputed.values.y <- y[c("Unique.ID",  "log10.Zostera.shoots.core", "log10.Zoster
                         "log10.mesograzer.mass.per.g.plant", "log10.mesograzer.mass.per.area", 
                         "log10.mesograzer.abund.per.g.plant", "log10.mesograzer.abund.per.area" 
 )]
-# names(imputed.values.y)
 
 # Rename imputed values
 colnames(imputed.values.y)[2:13] <- c("log10.Zostera.shoots.core.imputed", 
@@ -1095,7 +1084,6 @@ zen2014_imputed$log10.mesograzer.abund.per.g.plant.imputed <-
 zen2014_imputed$log10.mesograzer.abund.per.area.imputed <- 
   imputed.values.y$log10.mesograzer.abund.per.area.imputed[match(zen2014_imputed$Unique.ID, imputed.values.y$Unique.ID)]
 # 
-# names(zen2014_imputed)
 # nrow(zen2014_imputed) # 1000 - good
 
 
@@ -1163,13 +1151,10 @@ x[is.na(x$log10.periphyton.mass.per.area),
 
 
 # Create data frame containing the imputed value for periphyton and add to the 49-site data frame
-# names(x)
 imputed.values.x <- x[c("Unique.ID", "log10.periphyton.mass.per.g.zostera", "log10.periphyton.mass.per.area")]
-# names(imputed.values.x)
 
 # Rename imputed values
 colnames(imputed.values.x)[2:3] <- c("log10.periphyton.mass.per.g.zostera.imputed", "log10.periphyton.mass.per.area.imputed" ) 
-# names(imputed.values.x)
 
 # Now paste the imputed values for periphyton back into the 49-site dataframe with the other 
 # imputed variables created above:
@@ -1180,11 +1165,7 @@ zen2014_49_imputed$log10.periphyton.mass.per.g.zostera.imputed <-
 zen2014_49_imputed$log10.periphyton.mass.per.area.imputed <- 
   imputed.values.x$log10.periphyton.mass.per.area.imputed[match(zen2014_49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
 # sum(is.na(zen2014_49_imputed$log10.periphyton.mass.per.area.imputed)) # 0
-# 
-# names(zen2014_imputed)
 # nrow(zen2014_imputed) # 1000 - good
-
-# names(zen2014_49_imputed)
 # nrow(zen2014_49_imputed) # 980 - good
 
 # Summary: We can now build and compare models that will have same number of observations
@@ -1243,7 +1224,6 @@ ZEN_2014_plot <- cbind(zen2014_imputed, zos.morph.plot.2.pca.scores)
 names(ZEN_2014_plot)[names(ZEN_2014_plot)=="PC1"] <- "PC1.zos"
 names(ZEN_2014_plot)[names(ZEN_2014_plot)=="PC2"] <- "PC2.zos"
 ZEN_2014_plot <- subset(ZEN_2014_plot, select = -c(PC3,PC4,PC5,PC6))
-names(ZEN_2014_plot)
 
 
 # NOTE: PROBABLY NEED NEW SECTION HEADING HERE ...
@@ -1266,7 +1246,6 @@ add_means <- ddply(ZEN_2014_plot, c("Site"), summarize,
 
 # Add to site means data frame
 ZEN_2014_site_means <- merge(ZEN_2014_site_means, add_means)
-names(ZEN_2014_site_means)
 
 # Add to ocean data frames
 ZEN_2014_site_means_Atlantic$PC1.zos.site <- ZEN_2014_site_means$PC1.zos.site[match(ZEN_2014_site_means_Atlantic$Site, ZEN_2014_site_means$Site)]
@@ -1476,20 +1455,15 @@ ZEN_2014_plot_49$rmeso.abund.area <- range01(ZEN_2014_plot_49$log10.mesograzer.a
 ZEN_2014_plot_49$rperiphyton.area <- range01(ZEN_2014_plot_49$log10.periphyton.mass.per.area.imputed)
 ZEN_2014_plot_49$rperiphyton.perg <- range01(ZEN_2014_plot_49$log10.periphyton.mass.per.g.zostera.imputed)
 
-# names(ZEN_2014_plot_49)
 
 # NOTE: for following, add FC1 and FC2 to the plot data set above. Then add (and scalke) the ocean-specific genetc scores below.
 # Create separate PLOT-level data sets by Ocean (49) and add ocean PC scores 
 ZEN_2014_plot_49_Atlantic <- droplevels(subset(ZEN_2014_plot_49, Ocean == "Atlantic"))
-# ZEN_2014_plot_49_Atlantic$FC1.atl <- zen2014_gen_fca_atlantic$fca1.atl[match(ZEN_2014_plot_49_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
-# ZEN_2014_plot_49_Atlantic$FC2.atl <- zen2014_gen_fca_atlantic$fca2.atl[match(ZEN_2014_plot_49_Atlantic$Site, zen2014_gen_fca_atlantic$Site)]
 ZEN_2014_plot_49_Atlantic$PC1.env.atl <- ZEN_2014_site_means_Atlantic$PC1.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
 ZEN_2014_plot_49_Atlantic$PC2.env.atl <- ZEN_2014_site_means_Atlantic$PC2.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
 ZEN_2014_plot_49_Atlantic$PC3.env.atl <- ZEN_2014_site_means_Atlantic$PC3.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
 
 ZEN_2014_plot_49_Pacific <- droplevels(subset(ZEN_2014_plot_49, Ocean == "Pacific"))
-# ZEN_2014_plot_49_Pacific$FC1.pac <- zen2014_gen_fca_pacific$fca1.pac[match(ZEN_2014_plot_49_Pacific$Site, zen2014_gen_fca_pacific$Site)]
-# ZEN_2014_plot_49_Pacific$FC2.pac <- zen2014_gen_fca_pacific$fca2.pac[match(ZEN_2014_plot_49_Pacific$Site, zen2014_gen_fca_pacific$Site)]
 ZEN_2014_plot_49_Pacific$PC1.env.pac <- ZEN_2014_site_means_Pacific$PC1.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
 ZEN_2014_plot_49_Pacific$PC2.env.pac <- ZEN_2014_site_means_Pacific$PC2.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
 ZEN_2014_plot_49_Pacific$PC3.env.pac <- ZEN_2014_site_means_Pacific$PC3.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
