@@ -138,7 +138,6 @@ epibiota.temp <- zen2014.epibiota %>%
   dplyr::summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
   # cast species as columns
   spread(Species, Dry.mass.g, fill = 0)
-# No idea how or why 'Dry.Mass.g.' changed to 'Dry.mass.g' but the code somehow did this and won't work without it ...
 # ################################################################################
 # # ----------  WHALEN UPGRADING THIS TO USE TIDYVERSE
 # # create new wide-form data frame containing only the dry mass data
@@ -151,7 +150,6 @@ epibiota.temp <- zen2014.epibiota %>%
 #   summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
 #   # cast species as columns
 #   pivot_wider( names_from = Species, values_from = Dry.mass.g, values_fill =  0)
-# # No idea how or why 'Dry.Mass.g.' changed to 'Dry.mass.g' but the code somehow did this and won't work without it ...
 # ################################################################################
 
 # rename some variables 
@@ -161,7 +159,7 @@ names(epibiota.temp)[names(epibiota.temp)=="Zostera marina"] <- "epibiota.zoster
 # Subset to only the variables of interest
 epibiota.temp <- subset(epibiota.temp, select = c(Unique.ID, epibiota.filter, epibiota.zostera.marina))
 
-# Now the prize: Calculate periphyton mass per g Zostera marina:
+# Calculate periphyton mass per g Zostera marina:
 epibiota.temp$periphyton.mass.per.g.zostera <- epibiota.temp$epibiota.filter / epibiota.temp$epibiota.zostera.marina
 
 # Add raw and normalized periphyton data back into main data frame
@@ -172,14 +170,13 @@ zen2014$periphyton.mass.per.g.zostera <- epibiota.temp$periphyton.mass.per.g.zos
 # Remove miscalculated periphyton variable from summary data set
 zen2014 <- subset(zen2014, select = -c(Epibiota.Periphyton))
 
-# CLEAN UP AND CONSOLIDATE
 
+#### CLEAN UP AND CONSOLIDATE
 # Convert categorical variables to factors
 zen2014$Site.Code <- as.factor(zen2014$Site.Code)
 zen2014$Ocean <- as.factor(zen2014$Ocean)
 
-# Rename Long Island sites (c'mon guys, read the handbook ...)
-# re-leveling apparently only works for factor variables, so convert
+# Rename Long Island sites 
 zen2014$Site <- as.factor(zen2014$Site)
 levels(zen2014$Site)[levels(zen2014$Site)=="LI.1"] <- "LI.A"
 levels(zen2014$Site)[levels(zen2014$Site)=="LI.2"] <- "LI.B"
@@ -204,7 +201,7 @@ names(zen2014.cover)[names(zen2014.cover)=="PercSeagrass"] <- "pct.cover.seagras
 # MESOGRAZER SITE RICHNESS: FIX MISSING VALUES 
 # Create vector of plots with missing values to see what is missing:
 missing.richness <- zen2014[is.na(zen2014$grazer.richness.site), c(3,7)] # columns 3 and 7 are Site, Unique.ID
-# We will replace all site richness values with "mean" for that site. First, create vector of means:
+# replace all site richness values with "mean" for that site. First, create vector of means:
 temp <- zen2014 %>% 
   group_by( Site) %>% 
   summarize( grazer.richness.site = mean(grazer.richness.site, na.rm = T))
@@ -213,7 +210,6 @@ temp <- zen2014 %>%
 temp$grazer.richness.site[temp$Site == "CR.A" ] <- 3 # CR.A grazer richness now  = 3
 
 zen2014$grazer.richness.site <- temp$grazer.richness.site[match(zen2014$Site, temp$Site)]
-# sum(is.na(zen2014$grazer.richness.site)) # 0. Voila.  
 
 
 # Add cover and predation data to main ZEN dataframe:
