@@ -8,32 +8,10 @@
 - [ ] check minor differences in output from lm's in `ZEN_2014_model_comparison_site_means_range_standardized.R`
 - [ ] streamline the data assembly script. Because we use site level data for most things, no need for ALL? of the random forest work there
 - [ ] check to see if MarineGEO has a git profile (in lieu of email?). We can transfer ownership of the repo to them
-
-### Zipped data file sent by Emmett
-- [X] One file with Zostera Relative Growth rates does not seem to be used, or maybe I am missing something?  `ZEN_2011_ZRG_AllSites_Edit141102 copy.csv` -- NEVERMIND, FOUND IT
 - [ ] *Should additional scripts be added? for example, PCA scripts, FCA scripts, other genetic analyses?*
+- [ ] check on log-transformation steps - for some variables, zeros become undefined and then omitted
 
 
-
-### Model Comparison script
-###### question about comment in code
-> NOTE: INTEGRATE THIS FILE WITH "DEFINITIVE" SCRIPT. RENAME THAT ONE TOO.
- PUT ALL SCRIPTS INTO A LOGICAL NAMING CONVENTION MAKING CLEAR THEIR TEMPORAL SEQUENCE
-
-- [X] What are definitive scripts? 
-- [X] Does anything need to be renamed at this stage?
-###### naming conventions
-How are we feeling about naming conventions now that we are using git and these things can be tracked?
-- [X] remove date suffixes from file names
-- [X] modify plotting routines so they are reproducible - saving to .svg or pdf?
-- [X] fix code that cannot run on its own, see below
-
-
-### Data Assembly script
-###### PACKAGES
-We might want shift away from ddply in plyr to just using tidyverse
-- [X] replace `read.csv()` with `read_csv()` - DECIDED NOT TO DO THIS
-- [X] randomForest --- was data actually imputed? make this clear early in the code
 
 ###### DATA SOURCES
 - [ ] **Clarify input file origins.** Links to other repos (github/doi), papers (doi), or people? this could all be listed in README.md
