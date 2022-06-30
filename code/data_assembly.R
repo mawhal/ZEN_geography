@@ -71,6 +71,10 @@ sites <- read.csv("data/input/ZEN_2014_site_metadata.csv", header = TRUE)
 # BIO-ORACLE CLIMATE AND ENVIRONMENTAL DATA
 # Read in Bio-ORACLE and WorldClim environmental data for ZEN sites from Matt Whalen's script:
 env <- read.csv("data/output/ZEN_2014_environmental.csv", header = TRUE)
+# add in situ data
+env.insitu <- read.csv("data/input/ZEN_2014_environmental_in_situ.csv") %>% 
+  mutate(site=Site)
+env <- left_join(env, env.insitu)
 
 # PERCENT COVER
 # Read in data on percent cover:
@@ -128,6 +132,18 @@ epibiota$Unique.ID = as.factor(epibiota$Unique.ID)
 epibiota = subset(epibiota, Sampling.Time == "1")
 
 
+# # create new wide-form data frame containing only the dry mass data
+# epibiota.temp <- epibiota %>%
+#   # only take along columns that are unique, otherwise output is staggered in chunks
+#   select(Unique.ID, Species, Dry.Mass.g.) %>%
+#   # group the data by species and sample
+#   group_by(Unique.ID, Species) %>%
+#   # sum the dry mass for each species in each sample (i.e., sum measurements from the same unique.ID)
+#   dplyr::summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
+#   # cast species as columns
+#   spread(Species, Dry.mass.g, fill = 0)
+################################################################################
+# ----------  WHALEN UPGRADING THIS TO USE TIDYVERSE
 # create new wide-form data frame containing only the dry mass data
 epibiota.temp <- epibiota %>%
   # only take along columns that are unique, otherwise output is staggered in chunks
@@ -137,20 +153,8 @@ epibiota.temp <- epibiota %>%
   # sum the dry mass for each species in each sample (i.e., sum measurements from the same unique.ID)
   dplyr::summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
   # cast species as columns
-  spread(Species, Dry.mass.g, fill = 0)
-# ################################################################################
-# # ----------  WHALEN UPGRADING THIS TO USE TIDYVERSE
-# # create new wide-form data frame containing only the dry mass data
-# epibiota.temp <- epibiota %>%
-#   # only take along columns that are unique, otherwise output is staggered in chunks
-#   select(Unique.ID, Species, Dry.Mass.g.) %>%
-#   # group the data by species and sample
-#   group_by(Unique.ID, Species) %>%
-#   # sum the dry mass for each species in each sample (i.e., sum measurements from the same unique.ID)
-#   summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
-#   # cast species as columns
-#   pivot_wider( names_from = Species, values_from = Dry.mass.g, values_fill =  0)
-# ################################################################################
+  pivot_wider( names_from = Species, values_from = Dry.mass.g, values_fill =  0)
+################################################################################
 
 # rename some variables 
 names(epibiota.temp)[names(epibiota.temp)=="Epibiota filter"] <- "epibiota.filter"
@@ -365,7 +369,7 @@ d$log10.predation.squidpops <- log10(d$predation.squidpops)
 
 # Change values of NaN to NA:
 d[d == "NaN"] = NA 
-d[d == "-Inf"] = NA 
+# d[d == "-Inf"] = NA 
 
 
 ###################################################################################
@@ -625,7 +629,6 @@ ZEN_2014_site_means_Atlantic <- subset(ZEN_2014_site_means_Atlantic, select = -c
 #   "Leaf.PercN.site", "log10.mean.fetch")], 
 #   smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 8)
 
-# Crap, nearly everything is strongly correlated with latitude ...
 
 # Create data frame containing the ZEN 2014 environmental variables for PCA
 # Note: Some exploration shows that nitrate is closely correlated with several other

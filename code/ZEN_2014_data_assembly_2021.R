@@ -81,7 +81,7 @@ names(zen2014.env)
 
 # PERCENT COVER
 # Read in data on percent cover:
-zen2014.cover <- read.csv("data/ZEN_2014_percent_cover_plot.csv", header = TRUE)
+zen2014.cover <- read.csv("data/input/ZEN_2014_percent_cover_plot.csv", header = TRUE)
 names(zen2014.cover)
 # NOTE: WA.A was not able to collect percent cover data - NO DATA for this site. 
 
@@ -97,9 +97,9 @@ names(zen2014.pred)
 # macro = read.csv("data/input/ZEN_2014_DATA_MASTER_2016_08_24_EpifaunaMacrophytes_copy.csv")
 
 # EELGRASS GENETICS
-zen2014_gen_fca <- read.csv("data/input/ZEN 2014 FCA scores 20201016.csv", header = TRUE)
-zen2014_gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
-zen2014_gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
+zen2014_gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
+zen2014_gen_fca_atlantic <- read.csv("data/input/archive/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
+zen2014_gen_fca_pacific <- read.csv("data/input/archive/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
 
 # EPIBIOTA 
 # Epibiota (periphyton) data were not calculated correctly in the summary 'Master" data file, 
@@ -107,7 +107,7 @@ zen2014_gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_2021
 # So we have to regenerate these numbers from scratch. 
 
 # Read in the epibiota data
-zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_2016_01_06 copy.csv", header = TRUE)
+zen2014.epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_recalc.csv", header = TRUE)
 
 # First, Japan B separated "Chl large epiphytes filter" from "Epibiota filter", the latter of which are all zero. 
 # We need to  recode those labeled "Chl large epiphytes filter" as "Epibiota filter", so we can add them together. 
