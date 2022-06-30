@@ -81,10 +81,6 @@ env <- left_join(env, env.insitu)
 cover <- read.csv("data/input/ZEN_2014_percent_cover_plot.csv", header = TRUE)
 # NOTE: WA.A was not able to collect percent cover data - NO DATA for this site. 
 
-# PREDATION INTENSITY
-# Read in data on predation intensity from amphipod tethering assay (Reynolds et al. 2017):
-pred <- read.csv("data/input/ZEN_2014_predation_site.csv", header = TRUE)
-
 
 # EELGRASS GENETICS
 d.gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
@@ -216,14 +212,11 @@ temp$grazer.richness.site[temp$Site == "CR.A" ] <- 3 # CR.A grazer richness now 
 d$grazer.richness.site <- temp$grazer.richness.site[match(d$Site, temp$Site)]
 
 
-# Add cover and predation data to main ZEN dataframe:
+# Add cover data to main ZEN dataframe:
 d$pct.cover.bare <- cover$pct.cover.bare[match(d$Unique.ID, cover$Unique.ID)]
 d$pct.cover.macroalgae <- cover$pct.cover.macroalgae[match(d$Unique.ID, cover$Unique.ID)]
 d$pct.cover.seagrass <- cover$pct.cover.seagrass[match(d$Unique.ID, cover$Unique.ID)]
 
-d$predation.amphipods <- pred$Mean.Pred.Amphipod[match(d$Site, pred$Site)]
-d$predation.gastropods <- pred$Mean.Pred.Gastropod[match(d$Site, pred$Site)]
-d$predation.squidpops <- pred$Mean.Pred.Squid[match(d$Site, pred$Site)]
 
 
 # Add BioOracle environmental data to main ZEN dataframe:
@@ -298,9 +291,6 @@ d$leaf.CN.ratio <-  d$Leaf.PercC / d$Leaf.PercN
 # hist(d$pct.cover.seagrass, col = "cyan", main = "Surveys by seagrass % cover")    
 # hist(d$pct.cover.macroalgae, col = "cyan", main = "Surveys by macroalgal % cover")    
 # 
-# hist(d$predation.amphipods, col = "cyan", main = "Surveys by amphipod loss to predation")    
-# hist(d$predation.gastropods, col = "cyan", main = "Surveys by gastropod loss to predation")    
-# hist(d$predation.squidpops, col = "cyan", main = "Surveys by squidpop loss to predation")    
 
 
 ###################################################################################
@@ -349,9 +339,6 @@ d$log10.pct.cover.macroalgae <- log10(d$pct.cover.macroalgae + 0.1)
 d$log10.pct.cover.seagrass <- log10(d$pct.cover.seagrass)
 d$sqrt.pct.cover.seagrass <- sqrt(d$pct.cover.seagrass)
 
-d$log10.predation.amphipods <- log10(d$predation.amphipods)
-d$log10.predation.gastropods <- log10(d$predation.gastropods)
-d$log10.predation.squidpops <- log10(d$predation.squidpops)
 
 
 # hist(d$nitrate)
@@ -363,9 +350,6 @@ d$log10.predation.squidpops <- log10(d$predation.squidpops)
 # hist(d$log10.pct.cover.macroalgae)
 # hist(d$log10.pct.cover.seagrass) # Raw data are better
 # 
-# hist(d$log10.predation.amphipods)    
-# hist(d$log10.predation.gastropods) # better than raw  
-# hist(d$log10.predation.squidpops) # worse than raw 
 
 # Change values of NaN to NA:
 d[d == "NaN"] = NA 
@@ -435,14 +419,8 @@ ZEN_2014_site_means <- d %>%
              log10.gastropod.mass.per.area.site = mean(log10.gastropod.mass.per.area, na.rm = T),                      
              log10.periphyton.mass.per.area.site = mean(log10.periphyton.mass.per.area, na.rm = T),                      
              
-             log10.Leaf.PercN.site = mean(log10.Leaf.PercN, na.rm = T), 
-             
-             log10.predation.gastropods.site = mean(log10.predation.gastropods, na.rm = T)  )
+             log10.Leaf.PercN.site = mean(log10.Leaf.PercN, na.rm = T)  )
 
-# Add in predation data (already site level)
-ZEN_2014_site_means$predation.amphipods <- d$predation.amphipods[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$predation.squidpops <- d$predation.squidpops[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$predation.gastropods <- d$predation.gastropods[match(ZEN_2014_site_means$Site, d$Site)]
 
 ZEN_2014_site_means$grazer.richness.site <- d$grazer.richness.site[match(ZEN_2014_site_means$Site, d$Site)]
 
@@ -715,7 +693,7 @@ pMiss <- function(x){sum(is.na(x))/length(x)*100}
 # apply(d,2,pMiss)
 
 # Results: Most variables have fewer < 4% missing. Exceptions are cover bare (42%), 
-# predation (16%), the mean body mass variables, which are missing ~25% of values because 
+# the mean body mass variables, which are missing ~25% of values because 
 # body mass can't be calculated for samples with no animals. 
 
 
@@ -1541,7 +1519,7 @@ ZEN_2014_plot_49_noNA <- subset(ZEN_2014_plot_49, select = c(Site, Latitude, Lon
   log10.mesograzer.mass.per.g.plant.imputed, log10.periphyton.mass.per.g.zostera.imputed, 
   log10.crustacean.mass.per.area.imputed, log10.gastropod.mass.per.area.imputed, 
   log10.mesograzer.mass.per.area.imputed, log10.periphyton.mass.per.area.imputed,
-  log10.grazer.richness.site, predation.squidpops,
+  log10.grazer.richness.site, 
   PC1.env.global, PC2.env.global, PC3.env.global, FC1, FC2, PC1.zos, PC2.zos,
   zPC1.zos, zPC2.zos, zPC1.env.global, zPC2.env.global,zPC3.env.global, zFC1, zFC2,
   zperiphyton.perg, zmeso.abund.perg, zmeso.mass.perg, 
@@ -1549,7 +1527,7 @@ ZEN_2014_plot_49_noNA <- subset(ZEN_2014_plot_49, select = c(Site, Latitude, Lon
   ))
 
 # Any NAs in this dataframe?
-apply(ZEN_2014_plot_49_noNA, 2, function(x) any(is.na(x))) # predation.squidpops,  log10.grazer.richness.site, log10.periphyton.mass.per.g.zostera.imputed, zperiphyton.perg  ==   "TRUE"
+apply(ZEN_2014_plot_49_noNA, 2, function(x) any(is.na(x))) #   log10.grazer.richness.site, log10.periphyton.mass.per.g.zostera.imputed, zperiphyton.perg  ==   "TRUE"
 ############## WHALEN FOUND MORE NAs in the line above
 
 ###################################################################################
