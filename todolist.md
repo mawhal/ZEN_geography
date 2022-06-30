@@ -9,11 +9,14 @@
 - [ ] streamline data assembly script. Because site level data used in models, no need for (ALL?) of the random forest work there
 - [ ] check to see if MarineGEO has a git profile (in lieu of email?). We can transfer ownership of the repo to them
 - [ ] *Should additional scripts be added? for example, PCA scripts, FCA scripts, other genetic analyses?*
-- [ ] check on log-transformation steps - for some variables, zeros become undefined and then omitted
+- [ ] check on log-transformation steps - for some variables, zeros become undefined and then omitted - how does this work in the OG code (I may not have that vesion) check Inf code line
+- [ ] can we get rid of all imputing? The eelgrass morphology PCA uses imputed data
+- [ ] add comments to figures script that labels figures with corresponding numbers from the MS
+- [ ] model comparison script does not have data outputs (no instance of write.csv) but GLM outputs are used elswhere. Should we add this back in?
 
 
 
 ###### DATA SOURCES
 - [ ] **Clarify input file origins.** Links to other repos (github/doi), papers (doi), or people? this could all be listed in README.md
-- [X] * for Whalen - add a repo for the code that made that environmental data
+
 
