@@ -1,6 +1,9 @@
 ![ZEN logo](http://zenscience.org/wp-content/uploads/2011/09/Zen_header_logo_50_pct.png)
 # ZEN_geography
 ###### this repository contains data, code, and various outputs associated with the _Zostera_ Experimental Network's evolutionary legacy project
+
+## Please contact us if you'd like to use the data
+
 This project considers the ecosystem-wide consequences of evolutionary legacies associated with the establishment and history of _Zostera marina_ (eelgrass) in the Atlantic Ocean relative to its Pacific origins. Atlantic eelgrass is smaller and shorter than Pacific eelgrass, forming "meadows" rather than "forests", and these morphological features are a legacy of population genetic bottlenecks and genetic differentiation. In turn, differences in the stature and biomass of eelgrass influence the biomass of associated algae and invertebrate animals
 # 
 
