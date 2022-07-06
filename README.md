@@ -8,7 +8,8 @@ This project considers the ecosystem-wide consequences of evolutionary legacies 
 # 
 
 ##### citation:
-Duffy, J.E., et al. 2022. A Pleistocene legacy structures variation in modern seagrass ecosystems. Proceedings of the National Academy of Sciences of the United States of America. **DOI**
+Duffy, J.E., et al. 2022. A Pleistocene legacy structures variation in modern seagrass ecosystems. Proceedings of the National Academy of Sciences of the United States of America. https://https://doi.org/10.1073/pnas.2121425119
+
 contact: DuffyE@si.edu
 
 ### Guide to this repository
