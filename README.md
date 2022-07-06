@@ -27,7 +27,7 @@ contact: DuffyE@si.edu
 - `figures.R` - generates figures of data and model outputs
 - `impute_missing.R` - imputes missing data using random forest models. This was primarily used to impute _Zostera_ morphological variables prior to a principal components analysis
 
-`ZEN_geography.Rproj` is an R project file through which all R code should be run, noting that file paths called in `code` actual begin in the parent directory
+`ZEN_geography.Rproj` is an R project file through which all R code should be run, noting that file paths called in `code` begin in the parent directory
 
 ### NOTES
 Genetic analyses are not included in this repository. For analysis of genetic diversity spectra and isolation by distance, see https://zenodo.org/record/3660013#.YWF8C0bMLpJ
