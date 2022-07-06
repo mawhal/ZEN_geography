@@ -20,11 +20,12 @@ contact: DuffyE@si.edu
 - `evol_envir_path_calculations/` contains an excel file (all sheets saved as .csv files) used to calculate and organize direct and indirect paths for comparing effects of evolutionary history and environment on eelgrass ecosystem components
 
 `code/` contains R code associated with the project listed in order of running:
-- `environmental_vars_precip` - gathers WorldClim precipitation data.
-- `environmental_vars_precip` - gathers BioOracle data variables (n=24)
-- `data_assembly` - prepares data for investigation (summaries, figures, statistical models)
-- `model_comparison` - constructs and compares linear models of site-level data
-- `figures` - generates figures of data and model outputs
+- `environmental_vars_precip.R` - gathers WorldClim precipitation data.
+- `environmental_biooracle_merge.R` - gathers BioOracle data variables (n=24) and merges with precipipation data
+- `data_assembly.R` - prepares data for investigation (summaries, figures, statistical models)
+- `model_comparison.R` - constructs and compares linear models of site-level data
+- `figures.R` - generates figures of data and model outputs
+- `impute_missing.R` - imputes missing data using random forest models. This was primarily used to impute _Zostera_ morphological variables prior to a principal components analysis
 
 `ZEN_geography.Rproj` is an R project file through which all R code should be run, noting that file paths called in `code` actual begin in the parent directory
 
