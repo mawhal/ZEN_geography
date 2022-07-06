@@ -21,11 +21,8 @@
 # PCA - ENVIRONMENTAL VARIABLES (ATLANTIC)                                        #
 # PCA - ENVIRONMENTAL VARIABLES (PACIFIC)                                         #
 # EXPLORE DATA COMPLETENESS                                                       #
-# IMPUTE MISSING DATA                                                             #
 # PCA - EELGRASS VARIABLES (GLOBAL)                                               #
 # CREATE SCALED VARIABLES                                                         #
-# INTEGRATE DATA FRAMES                                                           #
-# CREATE REDUCED DATA FRAMES WITHOUT MISSING SITES OR VALUES                      #
 # SUBSET DATA SETS BY GEOGRAPHY                                                   #
 # OUTPUT CURATED DATA SETS                                                        #
 #                                                                                 #
@@ -76,10 +73,6 @@ env.insitu <- read.csv("data/input/ZEN_2014_environmental_in_situ.csv") %>%
   mutate(site=Site)
 env <- left_join(env, env.insitu)
 
-# PERCENT COVER
-# Read in data on percent cover:
-cover <- read.csv("data/input/ZEN_2014_percent_cover_plot.csv", header = TRUE)
-# NOTE: WA.A was not able to collect percent cover data - NO DATA for this site. 
 
 
 # EELGRASS GENETICS
@@ -87,88 +80,6 @@ d.gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
 # d.gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
 # d.gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
 
-# EPIBIOTA 
-# Epibiota (periphyton) data were not calculated correctly in the summary 'main" data file, 
-# specifically filtered material ("Epibiota filter") was not divided by the mass of Zostera scraped. 
-# So we have to regenerate these numbers from scratch. 
-epibiota <- read.csv("data/input/ZEN_2014_epibiota_mass_recalc.csv", header = TRUE)
-################################################################################
-
-# First, Japan B separated "Chl large epiphytes filter" from "Epibiota filter", the latter of which are all zero. 
-# We need to  recode those labeled "Chl large epiphytes filter" as "Epibiota filter", so we can add them together. 
-epibiota$Species <- as.factor(epibiota$Species)
-levels(epibiota$Species)[levels(epibiota$Species) == "Chl Large Epiphytes Filter"] <- "Epibiota filter"
-# levels(epibiota$Species) #This appears to have worked ...
-
-# Second, Oregon A misnamed the epibiota filters ...
-levels(epibiota$Species)[levels(epibiota$Species) == "Epibiota Packet"] <- "Epibiota filter"
-
-# Subset to only the variables of interest here
-epibiota <- subset(epibiota, select = c(Site, Site.Code, Subsite, 
-  Sampling.Time, Plot.ID, Unique.ID, Species, Taxa, Group, Type, Dry.Mass.g.))
-
-
-# Recode second sampling time as 1 for LI
-epibiota$Site.Code <- as.factor(epibiota$Site.Code)
-epibiota[epibiota$Site.Code == "LI" & epibiota$Sampling.Time == "1", "Sampling.Time"] = 3
-epibiota[epibiota$Site.Code == "LI" & epibiota$Sampling.Time == "2", "Sampling.Time"] = 1
-
-# Regenerate Unique IDs
-epibiota$Unique.ID = as.character(epibiota$Unique.ID)
-epibiota[epibiota$Site.Code == "LI", "Unique.ID"] = 
-  paste(epibiota[epibiota$Site.Code == "LI", "Site.Code"], 
-        epibiota[epibiota$Site.Code == "LI", "Subsite"], 
-        epibiota[epibiota$Site.Code == "LI", "Sampling.Time"], 
-        epibiota[epibiota$Site.Code == "LI", "Plot.ID"],
-        sep = ".")
-
-epibiota$Unique.ID = as.factor(epibiota$Unique.ID)
-
-# Include only first sampling time
-epibiota = subset(epibiota, Sampling.Time == "1")
-
-
-# # create new wide-form data frame containing only the dry mass data
-# epibiota.temp <- epibiota %>%
-#   # only take along columns that are unique, otherwise output is staggered in chunks
-#   select(Unique.ID, Species, Dry.Mass.g.) %>%
-#   # group the data by species and sample
-#   group_by(Unique.ID, Species) %>%
-#   # sum the dry mass for each species in each sample (i.e., sum measurements from the same unique.ID)
-#   dplyr::summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
-#   # cast species as columns
-#   spread(Species, Dry.mass.g, fill = 0)
-################################################################################
-# ----------  WHALEN UPGRADING THIS TO USE TIDYVERSE
-# create new wide-form data frame containing only the dry mass data
-epibiota.temp <- epibiota %>%
-  # only take along columns that are unique, otherwise output is staggered in chunks
-  select(Unique.ID, Species, Dry.Mass.g.) %>%
-  # group the data by species and sample
-  group_by(Unique.ID, Species) %>%
-  # sum the dry mass for each species in each sample (i.e., sum measurements from the same unique.ID)
-  dplyr::summarize(Dry.mass.g = sum(Dry.Mass.g.)) %>%
-  # cast species as columns
-  pivot_wider( names_from = Species, values_from = Dry.mass.g, values_fill =  0)
-################################################################################
-
-# rename some variables 
-names(epibiota.temp)[names(epibiota.temp)=="Epibiota filter"] <- "epibiota.filter"
-names(epibiota.temp)[names(epibiota.temp)=="Zostera marina"] <- "epibiota.zostera.marina"
-
-# Subset to only the variables of interest
-epibiota.temp <- subset(epibiota.temp, select = c(Unique.ID, epibiota.filter, epibiota.zostera.marina))
-
-# Calculate periphyton mass per g Zostera marina:
-epibiota.temp$periphyton.mass.per.g.zostera <- epibiota.temp$epibiota.filter / epibiota.temp$epibiota.zostera.marina
-
-# Add raw and normalized periphyton data back into main data frame
-d$epibiota.filter <- epibiota.temp$epibiota.filter[match(d$Unique.ID, epibiota.temp$Unique.ID)]
-d$epibiota.zostera.marina <- epibiota.temp$epibiota.zostera.marina[match(d$Unique.ID, epibiota.temp$Unique.ID)]
-d$periphyton.mass.per.g.zostera <- epibiota.temp$periphyton.mass.per.g.zostera[match(d$Unique.ID, epibiota.temp$Unique.ID)]
-
-# Remove miscalculated periphyton variable from summary data set
-d <- subset(d, select = -c(Epibiota.Periphyton))
 
 
 #### CLEAN UP AND CONSOLIDATE
@@ -193,9 +104,8 @@ names(d)[names(d)=="Mean.Fetch"] <- "mean.fetch"
 names(d)[names(d)=="PopDens2"] <- "pop.density.2015"
 names(d)[names(d)=="mesograzer.total.site.richness"] <- "grazer.richness.site"
 
-names(cover)[names(cover)=="PercBare"] <- "pct.cover.bare"
-names(cover)[names(cover)=="PercMacroalgae"] <- "pct.cover.macroalgae"
-names(cover)[names(cover)=="PercSeagrass"] <- "pct.cover.seagrass"
+
+
 
 
 # MESOGRAZER SITE RICHNESS: FIX MISSING VALUES 
@@ -210,12 +120,6 @@ temp <- d %>%
 temp$grazer.richness.site[temp$Site == "CR.A" ] <- 3 # CR.A grazer richness now  = 3
 
 d$grazer.richness.site <- temp$grazer.richness.site[match(d$Site, temp$Site)]
-
-
-# Add cover data to main ZEN dataframe:
-d$pct.cover.bare <- cover$pct.cover.bare[match(d$Unique.ID, cover$Unique.ID)]
-d$pct.cover.macroalgae <- cover$pct.cover.macroalgae[match(d$Unique.ID, cover$Unique.ID)]
-d$pct.cover.seagrass <- cover$pct.cover.seagrass[match(d$Unique.ID, cover$Unique.ID)]
 
 
 
@@ -244,10 +148,6 @@ d$Coast <- factor(d$Coast, levels = c("West Pacific", "East Pacific", "West Atla
 # CREATE DERIVED VARIABLES                                                        #
 ###################################################################################
 
-# # Create variables for water column stiochiometry
-# d$NP.ratio <-  d$nitrate / d$phosphate
-# hist(d$NP.ratio) # not too far from normal
-# d$PARP.ratio <-  d$parmean / d$phosphate
 
 # Percentage of crustaceans and gastropods among the mesograzers
 d$crust.pct.mass <-  d$Malacostraca.mesograzer.plot.biomass.std.mg.g / d$mesograzer.total.plot.biomass.std.mg.g
@@ -287,9 +187,6 @@ d$leaf.CN.ratio <-  d$Leaf.PercC / d$Leaf.PercN
 # 
 # hist(d$mesograzer.total.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by mesograzer biomass")    
 # hist(d$epifauna.total.plot.biomass.std.mg.g, col = "cyan", main = "Surveys by mobile epifauna biomass")    
-# 
-# hist(d$pct.cover.seagrass, col = "cyan", main = "Surveys by seagrass % cover")    
-# hist(d$pct.cover.macroalgae, col = "cyan", main = "Surveys by macroalgal % cover")    
 # 
 
 
@@ -334,11 +231,6 @@ d$log10.phosphate <- log10(d$phosphate)
 d$log10.chlomean <- log10(d$chlomean) 
 d$log10.mean.fetch <- log10(d$mean.fetch) 
 
-d$log10.pct.cover.bare <- log10(d$pct.cover.bare)
-d$log10.pct.cover.macroalgae <- log10(d$pct.cover.macroalgae + 0.1)
-d$log10.pct.cover.seagrass <- log10(d$pct.cover.seagrass)
-d$sqrt.pct.cover.seagrass <- sqrt(d$pct.cover.seagrass)
-
 
 
 # hist(d$nitrate)
@@ -346,14 +238,9 @@ d$sqrt.pct.cover.seagrass <- sqrt(d$pct.cover.seagrass)
 # 
 # hist(d$log10.Zostera.AG.mass)
 # 
-# hist(d$log10.pct.cover.bare)
-# hist(d$log10.pct.cover.macroalgae)
-# hist(d$log10.pct.cover.seagrass) # Raw data are better
-# 
 
 # Change values of NaN to NA:
 d[d == "NaN"] = NA 
-# d[d == "-Inf"] = NA 
 
 
 ###################################################################################
@@ -365,9 +252,7 @@ d[d == "NaN"] = NA
 # Obtain mean values per site
 ZEN_2014_site_means <- d %>% 
   group_by(Site) %>% 
-  dplyr::summarize( Seagrass.pct.cover.site = mean(pct.cover.seagrass, na.rm = T),
-             Macroalgae.pct.cover.site = mean(pct.cover.macroalgae, na.rm = T),
-             Zostera.AG.mass.site = mean(Zostera.aboveground.mean.mass, na.rm = T), 
+  dplyr::summarize( Zostera.AG.mass.site = mean(Zostera.aboveground.mean.mass, na.rm = T), 
              Zostera.BG.mass.site = mean(Zostera.belowground.mean.mass, na.rm = T),                      
              Zostera.shoots.core.site = mean(Zostera.shoots.per.m2.core, na.rm = T),                      
              Zostera.sheath.width.site = mean(Zostera.sheath.width, na.rm = T),                      
@@ -395,7 +280,6 @@ ZEN_2014_site_means <- d %>%
              Leaf.PercN.site = mean(Leaf.PercN, na.rm = T), 
              leaf.CN.ratio.site = mean(leaf.CN.ratio, na.rm = T), 
              
-             log10.Macroalgae.pct.cover.site = mean(log10.pct.cover.macroalgae, na.rm = T),
              log10.Zostera.AG.mass.site = mean(log10.Zostera.AG.mass, na.rm = T), 
              log10.Zostera.BG.mass.site = mean(log10.Zostera.BG.mass, na.rm = T), 
              log10.Zostera.shoots.core.site = mean(log10.Zostera.shoots.core, na.rm = T), 
@@ -642,7 +526,6 @@ ZEN.env.pca.pac <- prcomp(ZEN.env.pac, center = TRUE, scale. = TRUE)
 # 
 # # Calculate proportion of variance explained by each PC
 # summary(ZEN.env.pca.pac)
-#                           PC1    PC2    PC3     PC4     PC5     PC6     PC7     PC8
 # Standard deviation     1.9641 1.4390 0.9141 0.71060 0.62592 0.49046 0.24605 0.19570
 # Proportion of Variance 0.4822 0.2588 0.1045 0.06312 0.04897 0.03007 0.00757 0.00479
 # Cumulative Proportion  0.4822 0.7410 0.8455 0.90860 0.95758 0.98765 0.99521 1.00000
@@ -659,6 +542,7 @@ names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC3"] <-
 ZEN_2014_site_means_Pacific <- subset(ZEN_2014_site_means_Pacific, select = -c(PC4,PC5,PC6, PC7, PC8))
 
 
+
 ###################################################################################
 # EXPLORE DATA COMPLETENESS                                                       #
 ###################################################################################
@@ -669,8 +553,6 @@ ZEN_2014_site_means_Pacific <- subset(ZEN_2014_site_means_Pacific, select = -c(P
 # valid AIC model comparisons. 
 
 # # How many observations are missing for each variable?
-# sum(is.na(d$pct.cover.seagrass)) # 60
-# sum(is.na(d$pct.cover.macroalgae)) # 60
 # sum(is.na(d$log10.Zostera.AG.mass)) # 24
 # sum(is.na(d$log10.Zostera.shoots.core)) # 15
 # sum(is.na(d$Zostera.longest.leaf.length)) # 0
@@ -692,461 +574,17 @@ pMiss <- function(x){sum(is.na(x))/length(x)*100}
 # # Now apply it to the data frame: 
 # apply(d,2,pMiss)
 
-# Results: Most variables have fewer < 4% missing. Exceptions are cover bare (42%), 
-# the mean body mass variables, which are missing ~25% of values because 
-# body mass can't be calculated for samples with no animals. 
 
 
-###################################################################################
-# IMPUTE MISSING DATA                                                             #
-###################################################################################
 
-# NOTE: To sidestep the long imputation process, read in the most recent versions of the 
-# imputed data sets (see intro section above)
+#
 
-# First the rationale: Model comparisons requires that alternative models use exactly the 
-# same source data set. Missing cells result in slightly different data sets for models
-# that include, versus do not include, that variable, with different DF such that 
-# resulting AIC scores used to compare them will be invalid. Solving this requires 
-# either (1) throwing out all rows that have a missing cell, or (2) imputing (modeling) 
-# the missing values. The former is far the worse alternative since it will end up 
-# discarding a substantial part of the entire data set. 
 
-# A few other points: we cannot include the following predictors because biased by 
-# missing from entire site: periphyton (missing from SW.A). Also BC.A is missing 12 
-# of 20 samples for Zostera biomass and shoot density. I am going ahead to impute the 
-# missing Zostera data for BC.A but we may want to exclude this site from any analysis 
-# that uses Zostera mass or shoot density as either a predictor or  response. 
 
-# Note that a data set used for RF imputation model cannot include any rows that lack 
-# data for one of the predictor variables.
 
-# We first impute missing values for Zostera variables (AG biomass, shoot density, %N), then
-# proceed to the grazer variables that depend on these grass variables
 
-# # Remind me which variables are missing data:
-# apply(d,2,pMiss)
 
-# create a temporary dataframe used to model (impute) the missing values
-y <- d
 
-# LEAF % NITROGEN
-# # Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.Leaf.PercN)) # 14
-
-leafN.rf = randomForest(log10.Leaf.PercN ~ Ocean + Coast + Latitude + Longitude 
-                        + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                        + log10.chlomean
-                        + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                        + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                        + log10.periphyton.mass.per.g.zostera
-                        + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                        ## + log10.Leaf.PercN
-                        # + pop.density.2015 + AllelicRichness
-                        ,
-                        na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.Leaf.PercN), 
-  "log10.Leaf.PercN"] = predict(leafN.rf, y[is.na(y$log10.Leaf.PercN), ])
-# sum(is.na(y$log10.Leaf.PercN)) # 0
-
-
-# ZOSTERA SHOOT DENSITY
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.Zostera.shoots.core)) # 15
-shootdensity.rf = randomForest(log10.Zostera.shoots.core ~ Ocean + Coast + Latitude + Longitude 
-                               + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                               + log10.chlomean
-                               # + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                               + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                               # + log10.periphyton.mass.per.g.zostera  
-                               # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                               + log10.Leaf.PercN 
-                               # + pop.density.2015 
-                               + AllelicRichness
-                               ,
-                               na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.Zostera.shoots.core), 
-  "log10.Zostera.shoots.core"] = predict(shootdensity.rf, y[is.na(y$log10.Zostera.shoots.core), ])
-# sum(is.na(y$log10.Zostera.shoots.core)) # 0 
-
-
-# ZOSTERA ABOVE-GROUND BIOMASS
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.Zostera.AG.mass)) # 24
-ZAG.rf = randomForest(log10.Zostera.AG.mass ~ Ocean + Coast + Latitude + Longitude 
-                      # + sst.mean + Salinity.ppt + parmean + log10.nitrate + log10.phosphate
-                      + log10.chlomean 
-                      # + log10.Zostera.AG.mass
-                      + log10.Zostera.shoots.core
-                      + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                      # + log10.periphyton.mass.per.g.zostera  
-                      # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                      + log10.Leaf.PercN 
-                      # + pop.density.2015 
-                      + AllelicRichness
-                      ,
-                      na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.Zostera.AG.mass), 
-  "log10.Zostera.AG.mass"] = predict(ZAG.rf, y[is.na(y$log10.Zostera.AG.mass), ])
-# sum(is.na(y$log10.Zostera.AG.mass)) # 0
-
-
-# ZOSTERA BELOW-GROUND BIOMASS
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.Zostera.BG.mass)) # 29
-ZBG.rf = randomForest(log10.Zostera.BG.mass ~ Ocean + Coast + Latitude + Longitude 
-                      # + sst.mean + Salinity.ppt + parmean + log10.nitrate + log10.phosphate
-                      + log10.chlomean 
-                      # + log10.Zostera.BG.mass
-                      + log10.Zostera.shoots.core
-                      + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                      # + log10.periphyton.mass.per.g.zostera  
-                      # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                      + log10.Leaf.PercN 
-                      # + pop.density.2015 
-                      + AllelicRichness
-                      ,
-                      na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.Zostera.BG.mass), 
-  "log10.Zostera.BG.mass"] = predict(ZBG.rf, y[is.na(y$log10.Zostera.BG.mass), ])
-# sum(is.na(y$log10.Zostera.BG.mass)) # 0
-
-
-# CRUSTACEAN mesograzer biomass
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.crustacean.mass.per.g.plant)) # 9
-crust.rf = randomForest(log10.crustacean.mass.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
-                        + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                        + log10.chlomean
-                        + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                        + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                        # + log10.periphyton.mass.per.g.zostera
-                        # # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                        + log10.Leaf.PercN
-                        # # + pop.density.2015 
-                        + AllelicRichness
-                        ,
-                        na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.crustacean.mass.per.g.plant), 
-  "log10.crustacean.mass.per.g.plant"] = predict(crust.rf, y[is.na(y$log10.crustacean.mass.per.g.plant), ])
-# sum(is.na(y$log10.crustacean.mass.per.g.plant)) # 0 
-
-
-# GASTROPOD mesograzer biomass
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.gastropod.mass.per.g.plant)) # 9
-gast.rf = randomForest(log10.gastropod.mass.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
-                       + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                       + log10.chlomean
-                       + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                       + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                       # + log10.periphyton.mass.per.g.zostera
-                       # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                       + log10.Leaf.PercN 
-                       # + pop.density.2015 
-                       + AllelicRichness
-                       ,
-                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.gastropod.mass.per.g.plant), 
-  "log10.gastropod.mass.per.g.plant"] = predict(gast.rf, y[is.na(y$log10.gastropod.mass.per.g.plant), ])
-# sum(is.na(y$log10.gastropod.mass.per.g.plant)) # 0
-
-
-# total MESOGRAZER biomass
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.mesograzer.mass.per.g.plant)) # 9
-meso.rf = randomForest(log10.mesograzer.mass.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
-                       + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                       + log10.chlomean 
-                       + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                       + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                       # + log10.periphyton.mass.per.g.zostera
-                       # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                       + log10.Leaf.PercN
-                       # + pop.density.2015
-                       + AllelicRichness
-                       ,
-                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.mesograzer.mass.per.g.plant), 
-  "log10.mesograzer.mass.per.g.plant"] = predict(meso.rf, y[is.na(y$log10.mesograzer.mass.per.g.plant), ])
-# sum(is.na(y$log10.mesograzer.mass.per.g.plant)) # 0
-
-
-# total MESOGRAZER abundance
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.mesograzer.abund.per.g.plant)) # 9
-meso.abund.rf = randomForest(log10.mesograzer.abund.per.g.plant ~ Ocean + Coast + Latitude + Longitude 
-                             + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                             + log10.chlomean 
-                             + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                             + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                             # + log10.periphyton.mass.per.g.zostera
-                             # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                             + log10.Leaf.PercN
-                             # + pop.density.2015
-                             + AllelicRichness
-                             ,
-                             na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.mesograzer.abund.per.g.plant), 
-  "log10.mesograzer.abund.per.g.plant"] = predict(meso.abund.rf, y[is.na(y$log10.mesograzer.abund.per.g.plant), ])
-# sum(is.na(y$log10.mesograzer.abund.per.g.plant)) # 0
-
-
-# CRUSTACEAN mesograzer biomass PER AREA
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.crustacean.mass.per.area)) # 33
-crust.area.rf = randomForest(log10.crustacean.mass.per.area ~ Ocean + Coast + Latitude + Longitude 
-                             + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                             + log10.chlomean 
-                             + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                             + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                             # + log10.periphyton.mass.per.g.zostera
-                             # # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                             + log10.Leaf.PercN
-                             # # + pop.density.2015 
-                             + AllelicRichness
-                             ,
-                             na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.crustacean.mass.per.area), 
-  "log10.crustacean.mass.per.area"] = predict(crust.area.rf, y[is.na(y$log10.crustacean.mass.per.area), ])
-# sum(is.na(y$log10.crustacean.mass.per.area)) # 0 
-
-
-# GASTROPOD mesograzer biomass PER AREA
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.gastropod.mass.per.area)) # 33
-gast.area.rf = randomForest(log10.gastropod.mass.per.area ~ Ocean + Coast + Latitude + Longitude 
-                            + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                            + log10.chlomean
-                            + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                            + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                            # + log10.periphyton.mass.per.g.zostera
-                            # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                            + log10.Leaf.PercN 
-                            # + pop.density.2015 
-                            + AllelicRichness
-                            ,
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.gastropod.mass.per.area), 
-  "log10.gastropod.mass.per.area"] = predict(gast.area.rf, y[is.na(y$log10.gastropod.mass.per.area), ])
-# sum(is.na(y$log10.gastropod.mass.per.area)) # 0
-
-
-# total MESOGRAZER biomass PER AREA
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.mesograzer.mass.per.area)) # 33
-meso.area.rf = randomForest(log10.mesograzer.mass.per.area ~ Ocean + Coast + Latitude + Longitude 
-                            + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                            + log10.chlomean 
-                            + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                            + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                            # + log10.periphyton.mass.per.g.zostera
-                            # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                            + log10.Leaf.PercN
-                            # + pop.density.2015
-                            + AllelicRichness
-                            ,
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.mesograzer.mass.per.area), 
-  "log10.mesograzer.mass.per.area"] = predict(meso.area.rf, y[is.na(y$log10.mesograzer.mass.per.area), ])
-# sum(is.na(y$log10.mesograzer.mass.per.area)) # 0
-
-
-# total MESOGRAZER abundance PER AREA
-# Use random forest to impute missing values. First build predictive model:
-# sum(is.na(d$log10.mesograzer.abund.per.area)) # 33
-meso.abund.area.rf = randomForest(log10.mesograzer.abund.per.area ~ Ocean + Coast + Latitude + Longitude 
-                                  + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                                  + log10.chlomean 
-                                  + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                                  + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                                  # + log10.periphyton.mass.per.g.zostera
-                                  # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                                  + log10.Leaf.PercN
-                                  # + pop.density.2015
-                                  + AllelicRichness
-                                  ,
-                                  na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = y)
-
-# Impute missing values
-y[is.na(y$log10.mesograzer.abund.per.area), 
-  "log10.mesograzer.abund.per.area"] = predict(meso.abund.area.rf, y[is.na(y$log10.mesograzer.abund.per.area), ])
-# sum(is.na(y$log10.mesograzer.abund.per.area)) # 0
-
-
-# Create data frame containing the imputed values and add them to the master data frame
-# names(y)
-imputed.values.y <- y[c("Unique.ID",  "log10.Zostera.shoots.core", "log10.Zostera.AG.mass", 
-                        "log10.Zostera.BG.mass", "log10.Leaf.PercN",  
-                        "log10.crustacean.mass.per.g.plant", "log10.crustacean.mass.per.area", 
-                        "log10.gastropod.mass.per.g.plant", "log10.gastropod.mass.per.area",
-                        "log10.mesograzer.mass.per.g.plant", "log10.mesograzer.mass.per.area", 
-                        "log10.mesograzer.abund.per.g.plant", "log10.mesograzer.abund.per.area" 
-)]
-
-# Rename imputed values
-colnames(imputed.values.y)[2:13] <- c("log10.Zostera.shoots.core.imputed", 
-                                      "log10.Zostera.AG.mass.imputed", 
-                                      "log10.Zostera.BG.mass.imputed", 
-                                      "log10.Leaf.PercN.imputed", 
-                                      "log10.crustacean.mass.per.g.plant.imputed", 
-                                      "log10.crustacean.mass.per.area.imputed", 
-                                      "log10.gastropod.mass.per.g.plant.imputed", 
-                                      "log10.gastropod.mass.per.area.imputed",
-                                      "log10.mesograzer.mass.per.g.plant.imputed", 
-                                      "log10.mesograzer.mass.per.area.imputed",
-                                      "log10.mesograzer.abund.per.g.plant.imputed",
-                                      "log10.mesograzer.abund.per.area.imputed"
-) 
-
-
-# Integrate the imputed values back into master data set 
-d.imputed <- d
-
-d.imputed$log10.Zostera.shoots.core.imputed <- 
-  imputed.values.y$log10.Zostera.shoots.core.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.Zostera.AG.mass.imputed <- 
-  imputed.values.y$log10.Zostera.AG.mass.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.Zostera.BG.mass.imputed <- 
-  imputed.values.y$log10.Zostera.BG.mass.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.Leaf.PercN.imputed <- 
-  imputed.values.y$log10.Leaf.PercN.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.crustacean.mass.per.g.plant.imputed <- 
-  imputed.values.y$log10.crustacean.mass.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.crustacean.mass.per.area.imputed <- 
-  imputed.values.y$log10.crustacean.mass.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.gastropod.mass.per.g.plant.imputed <- 
-  imputed.values.y$log10.gastropod.mass.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.gastropod.mass.per.area.imputed <- 
-  imputed.values.y$log10.gastropod.mass.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.mesograzer.mass.per.g.plant.imputed <- 
-  imputed.values.y$log10.mesograzer.mass.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.mesograzer.mass.per.area.imputed <- 
-  imputed.values.y$log10.mesograzer.mass.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.mesograzer.abund.per.g.plant.imputed <- 
-  imputed.values.y$log10.mesograzer.abund.per.g.plant.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-
-d.imputed$log10.mesograzer.abund.per.area.imputed <- 
-  imputed.values.y$log10.mesograzer.abund.per.area.imputed[match(d.imputed$Unique.ID, imputed.values.y$Unique.ID)]
-# 
-# nrow(d.imputed) # 1000 - good
-
-
-# PERIPHYTON
-
-# NOTE: Here we need a reduced data set of 49 sites (i.e., excluding SW.A) for predictive model and imputation,
-# because ALL plots from SW.A. had no periphyton values so it s not valid to impute values for that site.
-# This requires two steps: 
-
-# First, we subset the dataframe of imputed values created above. After we derive imputed values for 
-# periphyton, we will paste them back inot this dataframe: 
-d.49_imputed <- droplevels(subset(d.imputed, Site != "SW.A"))
-
-# Second: To rigorously estimate imputed values for a variable (in this case periphyton), we should use only 
-# empirical data, so we next subset the original (pre-imputation) dataframe for this purpose:
-d.49 <- droplevels(subset(d, Site != "SW.A"))
-x <- d.49
-
-# PERIPHYTON mass per g Zostera
-# Use random forest to impute missing values for periphyton in the reduced dataframe (49 sites). 
-# First build predictive model:
-# sum(is.na(d.49$log10.periphyton.mass.per.g.zostera)) # 4
-peri.rf = randomForest(log10.periphyton.mass.per.g.zostera ~ Ocean + Coast + Latitude + Longitude 
-                       + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                       + log10.chlomean
-                       + log10.Zostera.AG.mass + log10.Zostera.shoots.core
-                       + log10.Zostera.sheath.length + log10.Zostera.longest.leaf.length
-                       # # + log10.periphyton.mass.per.g.zostera
-                       # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                       + log10.Leaf.PercN
-                       # + pop.density.2015
-                       + AllelicRichness
-                       ,
-                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = x)
-
-# Impute missing values
-x[is.na(x$log10.periphyton.mass.per.g.zostera),
-  "log10.periphyton.mass.per.g.zostera"] = predict(peri.rf, x[is.na(x$log10.periphyton.mass.per.g.zostera), ])
-# sum(is.na(x$log10.periphyton.mass.per.g.zostera)) # 0
-
-
-# PERIPHYTON mass per AREA
-# Use random forest to impute missing values for periphyton in the reduced dataframe (49 sites). 
-# First build predictive model:
-# sum(is.na(d.49$log10.periphyton.mass.per.area)) # 28
-peri.area.rf = randomForest(log10.periphyton.mass.per.area ~ Ocean + Coast + Latitude 
-                            + Longitude
-                            + sst.mean + Salinity.ppt + parmean + sqrt.nitrate + log10.phosphate
-                            + log10.chlomean
-                            # + log10.Zostera.shoots.core
-                            + log10.Zostera.sheath.length
-                            # + log10.Zostera.longest.leaf.length
-                            # # + log10.periphyton.mass.per.g.zostera
-                            # + log10.mesograzer.mass.per.g.plant + log10.crustacean.mass.per.g.plant + log10.gastropod.mass.per.g.plant
-                            # + log10.Leaf.PercN
-                            # + pop.density.2015
-                            + AllelicRichness
-                            ,
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = x)
-
-# Impute missing values
-x[is.na(x$log10.periphyton.mass.per.area),
-  "log10.periphyton.mass.per.area"] = predict(peri.area.rf, x[is.na(x$log10.periphyton.mass.per.area), ])
-# sum(is.na(x$log10.periphyton.mass.per.area)) # 0 (if it returns 3, then take out most predictors, and add back gradually)
-
-
-# Create data frame containing the imputed value for periphyton and add to the 49-site data frame
-imputed.values.x <- x[c("Unique.ID", "log10.periphyton.mass.per.g.zostera", "log10.periphyton.mass.per.area")]
-
-# Rename imputed values
-colnames(imputed.values.x)[2:3] <- c("log10.periphyton.mass.per.g.zostera.imputed", "log10.periphyton.mass.per.area.imputed" ) 
-
-# Now paste the imputed values for periphyton back into the 49-site dataframe with the other 
-# imputed variables created above:
-d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed <- 
-  imputed.values.x$log10.periphyton.mass.per.g.zostera.imputed[match(d.49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
-# sum(is.na(d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed)) # 0
-
-d.49_imputed$log10.periphyton.mass.per.area.imputed <- 
-  imputed.values.x$log10.periphyton.mass.per.area.imputed[match(d.49_imputed$Unique.ID, imputed.values.x$Unique.ID)]
-# sum(is.na(d.49_imputed$log10.periphyton.mass.per.area.imputed)) # 0
-# nrow(d.imputed) # 1000 - good
-# nrow(d.49_imputed) # 980 - good
-
-# Summary: We can now build and compare models that will have same number of observations
-# BUT can't include periphyton as predictor because biased by missing from entire site SW.A.
 
 
 
@@ -1154,11 +592,14 @@ d.49_imputed$log10.periphyton.mass.per.area.imputed <-
 # PCA - EELGRASS VARIABLES (GLOBAL)                                               #
 ###################################################################################
 
+# NOTE: The PCA for eelgrass morphology uses imputed data (see impute_missing/R) 
+d.imputed <- read.csv( "data/output/ZEN_2014_imputed.csv" )
+
 # NOTE: This includes all available ZEN eelgrass morphological variables. We use the 
 # first two axes, which together explain 83% of the variation in input variables, under 
 # the (arbitrary) criterion of using those PC axes necessary to capture 75% of the variation. 
 
-# PCA - EELGRASS VARIABLES (PLOT LEVEL)                                           
+## PCA - EELGRASS VARIABLES (PLOT LEVEL)                                           
 
 # Create data frame containing the ZEN 2014 eelgrass morphological variables
 zos.morph.plot.2 <- d.imputed[c("log10.Zostera.AG.mass.imputed", "log10.Zostera.BG.mass.imputed", 
@@ -1203,15 +644,6 @@ names(ZEN_2014_plot)[names(ZEN_2014_plot)=="PC2"] <- "PC2.zos"
 ZEN_2014_plot <- subset(ZEN_2014_plot, select = -c(PC3,PC4,PC5,PC6))
 
 
-# NOTE: PROBABLY NEED NEW SECTION HEADING HERE ...
-
-# NOTE: IS THIS WHERE THIS SHOULD BE?
-# Add environmental and genetic PC scores to plot-level data frame
-ZEN_2014_plot$PC1.env.global <- ZEN_2014_site_means$PC1.env.global[match(ZEN_2014_plot$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_plot$PC2.env.global <- ZEN_2014_site_means$PC2.env.global[match(ZEN_2014_plot$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_plot$PC3.env.global <- ZEN_2014_site_means$PC3.env.global[match(ZEN_2014_plot$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_plot$FC1 <- ZEN_2014_site_means$FC1[match(ZEN_2014_plot$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_plot$FC2 <- ZEN_2014_site_means$FC2[match(ZEN_2014_plot$Site, ZEN_2014_site_means$Site)]
 
 
 # NOTE: IS THIS WHERE THIS SHOULD BE?
@@ -1239,7 +671,7 @@ ZEN_2014_site_means_49_Atlantic$PC2.zos.site <- ZEN_2014_site_means$PC2.zos.site
 
 # Create function to standardize and center a variable by its range of observed values. 
 # The '...' allows it to work with NAs.
-range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
+range01 <- function(x, ...){(x - min(x, na.rm = T, ...)) / (max(x, na.rm = T, ...) - min(x, na.rm = T, ...))}
 
 
 # Combine PCA scores with PLOT-level data frame
@@ -1306,19 +738,9 @@ ZEN_2014_site_means_49_Atlantic$zPC2.env.global.atl <- scale(ZEN_2014_site_means
 ZEN_2014_site_means_49_Atlantic$zPC3.env.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC3.env.global)
 ZEN_2014_site_means_49_Atlantic$zFC1.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC1)
 ZEN_2014_site_means_49_Atlantic$zFC2.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC2)
-################################################################################
-# ------------------  WHALEN FOUND ERRORS IN SEVERAL OF THE FOLLOWING LINES. 
-# ------------------  PC1.env.atl was calculated on all data, not the "49" dataset with SW.A removed
 ZEN_2014_site_means_Atlantic$zPC1.env.atl <- scale(ZEN_2014_site_means_Atlantic$PC1.env.atl)
 ZEN_2014_site_means_Atlantic$zPC2.env.atl <- scale(ZEN_2014_site_means_Atlantic$PC2.env.atl)
 ZEN_2014_site_means_Atlantic$zPC3.env.atl <- scale(ZEN_2014_site_means_Atlantic$PC3.env.atl)
-ZEN_2014_site_means_Atlantic$zFC1.atl <- scale(ZEN_2014_site_means_Atlantic$FC1.atl)
-ZEN_2014_site_means_Atlantic$zFC2.atl <- scale(ZEN_2014_site_means_Atlantic$FC2.atl)
-# ZEN_2014_site_means_49_Atlantic$zPC1.env.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC1.env.atl)
-# ZEN_2014_site_means_49_Atlantic$zPC2.env.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC2.env.atl)
-# ZEN_2014_site_means_49_Atlantic$zPC3.env.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC3.env.atl)
-# ZEN_2014_site_means_49_Atlantic$zFC1.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC1.atl)
-# ZEN_2014_site_means_49_Atlantic$zFC2.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC2.atl)
 ZEN_2014_site_means_49_Atlantic$zperiphyton.area.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site)
 ZEN_2014_site_means_49_Atlantic$zperiphyton.perg.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
 ZEN_2014_site_means_49_Atlantic$zmesograzer.mass.area.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
@@ -1340,13 +762,6 @@ ZEN_2014_site_means_49_Atlantic$rFC2.global.atl <- range01(ZEN_2014_site_means_4
 ZEN_2014_site_means_Atlantic$rPC1.env.atl <- range01(ZEN_2014_site_means_Atlantic$PC1.env.atl)
 ZEN_2014_site_means_Atlantic$rPC2.env.atl <- range01(ZEN_2014_site_means_Atlantic$PC2.env.atl)
 ZEN_2014_site_means_Atlantic$rPC3.env.atl <- range01(ZEN_2014_site_means_Atlantic$PC3.env.atl)
-ZEN_2014_site_means_Atlantic$rFC1.atl <- range01(ZEN_2014_site_means_Atlantic$FC1.atl)
-ZEN_2014_site_means_Atlantic$rFC2.atl <- range01(ZEN_2014_site_means_Atlantic$FC2.atl)
-# ZEN_2014_site_means_49_Atlantic$rPC1.env.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC1.env.atl)
-# ZEN_2014_site_means_49_Atlantic$rPC2.env.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC2.env.atl)
-# ZEN_2014_site_means_49_Atlantic$rPC3.env.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC3.env.atl)
-# ZEN_2014_site_means_49_Atlantic$rFC1.atl <- range01(ZEN_2014_site_means_49_Atlantic$FC1.atl)
-# ZEN_2014_site_means_49_Atlantic$rFC2.atl <- range01(ZEN_2014_site_means_49_Atlantic$FC2.atl)
 ZEN_2014_site_means_49_Atlantic$rperiphyton.area.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site)
 ZEN_2014_site_means_49_Atlantic$rperiphyton.perg.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
 ZEN_2014_site_means_49_Atlantic$rmesograzer.mass.area.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
@@ -1365,8 +780,6 @@ ZEN_2014_site_means_Pacific$zFC2.global.pac <- scale(ZEN_2014_site_means_Pacific
 ZEN_2014_site_means_Pacific$zPC1.env.pac <- scale(ZEN_2014_site_means_Pacific$PC1.env.pac)
 ZEN_2014_site_means_Pacific$zPC2.env.pac <- scale(ZEN_2014_site_means_Pacific$PC2.env.pac)
 ZEN_2014_site_means_Pacific$zPC3.env.pac <- scale(ZEN_2014_site_means_Pacific$PC3.env.pac)
-ZEN_2014_site_means_Pacific$zFC1.pac <- scale(ZEN_2014_site_means_Pacific$FC1.pac)
-ZEN_2014_site_means_Pacific$zFC2.pac <- scale(ZEN_2014_site_means_Pacific$FC2.pac)
 ZEN_2014_site_means_Pacific$zperiphyton.area.pac <- scale(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.area.site)
 ZEN_2014_site_means_Pacific$zperiphyton.perg.pac <- scale(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.g.zostera.site)
 ZEN_2014_site_means_Pacific$zmesograzer.mass.area.pac <- scale(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.area.site)
@@ -1385,196 +798,29 @@ ZEN_2014_site_means_Pacific$rFC2.global.pac <- range01(ZEN_2014_site_means_Pacif
 ZEN_2014_site_means_Pacific$rPC1.env.pac <- range01(ZEN_2014_site_means_Pacific$PC1.env.pac)
 ZEN_2014_site_means_Pacific$rPC2.env.pac <- range01(ZEN_2014_site_means_Pacific$PC2.env.pac)
 ZEN_2014_site_means_Pacific$rPC3.env.pac <- range01(ZEN_2014_site_means_Pacific$PC3.env.pac)
-ZEN_2014_site_means_Pacific$rFC1.pac <- range01(ZEN_2014_site_means_Pacific$FC1.pac)
-ZEN_2014_site_means_Pacific$rFC2.pac <- range01(ZEN_2014_site_means_Pacific$FC2.pac)
 ZEN_2014_site_means_Pacific$rperiphyton.area.pac <- range01(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.area.site)
 ZEN_2014_site_means_Pacific$rperiphyton.perg.pac <- range01(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.g.zostera.site)
 ZEN_2014_site_means_Pacific$rmesograzer.mass.area.pac <- range01(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.area.site)
 ZEN_2014_site_means_Pacific$rmesograzer.mass.perg.pac <- range01(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.g.plant.site)
 
 
-# Subset PLOT data to 49 sites for modeling (SW.A has no periphyton data)
-ZEN_2014_plot_49 <- droplevels(subset(ZEN_2014_plot, Site != "SW.A"))
-ZEN_2014_plot_49$log10.periphyton.mass.per.g.zostera.imputed <- 
-  d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed[match(ZEN_2014_plot_49$Unique.ID, d.49_imputed$Unique.ID)]
-ZEN_2014_plot_49$log10.periphyton.mass.per.area.imputed <- 
-  d.49_imputed$log10.periphyton.mass.per.area.imputed[match(ZEN_2014_plot_49$Unique.ID, d.49_imputed$Unique.ID)]
 
-# Create scaled variables: PLOT level (49 sites: minus SW.A with no periphyton data)
-ZEN_2014_plot_49$zLatitude <- scale(ZEN_2014_plot_49$Latitude)
-ZEN_2014_plot_49$zPC1.zos <- scale(ZEN_2014_plot_49$PC1.zos)
-ZEN_2014_plot_49$zPC2.zos <- scale(ZEN_2014_plot_49$PC2.zos)
-ZEN_2014_plot_49$zPC1.env.global <- scale(ZEN_2014_plot_49$PC1.env.global)
-ZEN_2014_plot_49$zPC2.env.global <- scale(ZEN_2014_plot_49$PC2.env.global)
-ZEN_2014_plot_49$zPC3.env.global <- scale(ZEN_2014_plot_49$PC3.env.global)
-ZEN_2014_plot_49$zFC1 <- scale(ZEN_2014_plot_49$FC1)
-ZEN_2014_plot_49$zFC2 <- scale(ZEN_2014_plot_49$FC2)
-ZEN_2014_plot_49$zmeso.mass.perg <- scale(ZEN_2014_plot_49$log10.mesograzer.mass.per.g.plant.imputed)
-ZEN_2014_plot_49$zmeso.mass.area <- scale(ZEN_2014_plot_49$log10.mesograzer.mass.per.area.imputed)
-ZEN_2014_plot_49$zmeso.abund.perg <- scale(ZEN_2014_plot_49$log10.mesograzer.abund.per.g.plant.imputed)
-ZEN_2014_plot_49$zmeso.abund.area <- scale(ZEN_2014_plot_49$log10.mesograzer.abund.per.area.imputed)
-ZEN_2014_plot_49$zperiphyton.area <- scale(ZEN_2014_plot_49$log10.periphyton.mass.per.area.imputed)
-ZEN_2014_plot_49$zperiphyton.perg <- scale(ZEN_2014_plot_49$log10.periphyton.mass.per.g.zostera.imputed)
-
-# Create RANGE-scaled variables: PLOT level (49 sites: minus SW.A with no periphyton data)
-ZEN_2014_plot_49$rLatitude <- range01(ZEN_2014_plot_49$Latitude)
-ZEN_2014_plot_49$rPC1.zos <- range01(ZEN_2014_plot_49$PC1.zos)
-ZEN_2014_plot_49$rPC2.zos <- range01(ZEN_2014_plot_49$PC2.zos)
-ZEN_2014_plot_49$rPC1.env.global <- range01(ZEN_2014_plot_49$PC1.env.global)
-ZEN_2014_plot_49$rPC2.env.global <- range01(ZEN_2014_plot_49$PC2.env.global)
-ZEN_2014_plot_49$rPC3.env.global <- range01(ZEN_2014_plot_49$PC3.env.global)
-ZEN_2014_plot_49$rFC1 <- range01(ZEN_2014_plot_49$FC1)
-ZEN_2014_plot_49$rFC2 <- range01(ZEN_2014_plot_49$FC2)
-ZEN_2014_plot_49$rmeso.mass.perg <- range01(ZEN_2014_plot_49$log10.mesograzer.mass.per.g.plant.imputed)
-ZEN_2014_plot_49$rmeso.mass.area <- range01(ZEN_2014_plot_49$log10.mesograzer.mass.per.area.imputed)
-ZEN_2014_plot_49$rmeso.abund.perg <- range01(ZEN_2014_plot_49$log10.mesograzer.abund.per.g.plant.imputed)
-ZEN_2014_plot_49$rmeso.abund.area <- range01(ZEN_2014_plot_49$log10.mesograzer.abund.per.area.imputed)
-ZEN_2014_plot_49$rperiphyton.area <- range01(ZEN_2014_plot_49$log10.periphyton.mass.per.area.imputed)
-ZEN_2014_plot_49$rperiphyton.perg <- range01(ZEN_2014_plot_49$log10.periphyton.mass.per.g.zostera.imputed)
-
-
-# NOTE: for following, add FC1 and FC2 to the plot data set above. Then add (and scalke) the ocean-specific genetc scores below.
-# Create separate PLOT-level data sets by Ocean (49) and add ocean PC scores 
-ZEN_2014_plot_49_Atlantic <- droplevels(subset(ZEN_2014_plot_49, Ocean == "Atlantic"))
-ZEN_2014_plot_49_Atlantic$PC1.env.atl <- ZEN_2014_site_means_Atlantic$PC1.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
-ZEN_2014_plot_49_Atlantic$PC2.env.atl <- ZEN_2014_site_means_Atlantic$PC2.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
-ZEN_2014_plot_49_Atlantic$PC3.env.atl <- ZEN_2014_site_means_Atlantic$PC3.env.atl[match(ZEN_2014_plot_49_Atlantic$Site, ZEN_2014_site_means_Atlantic$Site)]
-
-ZEN_2014_plot_49_Pacific <- droplevels(subset(ZEN_2014_plot_49, Ocean == "Pacific"))
-ZEN_2014_plot_49_Pacific$PC1.env.pac <- ZEN_2014_site_means_Pacific$PC1.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
-ZEN_2014_plot_49_Pacific$PC2.env.pac <- ZEN_2014_site_means_Pacific$PC2.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
-ZEN_2014_plot_49_Pacific$PC3.env.pac <- ZEN_2014_site_means_Pacific$PC3.env.pac[match(ZEN_2014_plot_49_Pacific$Site, ZEN_2014_site_means_Pacific$Site)]
-
-
-###################################################################################
-# INTEGRATE DATA FRAMES                                                           #
-###################################################################################
-
-# NOTE: ADD IN RANGE-SCALED VARIABLES AS ABOVE
-
-# Create z-scaled variables - PLOT level: ATLANTIC
-ZEN_2014_plot_49_Atlantic$zFC1.atl <- scale(ZEN_2014_plot_49_Atlantic$FC1.atl,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zFC2.atl <- scale(ZEN_2014_plot_49_Atlantic$FC2.atl,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zFC1.global.atl <- scale(ZEN_2014_plot_49_Atlantic$FC1,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zFC2.global.atl <- scale(ZEN_2014_plot_49_Atlantic$FC2,scale=TRUE,center=TRUE)
-
-ZEN_2014_plot_49_Atlantic$zPC1.env.global.atl <- scale(ZEN_2014_plot_49_Atlantic$PC1.env.global,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zPC2.env.global.atl <- scale(ZEN_2014_plot_49_Atlantic$PC2.env.global,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zPC3.env.global.atl <- scale(ZEN_2014_plot_49_Atlantic$PC3.env.global,scale=TRUE,center=TRUE)
-
-ZEN_2014_plot_49_Atlantic$zPC1.env.atl <- scale(ZEN_2014_plot_49_Atlantic$PC1.env.atl,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zPC2.env.atl <- scale(ZEN_2014_plot_49_Atlantic$PC2.env.atl,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zPC3.env.atl <- scale(ZEN_2014_plot_49_Atlantic$PC3.env.atl,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zPC1.zos.global.atl <- scale(ZEN_2014_plot_49_Atlantic$PC1.zos,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zPC2.zos.global.atl <- scale(ZEN_2014_plot_49_Atlantic$PC2.zos,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zperi.area.atl <- scale(ZEN_2014_plot_49_Atlantic$log10.periphyton.mass.per.area.imputed,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zperi.perg.atl <- scale(ZEN_2014_plot_49_Atlantic$log10.periphyton.mass.per.g.zostera.imputed,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zmeso.area.atl <- scale(ZEN_2014_plot_49_Atlantic$log10.mesograzer.mass.per.area.imputed,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Atlantic$zmeso.perg.atl <- scale(ZEN_2014_plot_49_Atlantic$log10.mesograzer.mass.per.g.plant.imputed,scale=TRUE,center=TRUE)
-
-# Create z-scaled variables - PLOT level: PACIFIC
-ZEN_2014_plot_49_Pacific$zFC1.pac <- scale(ZEN_2014_plot_49_Pacific$FC1.pac,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zFC2.pac <- scale(ZEN_2014_plot_49_Pacific$FC2.pac,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zFC1.global.pac <- scale(ZEN_2014_plot_49_Pacific$FC1,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zFC2.global.pac <- scale(ZEN_2014_plot_49_Pacific$FC2,scale=TRUE,center=TRUE)
-
-ZEN_2014_plot_49_Pacific$zPC1.env.global.pac <- scale(ZEN_2014_plot_49_Pacific$PC1.env.global,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zPC2.env.global.pac <- scale(ZEN_2014_plot_49_Pacific$PC2.env.global,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zPC3.env.global.pac <- scale(ZEN_2014_plot_49_Pacific$PC3.env.global,scale=TRUE,center=TRUE)
-
-ZEN_2014_plot_49_Pacific$zPC1.env.pac <- scale(ZEN_2014_plot_49_Pacific$PC1.env.pac,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zPC2.env.pac <- scale(ZEN_2014_plot_49_Pacific$PC2.env.pac,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zPC3.env.pac <- scale(ZEN_2014_plot_49_Pacific$PC3.env.pac,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zPC1.zos.global.pac <- scale(ZEN_2014_plot_49_Pacific$PC1.zos,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zPC2.zos.global.pac <- scale(ZEN_2014_plot_49_Pacific$PC2.zos,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zperi.area.pac <- scale(ZEN_2014_plot_49_Pacific$log10.periphyton.mass.per.area.imputed,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zperi.perg.pac <- scale(ZEN_2014_plot_49_Pacific$log10.periphyton.mass.per.g.zostera.imputed,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zmeso.area.pac <- scale(ZEN_2014_plot_49_Pacific$log10.mesograzer.mass.per.area.imputed,scale=TRUE,center=TRUE)
-ZEN_2014_plot_49_Pacific$zmeso.perg.pac <- scale(ZEN_2014_plot_49_Pacific$log10.mesograzer.mass.per.g.plant.imputed,scale=TRUE,center=TRUE)
-
-
-# # Add periphyton data back to the PCA data frame (must be a a better way to do this ...)
-# ZEN_2014_plot_49_PCA$log10.periphyton.mass.per.area.imputed <- d.49_imputed$log10.periphyton.mass.per.area.imputed[match(ZEN_2014_plot_49_PCA$Unique.ID, d.49_imputed$Unique.ID)]
-# ZEN_2014_plot_49_PCA$log10.periphyton.mass.per.g.zostera.imputed <- d.49_imputed$log10.periphyton.mass.per.g.zostera.imputed[match(ZEN_2014_plot_49_PCA$Unique.ID, d.49_imputed$Unique.ID)]
-
-
-###################################################################################
-# CREATE REDUCED DATA FRAMES WITHOUT MISSING SITES OR VALUES                      #
-###################################################################################
-
-# NOTE: DO THIS AFTER EVERTYTHING ELSE, IMMEDIATELY BEFORE SUBSEETING GEOGRAPHICALLY AND WRITING OUT FINAL DATA FRAMES
-
-# NOTE: piecewiseSEM apparently kills model fitting when there are NAs in dataframe, 
-# even if they are not included in the model. Therefore, I create new dataframes that 
-# include ONLY the variables that will be used in modeling:
-
-# 49-SITE DATA FRAME (deletes SW.A, which has no periphyton data)
-ZEN_2014_plot_49_noNA <- subset(ZEN_2014_plot_49, select = c(Site, Latitude, Longitude, 
-  Coast, Ocean, sst.mean, sst.range, Salinity.ppt, ph, parmean, cloudmean, log10.day.length, 
-  sqrt.nitrate, log10.phosphate, log10.chlomean, log10.Leaf.PercN.imputed, log10.mean.fetch, 
-  AllelicRichness, log10.Zostera.AG.mass.imputed, log10.Zostera.BG.mass.imputed,
-  log10.Zostera.shoots.core.imputed, log10.Zostera.longest.leaf.length, log10.Zostera.sheath.length, log10.Zostera.sheath.width, 
-  log10.mesograzer.abund.per.g.plant.imputed, log10.mesograzer.abund.per.area.imputed, 
-  log10.crustacean.mass.per.g.plant.imputed,  log10.gastropod.mass.per.g.plant.imputed,
-  log10.mesograzer.mass.per.g.plant.imputed, log10.periphyton.mass.per.g.zostera.imputed, 
-  log10.crustacean.mass.per.area.imputed, log10.gastropod.mass.per.area.imputed, 
-  log10.mesograzer.mass.per.area.imputed, log10.periphyton.mass.per.area.imputed,
-  log10.grazer.richness.site, 
-  PC1.env.global, PC2.env.global, PC3.env.global, FC1, FC2, PC1.zos, PC2.zos,
-  zPC1.zos, zPC2.zos, zPC1.env.global, zPC2.env.global,zPC3.env.global, zFC1, zFC2,
-  zperiphyton.perg, zmeso.abund.perg, zmeso.mass.perg, 
-  zperiphyton.area, zmeso.abund.area, zmeso.mass.area
-  ))
-
-# Any NAs in this dataframe?
-apply(ZEN_2014_plot_49_noNA, 2, function(x) any(is.na(x))) #   log10.grazer.richness.site, log10.periphyton.mass.per.g.zostera.imputed, zperiphyton.perg  ==   "TRUE"
-############## WHALEN FOUND MORE NAs in the line above
 
 ###################################################################################
 # SUBSET DATA SETS BY GEOGRAPHY                                                   #
 ###################################################################################
 
-# # Include only first sampling time
-# epibiota = subset(epibiota, Sampling.Time == "1")
-
-# # Create separate dataframes for each coast
-# d.imputed_WA <- subset(d.49_imputed, Coast == "West Atlantic")
-# d.imputed_EA <- subset(d.49_imputed, Coast == "East Atlantic")
-# d.imputed_WP <- subset(d.49_imputed, Coast == "West Pacific")
-# d.imputed_EP <- subset(d.49_imputed, Coast == "East Pacific")
-
-
 # Create reduced data sets
-
-# # Create separate data sets by Ocean
-# ZEN_2014_site_means_PCA_Atlantic <- droplevels(subset(ZEN_2014_site_means_PCA, Ocean == "Atlantic"))
-# ZEN_2014_site_means_PCA_Pacific <- droplevels(subset(ZEN_2014_site_means_PCA, Ocean == "Pacific"))
-
-# # Delete SW.A because no periphyton data
-# ZEN_2014_site_means_49_PCA <- droplevels(subset(ZEN_2014_site_means_PCA, Site != "SW.A"))
-
-# # Create separate data sets by Ocean (49)
-# ZEN_2014_site_means_49_PCA_Atlantic <- droplevels(subset(ZEN_2014_site_means_49_PCA, Ocean == "Atlantic"))
-# ZEN_2014_site_means_49_PCA_Pacific <- droplevels(subset(ZEN_2014_site_means_49_PCA, Ocean == "Pacific"))
-
 # # Create separate data set excluding SW.A (no periphyton data)
 ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
+
+
 
 
 ###################################################################################
 # OUTPUT CURATED DATA SETS                                                        #
 ###################################################################################
 
-# Export PLOT-level data set for modeling (MINUS SW.A): missing data imputed
-write.csv(ZEN_2014_plot, "data/output/ZEN_2014_plot.csv", row.names = F)
-write.csv(ZEN_2014_plot_49_noNA, "data/output/ZEN_2014_plot_49_noNA.csv", row.names = F)
-
-# Export PLOT-level data set, separately by ocean, for modeling (MINUS SW.A): missing data imputed
-write.csv(ZEN_2014_plot_49_Atlantic, "data/output/ZEN_2014_plot_49_Atlantic.csv", row.names = F)
-write.csv(ZEN_2014_plot_49_Pacific, "data/output/ZEN_2014_plot_49_Pacific.csv", row.names = F)
-
-# Export PLOT-level data set for all 50 sites (includes NAs) 
-write.csv(d.imputed, "data/output/ZEN_2014_imputed.csv", row.names = F)
 
 # Export SITE-level data set
 write.csv(ZEN_2014_site_means, "data/output/ZEN_2014_site_means.csv", row.names = F)

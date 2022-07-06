@@ -69,10 +69,10 @@
 # large proportion of the variance. Therefore AICc seems to be overly conservative, therefore 
 # I do not include null models in these model comparisons. 
 
-# Beginning 5 April 2021 I deleted all sections involving plot-level models. They can be found 
+# Beginning 5 April 2021 we deleted all sections involving plot-level models. They can be found 
 # in previous versions of this script. 
 
-# Beginning 14 March 2021 I use range-standardized, centered variables as opposed to z scores
+# Beginning 14 March 2021 we use range-standardized, centered variables as opposed to z scores
 # (centered and standardized to +/- 1 standard deviation)
 
 # This script uses ZEN 2014 data and linear models to find the best 
@@ -187,21 +187,6 @@ pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "En
 dev.off()
 
 
-################################################################################
-##------ WHALEN NOT SEEING ANY PLOT-LEVEL DATA HERE, DELETE THESE LINES?
-# # Missing data? No.
-# nrow(ZEN_2014_plot_49) # 980
-# sum(is.na(ZEN_2014_plot_49$ocean.code)) # 0
-# sum(is.na(ZEN_2014_plot_49$zPC1.env.global)) # 0
-# sum(is.na(ZEN_2014_plot_49$zPC2.env.global)) # 0
-# sum(is.na(ZEN_2014_plot_49$zPC3.env.global)) # 0
-# sum(is.na(ZEN_2014_plot_49$zFC1)) # 0
-# sum(is.na(ZEN_2014_plot_49$zFC2)) # 0
-# sum(is.na(ZEN_2014_plot_49$zPC1.zos)) # 0
-# sum(is.na(ZEN_2014_plot_49$zPC2.zos)) # 0
-# sum(is.na(ZEN_2014_plot_49$zperiphyton.perg)) # 0
-# sum(is.na(ZEN_2014_plot_49$zmeso.mass.perg)) # 0
-################################################################################
 
 
 ###################################################################################
@@ -654,20 +639,20 @@ summary(pcz1.site.g.12)
 # F-statistic: 17.45 on 7 and 41 DF,  p-value: 1.785e-10
 
 
-# Examine residuals of best model
-op <- par(mfrow = c(2,4))
-ypred = predict(pcz1.site.g.4)
-res = residuals(pcz1.site.g.4, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-par(op)
-# RESULTS: Left-skewed BUT only one point well above the qq line 
+# # Examine residuals of best model
+# op <- par(mfrow = c(2,4))
+# ypred = predict(pcz1.site.g.4)
+# res = residuals(pcz1.site.g.4, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# par(op)
+# # RESULTS: Left-skewed BUT only one point well above the qq line 
 
 # RESULTS and INTERPRETATION: Globally, eelgrass growth form (PCz1) is affected by ocean, 
 # latitude/climate, and genetic FC2. Forest form is best developed in Pacific, at lower latitudes 
@@ -822,20 +807,20 @@ AICc(pcz2.site.g.4, pcz2.site.g.12, pcz2.site.g.13, pcz2.site.g.14)
 # is better than having both predictors. Nevertheless, we keep both in because this helps 
 # comparison with other response variables.
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(pcz2.site.g.4)
-res = residuals(pcz2.site.g.4, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-par(op)
-# RESULTS: 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(pcz2.site.g.4)
+# res = residuals(pcz2.site.g.4, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# par(op)
+# # RESULTS: 
 
 # RESULTS and INTERPRETATION: Bottom line: Highest biomass (low PCz2) 
 # occurs in productive estuaries (high PCe3), and at high values of FC2. Details: Ocean and FC1 are 
@@ -1053,23 +1038,23 @@ summary(peri.site.g.2)
 # F-statistic:  2.26 on 9 and 39 DF,  p-value: 0.03816
 # NOTE: Barely significant. Not much explanatory power for global periphyton. 
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(peri.site.g.2)
-res = residuals(peri.site.g.2, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Tails depart from qq line.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(peri.site.g.2)
+# res = residuals(peri.site.g.2, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Tails depart from qq line.
 
 # RESULTS and INTERPRETATION: On a global scale, no model explains site-level periphyton 
 # mass well (R2 = 0.19). Periphyton increases with genetic FC2, and there is an interaction between 
@@ -1294,23 +1279,23 @@ summary(peri.area.site.g.2)
 # F-statistic: 4.122 on 9 and 39 DF,  p-value: 0.0008728
 # NOTE: In all three best models, FC2 and PCz1 significantly affect periphyton.  
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(peri.area.site.g.2)
-res = residuals(peri.area.site.g.2, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Platykurtic. Tails depart from qq line.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(peri.area.site.g.2)
+# res = residuals(peri.area.site.g.2, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Platykurtic. Tails depart from qq line.
 
 # RESULTS and INTERPRETATION: Periphyton per area: Best model (2) explains 37% of variation. 
 # All three best models are consistent in showing that periphyton per bottom area significantly 
@@ -1548,24 +1533,24 @@ summary(meso.site.g.16)
 # F-statistic: 4.887 on 9 and 39 DF,  p-value: 0.0002098
 
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(meso.site.g.16)
-res = residuals(meso.site.g.16, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Looks pretty good.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(meso.site.g.16)
+# res = residuals(meso.site.g.16, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Looks pretty good.
 
 # RESULTS AND INTERPRETATION: Global analysis shows that mesograzer biomass per g plant is 
 # strongly higher in productive, nutrient rich estuaries (high PCe3, PCe2). Model averaging 
@@ -1818,24 +1803,24 @@ AICc(meso.area.site.g.16, meso.area.site.g.23) # Slightly better
 # Multiple R-squared:  0.6006,	Adjusted R-squared:  0.5207 
 # F-statistic: 7.519 on 8 and 40 DF,  p-value: 4.506e-06
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(meso.area.site.g.16)
-res = residuals(meso.area.site.g.16, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: OK
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(meso.area.site.g.16)
+# res = residuals(meso.area.site.g.16, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: OK
 
 # RESULTS: Mesograzer biomass per area increases strongly in productive estuaries (high PCe3 and to lesser
 # extent high PCe2) and where eelgrass biomass is greater (low PCz2). There is a strong interaction between
@@ -1843,6 +1828,7 @@ par(op)
 # (non-significant) is removed, the model is slightly better and FCA1 becomes highly significant. Thus, the 
 # effect of eelgrass genetics on mesograzer biomass is less than that of environment but still 
 # significant. 
+
 
 
 ###################################################################################
@@ -1983,21 +1969,21 @@ summary(pcz1.site.a.1.raw)
 # Multiple R-squared:  0.609,	Adjusted R-squared:  0.524 
 # F-statistic: 7.165 on 5 and 23 DF,  p-value: 0.0003583
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(pcz1.site.a.1)
-res = residuals(pcz1.site.a.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Pretty good. 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(pcz1.site.a.1)
+# res = residuals(pcz1.site.a.1, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Pretty good. 
 
 
 # RESULTS and INTERPRETATION: In the Atlantic, meadow form (high PCz1) is best developed at 
@@ -2142,21 +2128,21 @@ summary(pcz2.test.a.10) # RESULT:
 # Multiple R-squared:  0.5779,	Adjusted R-squared:  0.4862 
 # F-statistic: 6.299 on 5 and 23 DF,  p-value: 0.0008062
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(pcz2.test.a.2)
-res = residuals(pcz2.test.a.2, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Model seems to systematically overpredict, i.e., many poiunts are below qq line. ? 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(pcz2.test.a.2)
+# res = residuals(pcz2.test.a.2, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Model seems to systematically overpredict, i.e., many poiunts are below qq line. ? 
 
 # RESULTS and INTERPRETATION: In the Atlantic, eelgrass biomass (inverse PCz2) is highest at 
 # productive estuarine sites (high PCe3). Genetic FC2 also has strong effect but interaction 
@@ -2390,23 +2376,23 @@ summary(peri.test.a.20) # RESULT:
 # Multiple R-squared:  0.3821,	Adjusted R-squared:  0.1761 
 # F-statistic: 1.855 on 7 and 21 DF,  p-value: 0.129
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(peri.test.a.11)
-res = residuals(peri.test.a.11, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Generally OK. Possibly underpredicted. 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(peri.test.a.11)
+# res = residuals(peri.test.a.11, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Generally OK. Possibly underpredicted. 
 
 # RESULTS and INTERPRETATION: In the Atlantic, none of our predictors explains periphyton 
 # well at the site level. "Best" model has P = 0.11, suggests slightly lower periphyton 
@@ -2638,23 +2624,23 @@ summary(peri.area.test.a.20)
 # Multiple R-squared:  0.557,	Adjusted R-squared:  0.4093 
 # F-statistic: 3.772 on 7 and 21 DF,  p-value: 0.00841
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(peri.area.test.a.9)
-res = residuals(peri.area.test.a.9, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Generally OK. 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(peri.area.test.a.9)
+# res = residuals(peri.area.test.a.9, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Generally OK. 
 
 # RESULTS and INTERPRETATION: In the Atlantic, best model for periphyton per area explains 44% of
 # variation. Periphyton per area is higher in forest-like stands (low PCz1) of high biomass (low PCz2).
@@ -2911,23 +2897,23 @@ AICc(meso.test.a.9, meso.test.a.18, meso.test.a.19, meso.test.a.20)
 # meso.test.a.20  9 -16.90118
 # Result: Model with both FC2 and PCe2 is best 
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(meso.test.a.9)
-res = residuals(meso.test.a.9, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: OK. A bit right-skewed.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(meso.test.a.9)
+# res = residuals(meso.test.a.9, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: OK. A bit right-skewed.
 
 
 # RESULTS and INTERPRETATION: In the Atlantic, Mesograzers reach highest biomass in productive, 
@@ -3164,23 +3150,23 @@ summary(meso.area.test.a.20)
 # Multiple R-squared:  0.7442,	Adjusted R-squared:  0.6589 
 # F-statistic: 8.728 on 7 and 21 DF,  p-value: 4.918e-05
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(meso.area.test.a.1)
-res = residuals(meso.area.test.a.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: OK.  
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(meso.area.test.a.1)
+# res = residuals(meso.area.test.a.1, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: OK.  
 
 
 # RESULTS and INTERPRETATION: In the Atlantic, mesograzers per area are greater in productive estuarine
@@ -3199,12 +3185,12 @@ par(op)
 ###################################################################################
 # GLM: EELGRASS GROWTH FORM PC1 (PACIFIC) - MODEL USING SITE MEANS                #
 ###################################################################################
-
-# Explore correlations among variables used in models
-pairs.panels(ZEN_2014_site_means_Pacific[,c("Latitude", "PC1.env.global", "PC2.env.global", "PC3.env.global",
-  "FC1", "FC2", "PC1.zos.site", "PC2.zos.site", 
-  "log10.periphyton.mass.per.g.zostera.site", "log10.mesograzer.mass.per.g.plant.site")], 
-  smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 8)
+# 
+# # Explore correlations among variables used in models
+# pairs.panels(ZEN_2014_site_means_Pacific[,c("Latitude", "PC1.env.global", "PC2.env.global", "PC3.env.global",
+#   "FC1", "FC2", "PC1.zos.site", "PC2.zos.site", 
+#   "log10.periphyton.mass.per.g.zostera.site", "log10.mesograzer.mass.per.g.plant.site")], 
+#   smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 8)
 
 # Main effects only
 pcz1.test.p.1 <- lm(rPC1.zos.pac ~ 
@@ -3320,21 +3306,21 @@ summary(pcz1.test.p.1.raw)
 # Multiple R-squared:  0.5048,	Adjusted R-squared:  0.3279 
 # F-statistic: 2.854 on 5 and 14 DF,  p-value: 0.05568
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(pcz1.test.p.1)
-res = residuals(pcz1.test.p.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Pretty Good. 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(pcz1.test.p.1)
+# res = residuals(pcz1.test.p.1, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Pretty Good. 
 
 # RESULTS and INTERPRETATION: In the Pacific, meadow form (high PCz1) is not well explained
 # by our models (best model P = 0.056). Only significant predictor is genetic FC2. 
@@ -3447,21 +3433,21 @@ summary(pcz2.test.p.9)
 # F-statistic: 2.618 on 4 and 15 DF,  p-value: 0.07699
 
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(pcz2.test.p.1)
-res = residuals(pcz2.test.p.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Residuals are strongly right-skewed. 
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(pcz2.test.p.1)
+# res = residuals(pcz2.test.p.1, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Residuals are strongly right-skewed. 
 
 # RESULTS and INTERPRETATION: In the Pacific, eelgrass biomass is higher (low PCz2) at 
 # sites with high genetic FC2. That's it. Best model explains 55% of variance (P = 0.005). 
@@ -3673,23 +3659,23 @@ summary(peri.test.p.19)
 # F-statistic: 1.788 on 6 and 13 DF,  p-value: 0.1786
 
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(peri.test.p.11)
-res = residuals(peri.test.p.11, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-par(op)
-# RESULTS: Generally OK.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(peri.test.p.11)
+# res = residuals(peri.test.p.11, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",) 
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# par(op)
+# # RESULTS: Generally OK.
 
 # RESULTS and INTERPRETATION: In the Pacific, our models are not great for periphyton. 
 # Best model (P = 0.045, R2  = 0.42) has significant association with genetic FC2, nearly
@@ -3901,23 +3887,23 @@ summary(peri.area.test.p.19)
 # F-statistic:  2.25 on 6 and 13 DF,  p-value: 0.1039
 
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(peri.area.test.p.1)
-res = residuals(peri.area.test.p.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",)
-plot(ypred,res, xlab = "predicted", ylab = "residuals",)
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "")
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
-par(op)
-# RESULTS:OK.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(peri.area.test.p.1)
+# res = residuals(peri.area.test.p.1, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",)
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",)
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "")
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
+# par(op)
+# # RESULTS:OK.
 
 # RESULTS and INTERPRETATION: In Pacific, models have poor explanatopry power for 
 # periphyton per area. Best model has P = 0.042 with marginally non-significant effects
@@ -4127,23 +4113,23 @@ summary(meso.test.p.19)
 # Multiple R-squared:  0.5388,	Adjusted R-squared:  0.326 
 # F-statistic: 2.532 on 6 and 13 DF,  p-value: 0.07563
 
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(meso.test.p.1)
-res = residuals(meso.test.p.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",)
-plot(ypred,res, xlab = "predicted", ylab = "residuals",)
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "")
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
-plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
-par(op)
-# RESULTS: Looks good generally. One point way off qq line.
+# # Examine residuals
+# op <- par(mfrow = c(2,4))
+# ypred = predict(meso.test.p.1)
+# res = residuals(meso.test.p.1, type = 'pearson')
+# hist(res, xlab = "residuals", ylab = "frequency",)
+# plot(ypred,res, xlab = "predicted", ylab = "residuals",)
+# qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "")
+# qqline(res, col = "blue", lwd = 2) # strong heavy tails
+# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
+# plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
+# par(op)
+# # RESULTS: Looks good generally. One point way off qq line.
 
 
 # RESULTS and INTERPRETATION: In the Pacific, our models have little explanatory power 
@@ -4429,386 +4415,8 @@ summary(meso.area.site.g.1.raw)
 # of leaf N in thisthis model. 
 
 
-###################################################################################
-# CALCULATION OF EELGRASS GROWTH (LEAF EXTENSION) FROM 2011 DATA                  #
-###################################################################################
 
-# Use data from ZEN 2011 experiment to derive general equation predicting eelgrass 
-# leaf extension from sheath length and sheath width (see Ruesink et al. 2018 Oikos) <https://onlinelibrary.wiley.com/doi/abs/10.1111/oik.04270>
 
-# Streamline to only variables for use in modeling
-zmgrowth_slim <- subset(zmgrowth, select = c(Site, Sum.extension.per.d, Sheath.total.length, Sheath.width, 
-  Leaf.number, L1.old, L4.old))
-
-# Remove ALL observations with NA for any variables. This is extreme -- come back and impute missing values later
-zmgrowth_nona <- zmgrowth[complete.cases(zmgrowth_slim), ]
-nrow(zmgrowth_nona) # [1] 832. Good. 
-
-# Model total leaf extension per shoot (in cm) as function of sheath length and width, the two 
-# variables in Jen's analysis of 2011 data for which we have data from all 50 ZEN 2014 sites. 
-# Note that we need to fit as simple linear model (no random intercept) because we can't estimate 
-# the intercept for sites not included in the 2011 data set. So this is a rough estimate ...
-
-zen1_leaf_extension_model <- lm(Sum.extension.per.d ~ Sheath.total.length 
-            + Sheath.width 
-            # + Leaf.number + L1.old + L4.old, 
-            , data = zmgrowth_nona)
-summary(zen1_leaf_extension_model)
-#                     Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)         -5.24955    1.57637   -3.33 0.000906 ***
-# Sheath.total.length  0.14391    0.01163   12.38  < 2e-16 ***
-# Sheath.width         4.87641    0.47202   10.33  < 2e-16 ***
-# Residual standard error: 19.92 on 829 degrees of freedom
-# Multiple R-squared:  0.6328,	Adjusted R-squared:  0.6319 
-# F-statistic: 714.4 on 2 and 829 DF,  p-value: < 2.2e-16
-
-# Use zen1_leaf_extension_model to estimate leaf extension per (summer) day in each plot for ZEN 2014.
-# NOTE: I have left out the (negative) intercept in the model since it results in the great majority of
-# leaf extension rate in 20914 being negativbe numbers!
-ZEN_2014_plot$leaf.extension.per.day <- 0.14391*ZEN_2014_plot$Zostera.sheath.length + 4.87641*ZEN_2014_plot$Zostera.sheath.width
-ZEN_2014_plot$log10.leaf.extension.per.day <- log10(ZEN_2014_plot$leaf.extension.per.day)
-hist(ZEN_2014_plot$leaf.extension.per.day) 
-hist(ZEN_2014_plot$log10.leaf.extension.per.day) 
-
-
-# Obtain estimated mean leaf extension rates by site
-temp <- ZEN_2014_plot %>% 
-  group_by(Site) %>% 
-  summarize(  leaf.extension.per.day.site = mean(leaf.extension.per.day, na.rm = T),
-              log10.leaf.extension.per.day.site = mean(log10.leaf.extension.per.day, na.rm = T) )
-
-
-# Add leaf extension rate back to site-level data ets for modeling
-ZEN_2014_site_means_49$leaf.extension.per.day.site <- temp$leaf.extension.per.day.site[match(ZEN_2014_site_means_49$Site, temp$Site)]
-ZEN_2014_site_means_49$log10.leaf.extension.per.day.site <- temp$log10.leaf.extension.per.day.site[match(ZEN_2014_site_means_49$Site, temp$Site)]
-
-ZEN_2014_site_means_49_Atlantic$leaf.extension.per.day.site <- temp$leaf.extension.per.day.site[match(ZEN_2014_site_means_49_Atlantic$Site, temp$Site)]
-ZEN_2014_site_means_49_Atlantic$log10.leaf.extension.per.day.site <- temp$log10.leaf.extension.per.day.site[match(ZEN_2014_site_means_49_Atlantic$Site, temp$Site)]
-
-ZEN_2014_site_means_Pacific$leaf.extension.per.day.site <- temp$leaf.extension.per.day.site[match(ZEN_2014_site_means_Pacific$Site, temp$Site)]
-ZEN_2014_site_means_Pacific$log10.leaf.extension.per.day.site <- temp$log10.leaf.extension.per.day.site[match(ZEN_2014_site_means_Pacific$Site, temp$Site)]
-
-hist(ZEN_2014_site_means_49$leaf.extension.per.day.site) # highly non-normal. 
-hist(ZEN_2014_site_means_49$log10.leaf.extension.per.day.site) # Better. Bimodal - Atl vs Pac?
-################################################################################
-
-###################################################################################
-# GLM: EELGRASS PRODUCTIVITY (GLOBAL) - MODEL USING SITE MEANS                    #
-###################################################################################
-
-# productivity  = daily leaf extension rate (for now ...)
-
-# standardize and center by the range of observed values. # The '...' allows it to work with NAs.
-range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
-
-ZEN_2014_site_means_49$rlog10.leaf.extension.per.day.site <- range01(ZEN_2014_site_means_49$log10.leaf.extension.per.day.site)
-ZEN_2014_site_means_49_Atlantic$rlog10.leaf.extension.per.day.site <- range01(ZEN_2014_site_means_49_Atlantic$log10.leaf.extension.per.day.site)
-ZEN_2014_site_means_Pacific$rlog10.leaf.extension.per.day.site <- range01(ZEN_2014_site_means_Pacific$log10.leaf.extension.per.day.site)
-
-
-# Main effects only
-leafext.site.g.1 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1  
-                       , data = ZEN_2014_site_means_49)
-summary(leafext.site.g.1)
-
-# Add interaction: ocean x PCe1
-leafext.site.g.2 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + Ocean*rPC1.env.global # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction: ocean x PCe2
-leafext.site.g.3 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + Ocean*rPC2.env.global # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction: ocean x PCe3
-leafext.site.g.4 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + Ocean*rPC3.env.global # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction: ocean x FC1
-leafext.site.g.5 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + Ocean*rFC1 # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction: ocean x FC2
-leafext.site.g.6 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + Ocean*rFC2 # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction:  PCe1 x FC2
-leafext.site.g.7 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + rPC1.env.global*rFC2 # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction:  PCe2 x FC2
-leafext.site.g.8 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + rPC2.env.global*rFC2 # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction:  PCe3 x FC2
-leafext.site.g.9 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                       + rPC3.env.global*rFC2 # added
-                       , data = ZEN_2014_site_means_49)
-
-# Add interaction:  PCe1 x FC1
-leafext.site.g.10 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                        + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                        + rPC1.env.global*rFC1 # added
-                        , data = ZEN_2014_site_means_49)
-
-# Add interaction:  PCe2 x FC1
-leafext.site.g.11 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                        + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                        + rPC2.env.global*rFC1 # added
-                        , data = ZEN_2014_site_means_49)
-
-# Add interaction:  PCe3 x FC1
-leafext.site.g.12 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                        + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                        + rPC3.env.global*rFC1 # added
-                        , data = ZEN_2014_site_means_49)
-
-
-AICc(leafext.site.g.1, leafext.site.g.2, leafext.site.g.3, leafext.site.g.4, leafext.site.g.5, leafext.site.g.6, leafext.site.g.7, leafext.site.g.8, leafext.site.g.9, leafext.site.g.10, leafext.site.g.11, leafext.site.g.12) 
-#                   df      AICc
-# leafext.site.g.1   8 -47.33987
-# leafext.site.g.2   9 -46.21579
-# leafext.site.g.3   9 -44.64493
-# leafext.site.g.4   9 -55.98339
-# leafext.site.g.5   9 -44.32775
-# leafext.site.g.6   9 -47.61754
-# leafext.site.g.7   9 -44.33958
-# leafext.site.g.8   9 -44.45083
-# leafext.site.g.9   9 -45.84038
-# leafext.site.g.10  9 -45.03288
-# leafext.site.g.11  9 -45.15334
-# leafext.site.g.12  9 -56.25251
-# RESULTS: Best models are 12, 4. 
-
-# Combine models 4 + 12
-leafext.site.g.13 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                        + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
-                        + Ocean*rPC3.env.global # added
-                        + rPC3.env.global*rFC1 # added
-                        , data = ZEN_2014_site_means_49)
-
-AICc(leafext.site.g.4, leafext.site.g.12, leafext.site.g.13)
-# No good. Average models 4 and 12
-
-# Obtain model-averaged, standardized coefficients from models < 2 AIC from best 
-summary(model.avg(leafext.site.g.4, leafext.site.g.12))
-# Result: averaging simply adds two redundant interactions to model. They are both
-# "significant" when conditionally averaged, and neither is significant in full
-# average. Duh. Not helpful.
-
-# Fit best model (4) without FC1 
-leafext.site.g.14 <- lm(rlog10.leaf.extension.per.day.site ~ Ocean
-                        + rPC1.env.global + rPC2.env.global + rPC3.env.global # + rFC1 
-                        + rFC2
-                        + Ocean*rPC3.env.global # added
-                        , data = ZEN_2014_site_means_49)
-
-
-# Fit best model (12) without ocean 
-leafext.site.g.15 <- lm(rlog10.leaf.extension.per.day.site ~ # Ocean
-                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
-                        + rPC3.env.global*rFC1 # added
-                        , data = ZEN_2014_site_means_49)
-
-AICc(leafext.site.g.4, leafext.site.g.12, leafext.site.g.14, leafext.site.g.15)
-#                   df     AICc
-# leafext.site.g.4   9 198.8717
-# leafext.site.g.12  9 199.1198
-# leafext.site.g.14  8 198.0293
-# leafext.site.g.15  8 206.4216
-# Excluding ocean is much worse than other models.
-
-summary(leafext.site.g.12)
-#                      Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)           0.42350    0.21464   1.973  0.05526 .  
-# OceanPacific          0.48513    0.15177   3.196  0.00268 ** 
-# rPC1.env.global       0.30907    0.07168   4.312 9.92e-05 ***
-# rPC2.env.global       0.11030    0.09230   1.195  0.23893    
-# rPC3.env.global      -0.75428    0.24784  -3.043  0.00407 ** 
-# rFC2                 -0.51423    0.09139  -5.627 1.47e-06 ***
-# rFC1                 -0.20199    0.24555  -0.823  0.41549    
-# rPC3.env.global:rFC1  1.01068    0.30066   3.362  0.00169 ** 
-# Residual standard error: 0.1183 on 41 degrees of freedom
-# Multiple R-squared:  0.7666,	Adjusted R-squared:  0.7268 
-# F-statistic: 19.24 on 7 and 41 DF,  p-value: 4.158e-11
-
-summary(leafext.site.g.4)
-#                              Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)                  -0.02082    0.20365  -0.102 0.919076    
-# OceanPacific                  0.88078    0.20561   4.284 0.000108 ***
-# rPC1.env.global               0.30836    0.07187   4.291 0.000106 ***
-# rPC2.env.global               0.10979    0.09255   1.186 0.242339    
-# rPC3.env.global               0.13150    0.08760   1.501 0.141006    
-# rFC2                         -0.51471    0.09164  -5.617 1.52e-06 ***
-# rFC1                          0.31117    0.21608   1.440 0.157427    
-# OceanPacific:rPC3.env.global -0.78319    0.23599  -3.319 0.001904 ** 
-# Residual standard error: 0.1186 on 41 degrees of freedom
-# Multiple R-squared:  0.7653,	Adjusted R-squared:  0.7253 
-# F-statistic:  19.1 on 7 and 41 DF,  p-value: 4.635e-11
-
-
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(leafext.site.g.12)
-res = residuals(leafext.site.g.12, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-par(op)
-# RESULTS: Good.
-
-# RESULTS: Generally, results for leaf extension rate are almost identical to those 
-# for eelgrass form (PCz1) because extension rate is strongly correlated with 
-# sheath length, which is in turn highly correlated with canopy height, which is 
-# the dominant component of PCz1. Strong effects of FC2 and differences by ocean. 
-
-# Explore correlations 
-pairs.panels(ZEN_2014_site_means_49[,c("log10.leaf.extension.per.day.site", "log10.Zostera.sheath.length.site", 
-  "log10.Zostera.longest.leaf.length.cm.site", "log10.Zostera.AG.mass.site", "rPC1.zos.site" 
-  )], smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 4)
-
-
-###################################################################################
-# GLM: EELGRASS PRODUCTIVITY (ATLANTIC) - MODEL USING SITE MEANS                  #
-###################################################################################
-
-# Main effects only
-leafext.site.a.1 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl  
-                       , data = ZEN_2014_site_means_49_Atlantic)
-summary(leafext.site.a.1)
-
-# Add interaction:  PCe1 x FC1
-leafext.site.a.2 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
-                       + rPC1.env.global.atl*rFC1.global.atl # added
-                       , data = ZEN_2014_site_means_49_Atlantic)
-
-# Add interaction:  PCe2 x FC1
-leafext.site.a.3 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
-                       + rPC2.env.global.atl*rFC1.global.atl # added
-                       , data = ZEN_2014_site_means_49_Atlantic)
-
-# Add interaction:  PCe3 x FC1
-leafext.site.a.4 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
-                       + rPC3.env.global.atl*rFC1.global.atl # added
-                       , data = ZEN_2014_site_means_49_Atlantic)
-
-# Add interaction:  PCe1 x FC2
-leafext.site.a.5 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
-                       + rPC1.env.global.atl*rFC2.global.atl # added
-                       , data = ZEN_2014_site_means_49_Atlantic)
-
-# Add interaction:  PCe2 x FC2
-leafext.site.a.6 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
-                       + rPC2.env.global.atl*rFC2.global.atl # added
-                       , data = ZEN_2014_site_means_49_Atlantic)
-
-# Add interaction:  PCe3 x FC2
-leafext.site.a.7 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
-                       + rPC3.env.global.atl*rFC2.global.atl # added
-                       , data = ZEN_2014_site_means_49_Atlantic)
-
-
-AICc(leafext.site.a.1, leafext.site.a.2, leafext.site.a.3, leafext.site.a.4, leafext.site.a.5, leafext.site.a.6, leafext.site.a.7) 
-#                  df      AICc
-# leafext.site.a.1  7 -45.14543
-# leafext.site.a.2  8 -41.47838
-# leafext.site.a.3  8 -41.96211
-# leafext.site.a.4  8 -42.58317
-# leafext.site.a.5  8 -41.87834
-# leafext.site.a.6  8 -41.58105
-# leafext.site.a.7  8 -42.34592
-# RESULTS: Best model is 1 (no interactions),
-
-summary(leafext.site.a.1)
-#                     Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)          0.21441    0.06682   3.209  0.00390 ** 
-# rPC1.env.global.atl  0.31696    0.06166   5.140  3.3e-05 ***
-# rPC2.env.global.atl  0.23862    0.10597   2.252  0.03418 *  
-# rPC3.env.global.atl  0.13488    0.06830   1.975  0.06041 .  
-# rFC1.global.atl      0.20255    0.12553   1.614  0.12026    
-# rFC2.global.atl     -0.36888    0.11382  -3.241  0.00361 ** 
-# Residual standard error: 0.08939 on 23 degrees of freedom
-# Multiple R-squared:  0.6752,	Adjusted R-squared:  0.6046 
-# F-statistic: 9.564 on 5 and 23 DF,  p-value: 4.858e-05
-
-# Test robustness of best model (1) by dropping correlated predictors (PCe2, FC2)
-# Drop FC2
-leafext.site.a.8 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl # + rFC2.global.atl  
-                       , data = ZEN_2014_site_means_49_Atlantic)
-summary(leafext.site.a.8) # RESULT: PCe1 remainssignificant
-
-# Drop PCe2
-leafext.site.a.9 <- lm(log10.leaf.extension.per.day.site ~ 
-                         + rPC1.env.global.atl # + rPC2.env.global.atl 
-                       + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl  
-                       , data = ZEN_2014_site_means_49_Atlantic)
-summary(leafext.site.a.9) # RESULT: PCe1 and FC2 remian significant
-
-# Drop FC1
-leafext.site.a.10 <- lm(log10.leaf.extension.per.day.site ~ 
-                          + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
-                        + rFC2.global.atl  
-                        , data = ZEN_2014_site_means_49_Atlantic)
-summary(leafext.site.a.10) # 
-
-# Fit best model with unstandardized data to allow direct comparison betwen oceans
-leafext.site.a.1.raw <- lm(log10.leaf.extension.per.day.site ~ 
-                             + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
-                           , data = ZEN_2014_site_means_49_Atlantic)
-summary(leafext.site.a.1.raw)
-
-# Examine residuals
-op <- par(mfrow = c(2,4))
-ypred = predict(leafext.site.a.1)
-res = residuals(leafext.site.a.1, type = 'pearson')
-hist(res, xlab = "residuals", ylab = "frequency",) 
-plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
-qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
-qqline(res, col = "blue", lwd = 2) # strong heavy tails
-plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-par(op)
-dev.off()
-# RESULTS:  Good. 
-
-# RESULTS and INTERPRETATION: In the Atlantic, leaf extension rate decreases with
-# latitude (increasing PCz1) and is strongly associated with genetic FC2. 
-
-
-###################################################################################
-# GLM: EELGRASS PRODUCTIVITY (PACIFIC) - MODEL USING SITE MEANS                   #
-###################################################################################
 
 
 
@@ -4844,6 +4452,10 @@ plot(canopy.rf) # Good. 100 trees is plenty.
 
 # Plot variable importance
 varImpPlot(canopy.rf) # NOTE: saving this as an object returns the numbers in the graph
+
+png("figures/canopy_height_random_forest.png", width = 5, height = 4, units = 'in', res = 600)
+varImpPlot(canopy.rf)
+dev.off()
 
 # RESULT: FC2 and FC2 are substantially better predictors of canopy height than fetch or leaf C:N. 
 
@@ -5179,3 +4791,4 @@ pcz1.pce1 <- ggplot(ZEN_2014_site_means_49, aes(x = PC1.env.global, y = PC1.zos.
   ) +
   geom_smooth(method = lm, fullrange = F, se = T, lwd = 1.0, na.rm=T) 
 pcz1.pce1 
+
