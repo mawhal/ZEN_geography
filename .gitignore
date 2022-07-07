@@ -8,6 +8,7 @@
 /figures
 
 # ignore archive folders
+/archive
 /data/input/archive
 /data/output/archive
 /data/evol_envir_path_calculations/archive
