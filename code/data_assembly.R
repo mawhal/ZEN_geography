@@ -3,7 +3,7 @@
 # ZEN 2014 Global eelgrass ecosystem structure: Data assembly                    ##
 # RAW data are current as of 2017-04-24                                          ##
 # Emmett Duffy (duffye@si.edu)                                                   ##  
-# updated 2022-06-28 by Matt Whalen                                                        ##
+# updated 2022-06-28 by Matt Whalen                                              ##
 #                                                                                ##
 ###################################################################################
 
@@ -60,23 +60,23 @@ library(plyr) # to use ddply below in fixing richness values
 
 # MAIN ZEN 2014 DATA SET
 # Read in summary data set for ZEN 2014:
-d <- read.csv("data/input/ZEN_2014_main_data.csv", header = TRUE)
+d <- read.csv("data/input/Duffy_et_al_2022_main_data.csv", header = TRUE)
 
 # General site data
-sites <- read.csv("data/input/ZEN_2014_site_metadata.csv", header = TRUE)
+sites <- read.csv("data/input/Duffy_et_al_2022_site_metadata.csv", header = TRUE)
 
 # BIO-ORACLE CLIMATE AND ENVIRONMENTAL DATA
 # Read in Bio-ORACLE and WorldClim environmental data for ZEN sites from Matt Whalen's script:
-env <- read.csv("data/output/ZEN_2014_environmental.csv", header = TRUE)
+env <- read.csv("data/output/Duffy_et_al_2022_environmental.csv", header = TRUE)
 # add in situ data
-env.insitu <- read.csv("data/input/ZEN_2014_environmental_in_situ.csv") %>% 
+env.insitu <- read.csv("data/input/Duffy_et_al_2022_environmental_in_situ.csv") %>% 
   mutate(site=Site)
 env <- left_join(env, env.insitu)
 
 
 
 # EELGRASS GENETICS
-d.gen_fca <- read.csv("data/input/ZEN_2014_FCA_scores.csv", header = TRUE)
+d.gen_fca <- read.csv("data/input/Duffy_et_al_2022_FCA_scores.csv", header = TRUE)
 # d.gen_fca_atlantic <- read.csv("data/input/ZEN_2014_fca_scores_atlantic_20210125_copy.csv", header = TRUE)
 # d.gen_fca_pacific <- read.csv("data/input/ZEN_2014_fca_scores_pacific_20210125_copy.csv", header = TRUE)
 
@@ -250,7 +250,7 @@ d[d == "NaN"] = NA
 # CAN THIS GO AFTER IMPUTATION SECTION? SHOULD IT? 
 
 # Obtain mean values per site
-ZEN_2014_site_means <- d %>% 
+site_means <- d %>% 
   group_by(Site) %>% 
   dplyr::summarize( Zostera.AG.mass.site = mean(Zostera.aboveground.mean.mass, na.rm = T), 
              Zostera.BG.mass.site = mean(Zostera.belowground.mean.mass, na.rm = T),                      
@@ -306,52 +306,52 @@ ZEN_2014_site_means <- d %>%
              log10.Leaf.PercN.site = mean(log10.Leaf.PercN, na.rm = T)  )
 
 
-ZEN_2014_site_means$grazer.richness.site <- d$grazer.richness.site[match(ZEN_2014_site_means$Site, d$Site)]
+site_means$grazer.richness.site <- d$grazer.richness.site[match(site_means$Site, d$Site)]
 
 # Change values of NaN to NA:
-ZEN_2014_site_means[ZEN_2014_site_means == "NaN"] = NA 
+site_means[site_means == "NaN"] = NA 
 
 # Add site-level environmental (and other) variables back in
-ZEN_2014_site_means$Ocean <- d$Ocean[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$Coast <- d$Coast[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$Latitude <- d$Latitude[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$Longitude <- d$Longitude[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$Temperature.C <- d$Temperature.C[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$Salinity.ppt <- d$Salinity.ppt[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$log10.mean.fetch <- d$log10.mean.fetch[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$day.length <- d$day.length[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$log10.day.length <- d$log10.day.length[match(ZEN_2014_site_means$Site, d$Site)]
+site_means$Ocean <- d$Ocean[match(site_means$Site, d$Site)]
+site_means$Coast <- d$Coast[match(site_means$Site, d$Site)]
+site_means$Latitude <- d$Latitude[match(site_means$Site, d$Site)]
+site_means$Longitude <- d$Longitude[match(site_means$Site, d$Site)]
+site_means$Temperature.C <- d$Temperature.C[match(site_means$Site, d$Site)]
+site_means$Salinity.ppt <- d$Salinity.ppt[match(site_means$Site, d$Site)]
+site_means$log10.mean.fetch <- d$log10.mean.fetch[match(site_means$Site, d$Site)]
+site_means$day.length <- d$day.length[match(site_means$Site, d$Site)]
+site_means$log10.day.length <- d$log10.day.length[match(site_means$Site, d$Site)]
 
-ZEN_2014_site_means$sst.min <- d$sst.min[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$sst.mean <- d$sst.mean[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$sst.max <- d$sst.max[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$sst.range <- d$sst.range[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$salinity <- d$salinity[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$parmean <- d$parmean[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$cloudmean <- d$cloudmean[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$precipitation <- d$precipitation[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$nitrate <- d$nitrate[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$sqrt.nitrate <- d$sqrt.nitrate[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$ph <- d$ph[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$phosphate <- d$phosphate[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$log10.phosphate <- d$log10.phosphate[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$NP.ratio <- d$NP.ratio[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$chlomean <- d$chlomean[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$log10.chlomean <- d$log10.chlomean[match(ZEN_2014_site_means$Site, d$Site)]
-ZEN_2014_site_means$pop.density.2015 <- d$pop.density.2015[match(ZEN_2014_site_means$Site, d$Site)]
+site_means$sst.min <- d$sst.min[match(site_means$Site, d$Site)]
+site_means$sst.mean <- d$sst.mean[match(site_means$Site, d$Site)]
+site_means$sst.max <- d$sst.max[match(site_means$Site, d$Site)]
+site_means$sst.range <- d$sst.range[match(site_means$Site, d$Site)]
+site_means$salinity <- d$salinity[match(site_means$Site, d$Site)]
+site_means$parmean <- d$parmean[match(site_means$Site, d$Site)]
+site_means$cloudmean <- d$cloudmean[match(site_means$Site, d$Site)]
+site_means$precipitation <- d$precipitation[match(site_means$Site, d$Site)]
+site_means$nitrate <- d$nitrate[match(site_means$Site, d$Site)]
+site_means$sqrt.nitrate <- d$sqrt.nitrate[match(site_means$Site, d$Site)]
+site_means$ph <- d$ph[match(site_means$Site, d$Site)]
+site_means$phosphate <- d$phosphate[match(site_means$Site, d$Site)]
+site_means$log10.phosphate <- d$log10.phosphate[match(site_means$Site, d$Site)]
+site_means$NP.ratio <- d$NP.ratio[match(site_means$Site, d$Site)]
+site_means$chlomean <- d$chlomean[match(site_means$Site, d$Site)]
+site_means$log10.chlomean <- d$log10.chlomean[match(site_means$Site, d$Site)]
+site_means$pop.density.2015 <- d$pop.density.2015[match(site_means$Site, d$Site)]
 
 
 # Add genetic data to site means data frame
-ZEN_2014_site_means$FC1 <- d.gen_fca$FC1[match(ZEN_2014_site_means$Site, d.gen_fca$Site)]
-ZEN_2014_site_means$FC2 <- d.gen_fca$FC2[match(ZEN_2014_site_means$Site, d.gen_fca$Site)]
+site_means$FC1 <- d.gen_fca$FC1[match(site_means$Site, d.gen_fca$Site)]
+site_means$FC2 <- d.gen_fca$FC2[match(site_means$Site, d.gen_fca$Site)]
 
 # For boxplots, reorder variable 'Coast': WP to EA
-ZEN_2014_site_means$Coast <- factor(ZEN_2014_site_means$Coast, levels = c("West Pacific", "East Pacific", "West Atlantic", "East Atlantic"))
+site_means$Coast <- factor(site_means$Coast, levels = c("West Pacific", "East Pacific", "West Atlantic", "East Atlantic"))
 
 # Create separate data sets by Ocean - SITE level
-ZEN_2014_site_means_Atlantic <- droplevels(subset(ZEN_2014_site_means, Ocean == "Atlantic"))
-ZEN_2014_site_means_Pacific <- droplevels(subset(ZEN_2014_site_means, Ocean == "Pacific"))
-ZEN_2014_site_means_49_Atlantic <- droplevels(subset(ZEN_2014_site_means_Atlantic, Site != "SW.A"))
+site_means_Atlantic <- droplevels(subset(site_means, Ocean == "Atlantic"))
+site_means_Pacific <- droplevels(subset(site_means, Ocean == "Pacific"))
+site_means_49_Atlantic <- droplevels(subset(site_means_Atlantic, Site != "SW.A"))
 
 
 
@@ -360,7 +360,7 @@ ZEN_2014_site_means_49_Atlantic <- droplevels(subset(ZEN_2014_site_means_Atlanti
 ###################################################################################
 
 # # Explore correlations among environmental drivers
-# pairs.panels(ZEN_2014_site_means[,c("Latitude", "sst.mean", "sst.range", "sst.min", "sst.max", "Salinity.ppt", 
+# pairs.panels(site_means[,c("Latitude", "sst.mean", "sst.range", "sst.min", "sst.max", "Salinity.ppt", 
 #   "parmean", "log10.day.length", "cloudmean", "precipitation", "sqrt.nitrate", "log10.phosphate", "log10.chlomean", 
 #   "Leaf.PercN.site", "log10.mean.fetch")], 
 #   smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 8)
@@ -369,11 +369,11 @@ ZEN_2014_site_means_49_Atlantic <- droplevels(subset(ZEN_2014_site_means_Atlanti
 # Note: Some exploration shows that nitrate is closely correlated with several other
 # variables, and taking it out results in first 3 PC axes explaining ~75% of variation. This 
 # is parsimonious and simplifies the analysis. 
-ZEN.env <- ZEN_2014_site_means[c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
+ZEN.env <- site_means[c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
    "cloudmean", "log10.phosphate", "log10.chlomean", "Leaf.PercN.site"
   # , "precipitation", "log10.day.length",
   )]
-ZEN.sites <- ZEN_2014_site_means[c("Site")]
+ZEN.sites <- site_means[c("Site")]
 
 
 # Compute PCAs
@@ -409,13 +409,13 @@ ZEN.env.pca <- prcomp(ZEN.env, center = TRUE, scale. = TRUE)
 # Combine PCA scores with SITE-level data frame
 site.env.pca.scores <- ZEN.env.pca$x
 site.env.pca.scores <- cbind(ZEN.sites, site.env.pca.scores) 
-ZEN_2014_site_means <- cbind(ZEN_2014_site_means, site.env.pca.scores) 
+site_means <- cbind(site_means, site.env.pca.scores) 
 
 # Rename PCA variables 1-3 and cull PC4-7
-names(ZEN_2014_site_means)[names(ZEN_2014_site_means)=="PC1"] <- "PC1.env.global"
-names(ZEN_2014_site_means)[names(ZEN_2014_site_means)=="PC2"] <- "PC2.env.global"
-names(ZEN_2014_site_means)[names(ZEN_2014_site_means)=="PC3"] <- "PC3.env.global"
-ZEN_2014_site_means <- subset(ZEN_2014_site_means, select = -c(PC4,PC5,PC6, PC7, PC8))
+names(site_means)[names(site_means)=="PC1"] <- "PC1.env.global"
+names(site_means)[names(site_means)=="PC2"] <- "PC2.env.global"
+names(site_means)[names(site_means)=="PC3"] <- "PC3.env.global"
+site_means <- subset(site_means, select = -c(PC4,PC5,PC6, PC7, PC8))
 
 
 
@@ -424,7 +424,7 @@ ZEN_2014_site_means <- subset(ZEN_2014_site_means, select = -c(PC4,PC5,PC6, PC7,
 ###################################################################################
 
 # # Explore correlations among environmental drivers
-# pairs.panels(ZEN_2014_site_means_Atlantic[,c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
+# pairs.panels(site_means_Atlantic[,c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
 #   "cloudmean", "log10.phosphate", "log10.chlomean", "Leaf.PercN.site"
 #   # , "precipitation", "log10.day.length"
 #   )], 
@@ -434,11 +434,11 @@ ZEN_2014_site_means <- subset(ZEN_2014_site_means, select = -c(PC4,PC5,PC6, PC7,
 # Note: Some exploration shows that nitrate is closely corrtelated with several other
 # variables, and taking it out results in first 3 PC axes explaining ~75% of variation. This 
 # is parsimonious and simplifies the analysis. 
-ZEN.env.atl <- ZEN_2014_site_means_Atlantic[c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
+ZEN.env.atl <- site_means_Atlantic[c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
   "cloudmean", "log10.phosphate", "log10.chlomean", "Leaf.PercN.site"
   # , "precipitation", "log10.day.length"
   )]
-ZEN.sites.atl <- ZEN_2014_site_means_Atlantic[c("Site")]
+ZEN.sites.atl <- site_means_Atlantic[c("Site")]
 
 # Compute PCAs
 ZEN.env.pca.atl <- prcomp(ZEN.env.atl, center = TRUE, scale. = TRUE) 
@@ -472,13 +472,13 @@ ZEN.env.pca.atl <- prcomp(ZEN.env.atl, center = TRUE, scale. = TRUE)
 # Output PCA scores for each site and combine with site means data frame
 site.env.pca.scores.atl <- ZEN.env.pca.atl$x
 site.env.pca.scores.atl <- cbind(ZEN.sites.atl, site.env.pca.scores.atl) 
-ZEN_2014_site_means_Atlantic <- cbind(ZEN_2014_site_means_Atlantic, site.env.pca.scores.atl) 
+site_means_Atlantic <- cbind(site_means_Atlantic, site.env.pca.scores.atl) 
 
 # Rename PCA variables 1-3 and cull PC4-7
-names(ZEN_2014_site_means_Atlantic)[names(ZEN_2014_site_means_Atlantic)=="PC1"] <- "PC1.env.atl"
-names(ZEN_2014_site_means_Atlantic)[names(ZEN_2014_site_means_Atlantic)=="PC2"] <- "PC2.env.atl"
-names(ZEN_2014_site_means_Atlantic)[names(ZEN_2014_site_means_Atlantic)=="PC3"] <- "PC3.env.atl"
-ZEN_2014_site_means_Atlantic <- subset(ZEN_2014_site_means_Atlantic, select = -c(PC4,PC5,PC6, PC7, PC8))
+names(site_means_Atlantic)[names(site_means_Atlantic)=="PC1"] <- "PC1.env.atl"
+names(site_means_Atlantic)[names(site_means_Atlantic)=="PC2"] <- "PC2.env.atl"
+names(site_means_Atlantic)[names(site_means_Atlantic)=="PC3"] <- "PC3.env.atl"
+site_means_Atlantic <- subset(site_means_Atlantic, select = -c(PC4,PC5,PC6, PC7, PC8))
 
 
 ###################################################################################
@@ -486,7 +486,7 @@ ZEN_2014_site_means_Atlantic <- subset(ZEN_2014_site_means_Atlantic, select = -c
 ###################################################################################
 
 # # Explore correlations among environmental drivers
-# pairs.panels(ZEN_2014_site_means_Pacific[,c("Latitude", "sst.mean", "sst.range", "sst.min", "sst.max", "Salinity.ppt", 
+# pairs.panels(site_means_Pacific[,c("Latitude", "sst.mean", "sst.range", "sst.min", "sst.max", "Salinity.ppt", 
 #   "parmean", "log10.day.length", "cloudmean", "precipitation", "sqrt.nitrate", "log10.phosphate", "log10.chlomean", 
 #   "Leaf.PercN.site", "log10.mean.fetch")], 
 #   smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 8)
@@ -496,11 +496,11 @@ ZEN_2014_site_means_Atlantic <- subset(ZEN_2014_site_means_Atlantic, select = -c
 # Note: Some exploration shows that nitrate is closely correlated with several other
 # variables, and taking it out results in first 3 PC axes explaining ~75% of variation. This 
 # is parsimonious and simplifies the analysis. 
-ZEN.env.pac <- ZEN_2014_site_means_Pacific[c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
+ZEN.env.pac <- site_means_Pacific[c("sst.mean", "sst.range", "Salinity.ppt", "parmean", 
   "cloudmean", "log10.phosphate", "log10.chlomean", "Leaf.PercN.site"
   # , "precipitation", "log10.day.length"
   )]
-ZEN.sites.pac <- ZEN_2014_site_means_Pacific[c("Site")]
+ZEN.sites.pac <- site_means_Pacific[c("Site")]
 
 # Compute PCAs
 ZEN.env.pca.pac <- prcomp(ZEN.env.pac, center = TRUE, scale. = TRUE) 
@@ -533,13 +533,13 @@ ZEN.env.pca.pac <- prcomp(ZEN.env.pac, center = TRUE, scale. = TRUE)
 # Output PCA scores for each site and combine with site means data frame
 site.env.pca.scores.pac <- ZEN.env.pca.pac$x
 site.env.pca.scores.pac <- cbind(ZEN.sites.pac, site.env.pca.scores.pac) 
-ZEN_2014_site_means_Pacific <- cbind(ZEN_2014_site_means_Pacific, site.env.pca.scores.pac) 
+site_means_Pacific <- cbind(site_means_Pacific, site.env.pca.scores.pac) 
 
 # Rename PCA variables 1-3 and cull PC4-7
-names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC1"] <- "PC1.env.pac"
-names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC2"] <- "PC2.env.pac"
-names(ZEN_2014_site_means_Pacific)[names(ZEN_2014_site_means_Pacific)=="PC3"] <- "PC3.env.pac"
-ZEN_2014_site_means_Pacific <- subset(ZEN_2014_site_means_Pacific, select = -c(PC4,PC5,PC6, PC7, PC8))
+names(site_means_Pacific)[names(site_means_Pacific)=="PC1"] <- "PC1.env.pac"
+names(site_means_Pacific)[names(site_means_Pacific)=="PC2"] <- "PC2.env.pac"
+names(site_means_Pacific)[names(site_means_Pacific)=="PC3"] <- "PC3.env.pac"
+site_means_Pacific <- subset(site_means_Pacific, select = -c(PC4,PC5,PC6, PC7, PC8))
 
 
 
@@ -593,7 +593,7 @@ pMiss <- function(x){sum(is.na(x))/length(x)*100}
 ###################################################################################
 
 # NOTE: The PCA for eelgrass morphology uses imputed data (see impute_missing/R) 
-d.imputed <- read.csv( "data/output/ZEN_2014_imputed.csv" )
+d.imputed <- read.csv( "data/output/Duffy_et_al_2022_imputed.csv" )
 
 # NOTE: This includes all available ZEN eelgrass morphological variables. We use the 
 # first two axes, which together explain 83% of the variation in input variables, under 
@@ -636,33 +636,33 @@ summary(zos.morph.plot.2.pca)
 
 # Output PCA scores and combine with plot data frame
 zos.morph.plot.2.pca.scores <- zos.morph.plot.2.pca$x
-ZEN_2014_plot <- cbind(d.imputed, zos.morph.plot.2.pca.scores) 
+d.imputed <- cbind(d.imputed, zos.morph.plot.2.pca.scores) 
 
 # Rename PCA variables 1-2 and cull PC3-4
-names(ZEN_2014_plot)[names(ZEN_2014_plot)=="PC1"] <- "PC1.zos"
-names(ZEN_2014_plot)[names(ZEN_2014_plot)=="PC2"] <- "PC2.zos"
-ZEN_2014_plot <- subset(ZEN_2014_plot, select = -c(PC3,PC4,PC5,PC6))
+names(d.imputed)[names(d.imputed)=="PC1"] <- "PC1.zos"
+names(d.imputed)[names(d.imputed)=="PC2"] <- "PC2.zos"
+d.imputed <- subset(d.imputed, select = -c(PC3,PC4,PC5,PC6))
 
 
 
 
 # NOTE: IS THIS WHERE THIS SHOULD BE?
 # Obtain mean values per site: Eelgrass growth form PCz1 and PCz2 
-add_means <- ddply(ZEN_2014_plot, c("Site"), summarize, 
+add_means <- ddply(d.imputed, c("Site"), summarize, 
                    PC1.zos.site = mean(PC1.zos, na.rm = T),
                    PC2.zos.site = mean(PC2.zos, na.rm = T)
 )
 
 # Add to site means data frame
-ZEN_2014_site_means <- merge(ZEN_2014_site_means, add_means)
+site_means <- merge(site_means, add_means)
 
 # Add to ocean data frames
-ZEN_2014_site_means_Atlantic$PC1.zos.site <- ZEN_2014_site_means$PC1.zos.site[match(ZEN_2014_site_means_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Atlantic$PC2.zos.site <- ZEN_2014_site_means$PC2.zos.site[match(ZEN_2014_site_means_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Pacific$PC1.zos.site <- ZEN_2014_site_means$PC1.zos.site[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Pacific$PC2.zos.site <- ZEN_2014_site_means$PC2.zos.site[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_49_Atlantic$PC1.zos.site <- ZEN_2014_site_means$PC1.zos.site[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_49_Atlantic$PC2.zos.site <- ZEN_2014_site_means$PC2.zos.site[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
+site_means_Atlantic$PC1.zos.site <- site_means$PC1.zos.site[match(site_means_Atlantic$Site, site_means$Site)]
+site_means_Atlantic$PC2.zos.site <- site_means$PC2.zos.site[match(site_means_Atlantic$Site, site_means$Site)]
+site_means_Pacific$PC1.zos.site <- site_means$PC1.zos.site[match(site_means_Pacific$Site, site_means$Site)]
+site_means_Pacific$PC2.zos.site <- site_means$PC2.zos.site[match(site_means_Pacific$Site, site_means$Site)]
+site_means_49_Atlantic$PC1.zos.site <- site_means$PC1.zos.site[match(site_means_49_Atlantic$Site, site_means$Site)]
+site_means_49_Atlantic$PC2.zos.site <- site_means$PC2.zos.site[match(site_means_49_Atlantic$Site, site_means$Site)]
 
 
 ###################################################################################
@@ -675,133 +675,133 @@ range01 <- function(x, ...){(x - min(x, na.rm = T, ...)) / (max(x, na.rm = T, ..
 
 
 # Combine PCA scores with PLOT-level data frame
-ZEN_2014_site_means_49_Atlantic$PC1.env.global <- ZEN_2014_site_means$PC1.env.global[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_49_Atlantic$PC2.env.global <- ZEN_2014_site_means$PC2.env.global[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_49_Atlantic$PC3.env.global <- ZEN_2014_site_means$PC3.env.global[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_49_Atlantic$FC1 <- ZEN_2014_site_means$FC1[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_49_Atlantic$FC2 <- ZEN_2014_site_means$FC2[match(ZEN_2014_site_means_49_Atlantic$Site, ZEN_2014_site_means$Site)]
+site_means_49_Atlantic$PC1.env.global <- site_means$PC1.env.global[match(site_means_49_Atlantic$Site, site_means$Site)]
+site_means_49_Atlantic$PC2.env.global <- site_means$PC2.env.global[match(site_means_49_Atlantic$Site, site_means$Site)]
+site_means_49_Atlantic$PC3.env.global <- site_means$PC3.env.global[match(site_means_49_Atlantic$Site, site_means$Site)]
+site_means_49_Atlantic$FC1 <- site_means$FC1[match(site_means_49_Atlantic$Site, site_means$Site)]
+site_means_49_Atlantic$FC2 <- site_means$FC2[match(site_means_49_Atlantic$Site, site_means$Site)]
 
-ZEN_2014_site_means_Pacific$PC1.env.global <- ZEN_2014_site_means$PC1.env.global[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Pacific$PC2.env.global <- ZEN_2014_site_means$PC2.env.global[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Pacific$PC3.env.global <- ZEN_2014_site_means$PC3.env.global[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Pacific$FC1 <- ZEN_2014_site_means$FC1[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
-ZEN_2014_site_means_Pacific$FC2 <- ZEN_2014_site_means$FC2[match(ZEN_2014_site_means_Pacific$Site, ZEN_2014_site_means$Site)]
+site_means_Pacific$PC1.env.global <- site_means$PC1.env.global[match(site_means_Pacific$Site, site_means$Site)]
+site_means_Pacific$PC2.env.global <- site_means$PC2.env.global[match(site_means_Pacific$Site, site_means$Site)]
+site_means_Pacific$PC3.env.global <- site_means$PC3.env.global[match(site_means_Pacific$Site, site_means$Site)]
+site_means_Pacific$FC1 <- site_means$FC1[match(site_means_Pacific$Site, site_means$Site)]
+site_means_Pacific$FC2 <- site_means$FC2[match(site_means_Pacific$Site, site_means$Site)]
 
 # Create z-scaled variables: SITE level (GLOBAL)
-ZEN_2014_site_means$zLatitude <- scale(ZEN_2014_site_means$Latitude)
-ZEN_2014_site_means$zPC1.zos.site <- scale(ZEN_2014_site_means$PC1.zos.site)
-ZEN_2014_site_means$zPC2.zos.site <- scale(ZEN_2014_site_means$PC2.zos.site)
-ZEN_2014_site_means$zPC1.env.global <- scale(ZEN_2014_site_means$PC1.env.global)
-ZEN_2014_site_means$zPC2.env.global <- scale(ZEN_2014_site_means$PC2.env.global)
-ZEN_2014_site_means$zPC3.env.global <- scale(ZEN_2014_site_means$PC3.env.global)
-ZEN_2014_site_means$zFC1 <- scale(ZEN_2014_site_means$FC1)
-ZEN_2014_site_means$zFC2 <- scale(ZEN_2014_site_means$FC2)
-ZEN_2014_site_means$zcanopy <- scale(ZEN_2014_site_means$log10.Zostera.longest.leaf.length.cm.site)
-ZEN_2014_site_means$zshoots <- scale(ZEN_2014_site_means$log10.Zostera.shoots.core.site)
-ZEN_2014_site_means$zagbiomass <- scale(ZEN_2014_site_means$log10.Zostera.AG.mass.site)
-ZEN_2014_site_means$zbgbiomass <- scale(ZEN_2014_site_means$log10.Zostera.BG.mass.site)
-ZEN_2014_site_means$zperiphyton <- scale(ZEN_2014_site_means$log10.periphyton.mass.per.area.site)
-ZEN_2014_site_means$zperiphyton.perg <- scale(ZEN_2014_site_means$log10.periphyton.mass.per.g.zostera.site)
-ZEN_2014_site_means$zmesograzer.mass <- scale(ZEN_2014_site_means$log10.mesograzer.mass.per.area.site)
-ZEN_2014_site_means$zmesograzer.mass.perg <- scale(ZEN_2014_site_means$log10.mesograzer.mass.per.g.plant.site)
-ZEN_2014_site_means$zmesograzer.abund <- scale(ZEN_2014_site_means$log10.mesograzer.abund.per.area.site)
-ZEN_2014_site_means$zmesograzer.abund.perg <- scale(ZEN_2014_site_means$log10.mesograzer.abund.per.g.plant.site)
+site_means$zLatitude <- scale(site_means$Latitude)
+site_means$zPC1.zos.site <- scale(site_means$PC1.zos.site)
+site_means$zPC2.zos.site <- scale(site_means$PC2.zos.site)
+site_means$zPC1.env.global <- scale(site_means$PC1.env.global)
+site_means$zPC2.env.global <- scale(site_means$PC2.env.global)
+site_means$zPC3.env.global <- scale(site_means$PC3.env.global)
+site_means$zFC1 <- scale(site_means$FC1)
+site_means$zFC2 <- scale(site_means$FC2)
+site_means$zcanopy <- scale(site_means$log10.Zostera.longest.leaf.length.cm.site)
+site_means$zshoots <- scale(site_means$log10.Zostera.shoots.core.site)
+site_means$zagbiomass <- scale(site_means$log10.Zostera.AG.mass.site)
+site_means$zbgbiomass <- scale(site_means$log10.Zostera.BG.mass.site)
+site_means$zperiphyton <- scale(site_means$log10.periphyton.mass.per.area.site)
+site_means$zperiphyton.perg <- scale(site_means$log10.periphyton.mass.per.g.zostera.site)
+site_means$zmesograzer.mass <- scale(site_means$log10.mesograzer.mass.per.area.site)
+site_means$zmesograzer.mass.perg <- scale(site_means$log10.mesograzer.mass.per.g.plant.site)
+site_means$zmesograzer.abund <- scale(site_means$log10.mesograzer.abund.per.area.site)
+site_means$zmesograzer.abund.perg <- scale(site_means$log10.mesograzer.abund.per.g.plant.site)
 
 # Create RANGE-scaled variables: SITE level (GLOBAL)
-ZEN_2014_site_means$rLatitude <- range01(ZEN_2014_site_means$Latitude)
-ZEN_2014_site_means$rPC1.zos.site <- range01(ZEN_2014_site_means$PC1.zos.site)
-ZEN_2014_site_means$rPC2.zos.site <- range01(ZEN_2014_site_means$PC2.zos.site)
-ZEN_2014_site_means$rPC1.env.global <- range01(ZEN_2014_site_means$PC1.env.global)
-ZEN_2014_site_means$rPC2.env.global <- range01(ZEN_2014_site_means$PC2.env.global)
-ZEN_2014_site_means$rPC3.env.global <- range01(ZEN_2014_site_means$PC3.env.global)
-ZEN_2014_site_means$rFC1 <- range01(ZEN_2014_site_means$FC1)
-ZEN_2014_site_means$rFC2 <- range01(ZEN_2014_site_means$FC2)
-ZEN_2014_site_means$rcanopy <- range01(ZEN_2014_site_means$log10.Zostera.longest.leaf.length.cm.site)
-ZEN_2014_site_means$rshoots <- range01(ZEN_2014_site_means$log10.Zostera.shoots.core.site)
-ZEN_2014_site_means$ragbiomass <- range01(ZEN_2014_site_means$log10.Zostera.AG.mass.site)
-ZEN_2014_site_means$rbgbiomass <- range01(ZEN_2014_site_means$log10.Zostera.BG.mass.site)
-ZEN_2014_site_means$rperiphyton <- range01(ZEN_2014_site_means$log10.periphyton.mass.per.area.site)
-ZEN_2014_site_means$rperiphyton.perg <- range01(ZEN_2014_site_means$log10.periphyton.mass.per.g.zostera.site)
-ZEN_2014_site_means$rmesograzer.mass <- range01(ZEN_2014_site_means$log10.mesograzer.mass.per.area.site)
-ZEN_2014_site_means$rmesograzer.mass.perg <- range01(ZEN_2014_site_means$log10.mesograzer.mass.per.g.plant.site)
-ZEN_2014_site_means$rmesograzer.abund <- range01(ZEN_2014_site_means$log10.mesograzer.abund.per.area.site)
-ZEN_2014_site_means$rmesograzer.abund.perg <- range01(ZEN_2014_site_means$log10.mesograzer.abund.per.g.plant.site)
+site_means$rLatitude <- range01(site_means$Latitude)
+site_means$rPC1.zos.site <- range01(site_means$PC1.zos.site)
+site_means$rPC2.zos.site <- range01(site_means$PC2.zos.site)
+site_means$rPC1.env.global <- range01(site_means$PC1.env.global)
+site_means$rPC2.env.global <- range01(site_means$PC2.env.global)
+site_means$rPC3.env.global <- range01(site_means$PC3.env.global)
+site_means$rFC1 <- range01(site_means$FC1)
+site_means$rFC2 <- range01(site_means$FC2)
+site_means$rcanopy <- range01(site_means$log10.Zostera.longest.leaf.length.cm.site)
+site_means$rshoots <- range01(site_means$log10.Zostera.shoots.core.site)
+site_means$ragbiomass <- range01(site_means$log10.Zostera.AG.mass.site)
+site_means$rbgbiomass <- range01(site_means$log10.Zostera.BG.mass.site)
+site_means$rperiphyton <- range01(site_means$log10.periphyton.mass.per.area.site)
+site_means$rperiphyton.perg <- range01(site_means$log10.periphyton.mass.per.g.zostera.site)
+site_means$rmesograzer.mass <- range01(site_means$log10.mesograzer.mass.per.area.site)
+site_means$rmesograzer.mass.perg <- range01(site_means$log10.mesograzer.mass.per.g.plant.site)
+site_means$rmesograzer.abund <- range01(site_means$log10.mesograzer.abund.per.area.site)
+site_means$rmesograzer.abund.perg <- range01(site_means$log10.mesograzer.abund.per.g.plant.site)
 
 
 # Create z-scaled variables: SITE level (ATLANTIC 49)
 # This data set scales the variables using only Atlantic values. Omit SW.A as the plot-level data set does. 
-ZEN_2014_site_means_49_Atlantic$zLatitude.atl <- scale(ZEN_2014_site_means_49_Atlantic$Latitude, scale = TRUE, center = TRUE)
-ZEN_2014_site_means_49_Atlantic$zPC1.zos.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC1.zos.site)
-ZEN_2014_site_means_49_Atlantic$zPC2.zos.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC2.zos.site)
-ZEN_2014_site_means_49_Atlantic$zPC1.env.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC1.env.global)
-ZEN_2014_site_means_49_Atlantic$zPC2.env.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC2.env.global)
-ZEN_2014_site_means_49_Atlantic$zPC3.env.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$PC3.env.global)
-ZEN_2014_site_means_49_Atlantic$zFC1.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC1)
-ZEN_2014_site_means_49_Atlantic$zFC2.global.atl <- scale(ZEN_2014_site_means_49_Atlantic$FC2)
-ZEN_2014_site_means_Atlantic$zPC1.env.atl <- scale(ZEN_2014_site_means_Atlantic$PC1.env.atl)
-ZEN_2014_site_means_Atlantic$zPC2.env.atl <- scale(ZEN_2014_site_means_Atlantic$PC2.env.atl)
-ZEN_2014_site_means_Atlantic$zPC3.env.atl <- scale(ZEN_2014_site_means_Atlantic$PC3.env.atl)
-ZEN_2014_site_means_49_Atlantic$zperiphyton.area.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site)
-ZEN_2014_site_means_49_Atlantic$zperiphyton.perg.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
-ZEN_2014_site_means_49_Atlantic$zmesograzer.mass.area.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
-ZEN_2014_site_means_49_Atlantic$zmesograzer.mass.perg.atl <- scale(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.g.plant.site)
+site_means_49_Atlantic$zLatitude.atl <- scale(site_means_49_Atlantic$Latitude, scale = TRUE, center = TRUE)
+site_means_49_Atlantic$zPC1.zos.atl <- scale(site_means_49_Atlantic$PC1.zos.site)
+site_means_49_Atlantic$zPC2.zos.atl <- scale(site_means_49_Atlantic$PC2.zos.site)
+site_means_49_Atlantic$zPC1.env.global.atl <- scale(site_means_49_Atlantic$PC1.env.global)
+site_means_49_Atlantic$zPC2.env.global.atl <- scale(site_means_49_Atlantic$PC2.env.global)
+site_means_49_Atlantic$zPC3.env.global.atl <- scale(site_means_49_Atlantic$PC3.env.global)
+site_means_49_Atlantic$zFC1.global.atl <- scale(site_means_49_Atlantic$FC1)
+site_means_49_Atlantic$zFC2.global.atl <- scale(site_means_49_Atlantic$FC2)
+site_means_Atlantic$zPC1.env.atl <- scale(site_means_Atlantic$PC1.env.atl)
+site_means_Atlantic$zPC2.env.atl <- scale(site_means_Atlantic$PC2.env.atl)
+site_means_Atlantic$zPC3.env.atl <- scale(site_means_Atlantic$PC3.env.atl)
+site_means_49_Atlantic$zperiphyton.area.atl <- scale(site_means_49_Atlantic$log10.periphyton.mass.per.area.site)
+site_means_49_Atlantic$zperiphyton.perg.atl <- scale(site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
+site_means_49_Atlantic$zmesograzer.mass.area.atl <- scale(site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
+site_means_49_Atlantic$zmesograzer.mass.perg.atl <- scale(site_means_49_Atlantic$log10.mesograzer.mass.per.g.plant.site)
 ################################################################################
 
 
 
 # Create RANGE-scaled variables: SITE level (ATLANTIC 49)
 # This data set scales the variables using only Atlantic values. Omit SW.A as the plot-level data set does. 
-ZEN_2014_site_means_49_Atlantic$rLatitude.atl <- range01(ZEN_2014_site_means_49_Atlantic$Latitude)
-ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC1.zos.site)
-ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC2.zos.site)
-ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC1.env.global)
-ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC2.env.global)
-ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl <- range01(ZEN_2014_site_means_49_Atlantic$PC3.env.global)
-ZEN_2014_site_means_49_Atlantic$rFC1.global.atl <- range01(ZEN_2014_site_means_49_Atlantic$FC1)
-ZEN_2014_site_means_49_Atlantic$rFC2.global.atl <- range01(ZEN_2014_site_means_49_Atlantic$FC2)
-ZEN_2014_site_means_Atlantic$rPC1.env.atl <- range01(ZEN_2014_site_means_Atlantic$PC1.env.atl)
-ZEN_2014_site_means_Atlantic$rPC2.env.atl <- range01(ZEN_2014_site_means_Atlantic$PC2.env.atl)
-ZEN_2014_site_means_Atlantic$rPC3.env.atl <- range01(ZEN_2014_site_means_Atlantic$PC3.env.atl)
-ZEN_2014_site_means_49_Atlantic$rperiphyton.area.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.area.site)
-ZEN_2014_site_means_49_Atlantic$rperiphyton.perg.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
-ZEN_2014_site_means_49_Atlantic$rmesograzer.mass.area.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
-ZEN_2014_site_means_49_Atlantic$rmesograzer.mass.perg.atl <- range01(ZEN_2014_site_means_49_Atlantic$log10.mesograzer.mass.per.g.plant.site)
+site_means_49_Atlantic$rLatitude.atl <- range01(site_means_49_Atlantic$Latitude)
+site_means_49_Atlantic$rPC1.zos.atl <- range01(site_means_49_Atlantic$PC1.zos.site)
+site_means_49_Atlantic$rPC2.zos.atl <- range01(site_means_49_Atlantic$PC2.zos.site)
+site_means_49_Atlantic$rPC1.env.global.atl <- range01(site_means_49_Atlantic$PC1.env.global)
+site_means_49_Atlantic$rPC2.env.global.atl <- range01(site_means_49_Atlantic$PC2.env.global)
+site_means_49_Atlantic$rPC3.env.global.atl <- range01(site_means_49_Atlantic$PC3.env.global)
+site_means_49_Atlantic$rFC1.global.atl <- range01(site_means_49_Atlantic$FC1)
+site_means_49_Atlantic$rFC2.global.atl <- range01(site_means_49_Atlantic$FC2)
+site_means_Atlantic$rPC1.env.atl <- range01(site_means_Atlantic$PC1.env.atl)
+site_means_Atlantic$rPC2.env.atl <- range01(site_means_Atlantic$PC2.env.atl)
+site_means_Atlantic$rPC3.env.atl <- range01(site_means_Atlantic$PC3.env.atl)
+site_means_49_Atlantic$rperiphyton.area.atl <- range01(site_means_49_Atlantic$log10.periphyton.mass.per.area.site)
+site_means_49_Atlantic$rperiphyton.perg.atl <- range01(site_means_49_Atlantic$log10.periphyton.mass.per.g.zostera.site)
+site_means_49_Atlantic$rmesograzer.mass.area.atl <- range01(site_means_49_Atlantic$log10.mesograzer.mass.per.area.site)
+site_means_49_Atlantic$rmesograzer.mass.perg.atl <- range01(site_means_49_Atlantic$log10.mesograzer.mass.per.g.plant.site)
 
 # Create z-scaled variables: SITE level (PACIFIC)
 # This data set scales the variables using only Pacific values.  
-ZEN_2014_site_means_Pacific$zLatitude.pac <- scale(ZEN_2014_site_means_Pacific$Latitude, scale = TRUE, center = TRUE)
-ZEN_2014_site_means_Pacific$zPC1.zos.pac <- scale(ZEN_2014_site_means_Pacific$PC1.zos.site)
-ZEN_2014_site_means_Pacific$zPC2.zos.pac <- scale(ZEN_2014_site_means_Pacific$PC2.zos.site)
-ZEN_2014_site_means_Pacific$zPC1.env.global.pac <- scale(ZEN_2014_site_means_Pacific$PC1.env.global)
-ZEN_2014_site_means_Pacific$zPC2.env.global.pac <- scale(ZEN_2014_site_means_Pacific$PC2.env.global)
-ZEN_2014_site_means_Pacific$zPC3.env.global.pac <- scale(ZEN_2014_site_means_Pacific$PC3.env.global)
-ZEN_2014_site_means_Pacific$zFC1.global.pac <- scale(ZEN_2014_site_means_Pacific$FC1)
-ZEN_2014_site_means_Pacific$zFC2.global.pac <- scale(ZEN_2014_site_means_Pacific$FC2)
-ZEN_2014_site_means_Pacific$zPC1.env.pac <- scale(ZEN_2014_site_means_Pacific$PC1.env.pac)
-ZEN_2014_site_means_Pacific$zPC2.env.pac <- scale(ZEN_2014_site_means_Pacific$PC2.env.pac)
-ZEN_2014_site_means_Pacific$zPC3.env.pac <- scale(ZEN_2014_site_means_Pacific$PC3.env.pac)
-ZEN_2014_site_means_Pacific$zperiphyton.area.pac <- scale(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.area.site)
-ZEN_2014_site_means_Pacific$zperiphyton.perg.pac <- scale(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.g.zostera.site)
-ZEN_2014_site_means_Pacific$zmesograzer.mass.area.pac <- scale(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.area.site)
-ZEN_2014_site_means_Pacific$zmesograzer.mass.perg.pac <- scale(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.g.plant.site)
+site_means_Pacific$zLatitude.pac <- scale(site_means_Pacific$Latitude, scale = TRUE, center = TRUE)
+site_means_Pacific$zPC1.zos.pac <- scale(site_means_Pacific$PC1.zos.site)
+site_means_Pacific$zPC2.zos.pac <- scale(site_means_Pacific$PC2.zos.site)
+site_means_Pacific$zPC1.env.global.pac <- scale(site_means_Pacific$PC1.env.global)
+site_means_Pacific$zPC2.env.global.pac <- scale(site_means_Pacific$PC2.env.global)
+site_means_Pacific$zPC3.env.global.pac <- scale(site_means_Pacific$PC3.env.global)
+site_means_Pacific$zFC1.global.pac <- scale(site_means_Pacific$FC1)
+site_means_Pacific$zFC2.global.pac <- scale(site_means_Pacific$FC2)
+site_means_Pacific$zPC1.env.pac <- scale(site_means_Pacific$PC1.env.pac)
+site_means_Pacific$zPC2.env.pac <- scale(site_means_Pacific$PC2.env.pac)
+site_means_Pacific$zPC3.env.pac <- scale(site_means_Pacific$PC3.env.pac)
+site_means_Pacific$zperiphyton.area.pac <- scale(site_means_Pacific$log10.periphyton.mass.per.area.site)
+site_means_Pacific$zperiphyton.perg.pac <- scale(site_means_Pacific$log10.periphyton.mass.per.g.zostera.site)
+site_means_Pacific$zmesograzer.mass.area.pac <- scale(site_means_Pacific$log10.mesograzer.mass.per.area.site)
+site_means_Pacific$zmesograzer.mass.perg.pac <- scale(site_means_Pacific$log10.mesograzer.mass.per.g.plant.site)
 
 # Create RANGE-scaled variables: SITE level (PACIFIC)
 # This data set scales the variables using only Pacific values.  
-ZEN_2014_site_means_Pacific$rLatitude.pac <- range01(ZEN_2014_site_means_Pacific$Latitude)
-ZEN_2014_site_means_Pacific$rPC1.zos.pac <- range01(ZEN_2014_site_means_Pacific$PC1.zos.site)
-ZEN_2014_site_means_Pacific$rPC2.zos.pac <- range01(ZEN_2014_site_means_Pacific$PC2.zos.site)
-ZEN_2014_site_means_Pacific$rPC1.env.global.pac <- range01(ZEN_2014_site_means_Pacific$PC1.env.global)
-ZEN_2014_site_means_Pacific$rPC2.env.global.pac <- range01(ZEN_2014_site_means_Pacific$PC2.env.global)
-ZEN_2014_site_means_Pacific$rPC3.env.global.pac <- range01(ZEN_2014_site_means_Pacific$PC3.env.global)
-ZEN_2014_site_means_Pacific$rFC1.global.pac <- range01(ZEN_2014_site_means_Pacific$FC1)
-ZEN_2014_site_means_Pacific$rFC2.global.pac <- range01(ZEN_2014_site_means_Pacific$FC2)
-ZEN_2014_site_means_Pacific$rPC1.env.pac <- range01(ZEN_2014_site_means_Pacific$PC1.env.pac)
-ZEN_2014_site_means_Pacific$rPC2.env.pac <- range01(ZEN_2014_site_means_Pacific$PC2.env.pac)
-ZEN_2014_site_means_Pacific$rPC3.env.pac <- range01(ZEN_2014_site_means_Pacific$PC3.env.pac)
-ZEN_2014_site_means_Pacific$rperiphyton.area.pac <- range01(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.area.site)
-ZEN_2014_site_means_Pacific$rperiphyton.perg.pac <- range01(ZEN_2014_site_means_Pacific$log10.periphyton.mass.per.g.zostera.site)
-ZEN_2014_site_means_Pacific$rmesograzer.mass.area.pac <- range01(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.area.site)
-ZEN_2014_site_means_Pacific$rmesograzer.mass.perg.pac <- range01(ZEN_2014_site_means_Pacific$log10.mesograzer.mass.per.g.plant.site)
+site_means_Pacific$rLatitude.pac <- range01(site_means_Pacific$Latitude)
+site_means_Pacific$rPC1.zos.pac <- range01(site_means_Pacific$PC1.zos.site)
+site_means_Pacific$rPC2.zos.pac <- range01(site_means_Pacific$PC2.zos.site)
+site_means_Pacific$rPC1.env.global.pac <- range01(site_means_Pacific$PC1.env.global)
+site_means_Pacific$rPC2.env.global.pac <- range01(site_means_Pacific$PC2.env.global)
+site_means_Pacific$rPC3.env.global.pac <- range01(site_means_Pacific$PC3.env.global)
+site_means_Pacific$rFC1.global.pac <- range01(site_means_Pacific$FC1)
+site_means_Pacific$rFC2.global.pac <- range01(site_means_Pacific$FC2)
+site_means_Pacific$rPC1.env.pac <- range01(site_means_Pacific$PC1.env.pac)
+site_means_Pacific$rPC2.env.pac <- range01(site_means_Pacific$PC2.env.pac)
+site_means_Pacific$rPC3.env.pac <- range01(site_means_Pacific$PC3.env.pac)
+site_means_Pacific$rperiphyton.area.pac <- range01(site_means_Pacific$log10.periphyton.mass.per.area.site)
+site_means_Pacific$rperiphyton.perg.pac <- range01(site_means_Pacific$log10.periphyton.mass.per.g.zostera.site)
+site_means_Pacific$rmesograzer.mass.area.pac <- range01(site_means_Pacific$log10.mesograzer.mass.per.area.site)
+site_means_Pacific$rmesograzer.mass.perg.pac <- range01(site_means_Pacific$log10.mesograzer.mass.per.g.plant.site)
 
 
 
@@ -812,7 +812,7 @@ ZEN_2014_site_means_Pacific$rmesograzer.mass.perg.pac <- range01(ZEN_2014_site_m
 
 # Create reduced data sets
 # # Create separate data set excluding SW.A (no periphyton data)
-ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
+site_means_49 <- droplevels(subset(site_means, Site != "SW.A"))
 
 
 
@@ -823,11 +823,11 @@ ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A")
 
 
 # Export SITE-level data set
-write.csv(ZEN_2014_site_means, "data/output/ZEN_2014_site_means.csv", row.names = F)
+write.csv(site_means, "data/output/Duffy_et_al_2022_site_means.csv", row.names = F)
 
-write.csv(ZEN_2014_site_means_Atlantic, "data/output/ZEN_2014_site_means_Atlantic.csv", row.names = F)
-write.csv(ZEN_2014_site_means_49_Atlantic, "data/output/ZEN_2014_site_means_49_Atlantic.csv", row.names = F)
-write.csv(ZEN_2014_site_means_Pacific, "data/output/ZEN_2014_site_means_Pacific.csv", row.names = F)
+write.csv(site_means_Atlantic, "data/output/Duffy_et_al_2022_site_means_Atlantic.csv", row.names = F)
+write.csv(site_means_49_Atlantic, "data/output/Duffy_et_al_2022_site_means_49_Atlantic.csv", row.names = F)
+write.csv(site_means_Pacific, "data/output/Duffy_et_al_2022_site_means_Pacific.csv", row.names = F)
 
 
 

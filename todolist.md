@@ -11,8 +11,8 @@
 	- [X] same for ZEN_2014_percent_cover_plot.csv - if this is not in analysis then remove the data - DATA NOT USED
 - [X] add comments to figures script that labels figures with corresponding numbers from the MS
 	- [X] figures that do not appear in the MS, either delete the code or comment the lines out?
-- [ ] model comparison script does not have data outputs (no instance of write.csv) but GLM outputs are used elswhere. Should we add this back in?
-	- [ ] Matt will check to see if we can easily reproduce this
+- [X] model comparison script does not have data outputs (no instance of write.csv) but GLM outputs are used elswhere. Should we add this back in?
+	- [X] Matt will check to see if we can easily reproduce this
 	- [X] ask Emmett to put a README in the path calculations .xlsx file - Matt to send the file 
 - [X] ZRG - did we even end up using this? If not then remove this. WE DID NOT USE THIS, BUT LOTS OF USE IN model_comparison.R. Whalen saved a new version into the archive and deleted all instances of growth data (leaf.extension...)
-- [ ] Add comment in README. "Please contact us if you'd like to use the data"
+- [X] Add comment in README. "Please contact us if you'd like to use the data"

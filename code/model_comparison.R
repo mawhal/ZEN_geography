@@ -3,7 +3,7 @@
 # ZEN 2014: Global eelgrass ecosystem structure: compare site-level models       ##
 # Data are current as of 2017-04-24                                              ##
 # Emmett Duffy (duffye@si.edu)                                                   ##  
-# updated 2022-06-28 by Matt Whalen                                                        ##
+# updated 2022-06-28 by Matt Whalen                                              ##
 #                                                                                ##
 ###################################################################################
 
