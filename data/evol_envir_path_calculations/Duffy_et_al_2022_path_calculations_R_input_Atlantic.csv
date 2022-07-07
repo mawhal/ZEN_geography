@@ -1,0 +1,17 @@
+response,predictor,effect.type,weighted.sum,weighted.sum.abs
+eelgrass.biomass,environment,direct,-0.365554035,1.369302908
+eelgrass.biomass,evo.history,direct,0.673500521,1.271162485
+eelgrass.biomass,environment,indirect,NA,NA
+eelgrass.biomass,evo.history,indirect,NA,NA
+eelgrass.form,environment,direct,-1.117544454,1.117544454
+eelgrass.form,evo.history,direct,0.396957931,0.949242434
+eelgrass.form,environment,indirect,NA,NA
+eelgrass.form,evo.history,indirect,NA,NA
+mesograzers,environment,direct,0.968896844,0.968896844
+mesograzers,evo.history,direct,0.068141641,1.066155548
+mesograzers,environment,indirect,-0.511308265,0.865674403
+mesograzers,evo.history,indirect,0.103103329,0.616109713
+periphyton,environment,direct,0.024066298,1.378925027
+periphyton,evo.history,direct,-0.5073,0.5073
+periphyton,environment,indirect,1.016117669,1.016117669
+periphyton,evo.history,indirect,-0.145095985,0.753413446

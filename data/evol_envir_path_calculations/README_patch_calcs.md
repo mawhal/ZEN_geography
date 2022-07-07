@@ -1,0 +1,1 @@
+Please see the first sheet in the Excel file `Duffy_et_al_2022_Figure_4_path_calculations.xlsx` for the README about these data and how they are used.
