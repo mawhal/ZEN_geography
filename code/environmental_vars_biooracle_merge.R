@@ -44,7 +44,7 @@ precip <- raster( "data/output/WorldClim_precip_2-5.tif" )
 
 ########### ZEN Subsite Data ##################
 # Read in ZEN site data to get Latitude and Longitude of each site
-SiteData <- read.csv("data/input/zen_2014_sites.csv")
+SiteData <- read.csv("data/input/Duffy_et_al_2022_site_metadata.csv")
 
 # just isolate the Lat/Long
 zen.geo  <- SiteData[ ,c("longitude","latitude") ] 
@@ -70,5 +70,5 @@ names(Environmentals) <- unlist( strsplit( files, ".asc") )
 SiteData <- cbind( SiteData, Environmentals, precip=zen.precip )
 
 # # write the new data to disk
-write.csv( SiteData, "data/output/ZEN_2014_environmental.csv" )
+write.csv( SiteData, "data/output/Duffy_et_al_2022_environmental.csv" )
 

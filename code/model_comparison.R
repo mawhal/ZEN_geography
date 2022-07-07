@@ -38,10 +38,6 @@
 # GLM: MESOGRAZER MASS PER G BOTTOM AREA (PACIFIC) - MODEL USING SITE MEANS       #
 # GLM: FIT BEST MODELS USING LOCALLY MEASURED PREDICTORS                          #
 #                                                                                 #
-# CALCULATION OF EELGRASS GROWTH (LEAF EXTENSION) FROM 2011 DATA                  #
-# GLM: EELGRASS PRODUCTIVITY (GLOBAL) - MODEL USING SITE MEANS                    #
-# GLM: EELGRASS PRODUCTIVITY (ATLANTIC) - MODEL USING SITE MEANS                  #
-# GLM: EELGRASS PRODUCTIVITY (PACIFIC) - MODEL USING SITE MEANS                   #
 # RANDOM FOREST ANALYSIS                                                          #
 # MISCELLANEOUS STIATISCAL CHECKS                                                 #
 # MISCELLANEOUS FIGURES                                                           #
@@ -53,8 +49,8 @@
 ###################################################################################
 
 # This script explores the data and fits models for ZEN 2014 global eelgrass survey. See also:
-#   ZEN_2014_data_assembly_20210217.R series: for preparation of the data
-#   ZEN_2014_figures_20210227.R series: for building figures for the MS
+#   data_assembly_20210217.R series: for preparation of the data
+#   figures_20210227.R series: for building figures for the MS
 
 
 # NOTE: This script fits linear models to individual response variables (PCz1, PCz2, 
@@ -98,92 +94,83 @@ library(tidyverse) # for summarizing data
 ###################################################################################
 
 # Read in zen2014 SITE-level data sets 
-ZEN_2014_site_means <- read.csv("data/output/ZEN_2014_site_means.csv",  header = TRUE)
-ZEN_2014_site_means_49 <- droplevels(subset(ZEN_2014_site_means, Site != "SW.A"))
-# ZEN_2014_site_means_Atlantic <- read.csv("ZEN_2014_site_means_Atlantic_20210227.csv",  header = TRUE)
-# ZEN_2014_site_means_Pacific <- read.csv("ZEN_2014_site_means_Pacific_20210314.csv",  header = TRUE)
-ZEN_2014_site_means_Pacific <- read.csv("data/output/ZEN_2014_site_means_Pacific.csv",  header = TRUE)
-# ZEN_2014_site_means_49_Atlantic <- read.csv("ZEN_2014_site_means_49_Atlantic_20210314.csv",  header = TRUE)
-ZEN_2014_site_means_49_Atlantic <- read.csv("data/output/ZEN_2014_site_means_49_Atlantic.csv",  header = TRUE)
+site_means <- read.csv("data/output/Duffy_et_al_2022_site_means.csv",  header = TRUE)
+site_means_49 <- droplevels(subset(site_means, Site != "SW.A"))
+site_means_Pacific <- read.csv("data/output/Duffy_et_al_2022_site_means_Pacific.csv",  header = TRUE)
+site_means_49_Atlantic <- read.csv("data/output/Duffy_et_al_2022_site_means_49_Atlantic.csv",  header = TRUE)
 
 # Recode Ocean to 0/1 so SEM can handle it. SITE level
-ZEN_2014_site_means_49$ocean.code <- ZEN_2014_site_means_49$Ocean
-ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Atlantic", "ocean.code"] = 0
-ZEN_2014_site_means_49[ZEN_2014_site_means_49$ocean.code == "Pacific", "ocean.code"] = 1
-ZEN_2014_site_means_49$ocean.code <- as.numeric(ZEN_2014_site_means_49$ocean.code)
+site_means_49$ocean.code <- site_means_49$Ocean
+site_means_49[site_means_49$ocean.code == "Atlantic", "ocean.code"] = 0
+site_means_49[site_means_49$ocean.code == "Pacific", "ocean.code"] = 1
+site_means_49$ocean.code <- as.numeric(site_means_49$ocean.code)
 
-ZEN_2014_site_means_49_Atlantic$ocean.code <- ZEN_2014_site_means_49_Atlantic$Ocean
-ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Atlantic", "ocean.code"] = 0
-ZEN_2014_site_means_49_Atlantic[ZEN_2014_site_means_49_Atlantic$ocean.code == "Pacific", "ocean.code"] = 1
-ZEN_2014_site_means_49_Atlantic$ocean.code <- as.numeric(ZEN_2014_site_means_49_Atlantic$ocean.code)
+site_means_49_Atlantic$ocean.code <- site_means_49_Atlantic$Ocean
+site_means_49_Atlantic[site_means_49_Atlantic$ocean.code == "Atlantic", "ocean.code"] = 0
+site_means_49_Atlantic[site_means_49_Atlantic$ocean.code == "Pacific", "ocean.code"] = 1
+site_means_49_Atlantic$ocean.code <- as.numeric(site_means_49_Atlantic$ocean.code)
 
-ZEN_2014_site_means_Pacific$ocean.code <- ZEN_2014_site_means_Pacific$Ocean
-ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Atlantic", "ocean.code"] = 0
-ZEN_2014_site_means_Pacific[ZEN_2014_site_means_Pacific$ocean.code == "Pacific", "ocean.code"] = 1
-ZEN_2014_site_means_Pacific$ocean.code <- as.numeric(ZEN_2014_site_means_Pacific$ocean.code)
+site_means_Pacific$ocean.code <- site_means_Pacific$Ocean
+site_means_Pacific[site_means_Pacific$ocean.code == "Atlantic", "ocean.code"] = 0
+site_means_Pacific[site_means_Pacific$ocean.code == "Pacific", "ocean.code"] = 1
+site_means_Pacific$ocean.code <- as.numeric(site_means_Pacific$ocean.code)
 
-# Read in data For estimating leaf growth rate from Ruesink et al. 2018. Oikos <https://onlinelibrary.wiley.com/doi/abs/10.1111/oik.04270>
-zmgrowth <- read.csv("data/input/ZEN_2011_ZRG.csv", header = TRUE)
-
-# NOTE: Following is NOT the file with imputed values and it has all 50 sites. Figure this out ...
-# Read in zen2014 PLOT-level data sets for modeling, with missing data imputed:
-ZEN_2014_plot <- read.csv("data/output/ZEN_2014_plot.csv", header = TRUE)
 
 
 ###################################################################################
 # EXPLORE DATA DISTRIBUTIONS: GLOBAL                                              #
 ###################################################################################
 
-ZEN_2014_site_means$Ocean <- as.factor(ZEN_2014_site_means$Ocean) # necessary to code pairs panels symbols by ocean ...
+site_means$Ocean <- as.factor(site_means$Ocean) # necessary to code pairs panels symbols by ocean ...
 
 # Create new data frame with variable names friendlier to plotting
-ZEN_2014_site_means_renamed <- ZEN_2014_site_means
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="sst.mean"] <- "SST mean"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="sst.range"] <- "SST range"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="Salinity.ppt"] <- "Salinity"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="parmean"] <- "PAR"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="day.length"] <- "day length"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="sqrt.nitrate"] <- "NO3 (sqrt)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.phosphate"] <- "PO4 (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.chlomean"] <- "chl (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Leaf.PercN.site"] <- "Leaf %N (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.env.global"] <- "Env PCe1"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.env.global"] <- "Env PCe2"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC3.env.global"] <- "Env PCe3"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC1.zos.site"] <- "Eelgrass form PCz1"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="PC2.zos.site"] <- "Eelgrass form PCz2"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="FC1"] <- "Genetics FCA1"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="FC2"] <- "Genetics FCA2"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.AG.mass.site"] <- "AG mass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.BG.mass.site"] <- "BG mass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.shoots.core.site"] <- "Shoot density"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.sheath.length.site"] <- "Sheath L (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.sheath.width.site"] <- "Sheath W (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.Zostera.longest.leaf.length.cm.site"] <- "Canopy ht (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.g.zostera.site"] <- "Periphyton mass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.g.plant.site"] <- "Mesograzer mass (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.periphyton.mass.per.area.site"] <- "Periphyton mass/area (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.mass.per.area.site"] <- "Mesograzer mass/area (log)"
-names(ZEN_2014_site_means_renamed)[names(ZEN_2014_site_means_renamed)=="log10.mesograzer.abund.per.area.site"] <- "Mesograzer abund/area (log)"
+site_means_renamed <- site_means
+names(site_means_renamed)[names(site_means_renamed)=="sst.mean"] <- "SST mean"
+names(site_means_renamed)[names(site_means_renamed)=="sst.range"] <- "SST range"
+names(site_means_renamed)[names(site_means_renamed)=="Salinity.ppt"] <- "Salinity"
+names(site_means_renamed)[names(site_means_renamed)=="parmean"] <- "PAR"
+names(site_means_renamed)[names(site_means_renamed)=="day.length"] <- "day length"
+names(site_means_renamed)[names(site_means_renamed)=="sqrt.nitrate"] <- "NO3 (sqrt)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.phosphate"] <- "PO4 (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.chlomean"] <- "chl (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Leaf.PercN.site"] <- "Leaf %N (log)"
+names(site_means_renamed)[names(site_means_renamed)=="PC1.env.global"] <- "Env PCe1"
+names(site_means_renamed)[names(site_means_renamed)=="PC2.env.global"] <- "Env PCe2"
+names(site_means_renamed)[names(site_means_renamed)=="PC3.env.global"] <- "Env PCe3"
+names(site_means_renamed)[names(site_means_renamed)=="PC1.zos.site"] <- "Eelgrass form PCz1"
+names(site_means_renamed)[names(site_means_renamed)=="PC2.zos.site"] <- "Eelgrass form PCz2"
+names(site_means_renamed)[names(site_means_renamed)=="FC1"] <- "Genetics FCA1"
+names(site_means_renamed)[names(site_means_renamed)=="FC2"] <- "Genetics FCA2"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Zostera.AG.mass.site"] <- "AG mass (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Zostera.BG.mass.site"] <- "BG mass (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Zostera.shoots.core.site"] <- "Shoot density"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Zostera.sheath.length.site"] <- "Sheath L (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Zostera.sheath.width.site"] <- "Sheath W (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.Zostera.longest.leaf.length.cm.site"] <- "Canopy ht (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.periphyton.mass.per.g.zostera.site"] <- "Periphyton mass (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.mesograzer.mass.per.g.plant.site"] <- "Mesograzer mass (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.periphyton.mass.per.area.site"] <- "Periphyton mass/area (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.mesograzer.mass.per.area.site"] <- "Mesograzer mass/area (log)"
+names(site_means_renamed)[names(site_means_renamed)=="log10.mesograzer.abund.per.area.site"] <- "Mesograzer abund/area (log)"
 
 # Correlates of environmental/oceanographic PC axes 
-pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
+pairs.panels(site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
   "Env PCe3", "SST mean", "SST range", "Salinity", "PAR", "day length", "NO3 (sqrt)", 
   "PO4 (log)", "Leaf %N (log)", "chl (log)")], 
   hist.col="gray", pch = 21, 
   smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 12, 
-  bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
+  bg = c("blue","green")[site_means_renamed$Ocean])
 # PCe1: latitude/climate: high = warmer, brighter, less cloudy (lower latitude)
 # PCe2: nutrient status: high = high PO4, leaf N  
 # PCe3: estuarine: low salinity, variable temp, high chl
 
 # Correlations between environment and biology
-pairs.panels(ZEN_2014_site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
+pairs.panels(site_means_renamed[,c("Ocean", "Latitude", "Env PCe1", "Env PCe2", 
   "Env PCe3", "Genetics FCA1", "Genetics FCA2", "Eelgrass form PCz1", "Eelgrass form PCz2",
   "Periphyton mass (log)", "Mesograzer mass (log)", "Periphyton mass/area (log)", 
   "Mesograzer mass/area (log)")], hist.col="gray", pch = 21, 
   smooth = T, ci = F, density = F, ellipses = F, lm = F, digits = 2, scale = F, cex = 8, 
-  bg = c("blue","green")[ZEN_2014_site_means_renamed$Ocean])
+  bg = c("blue","green")[site_means_renamed$Ocean])
 dev.off()
 
 
@@ -203,7 +190,7 @@ dev.off()
 # Both Ocean and FC1
 pcz1.site.g.1 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz1.site.g.1)
 #                 Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.80426    0.23255   3.458  0.00126 ** 
@@ -221,7 +208,7 @@ summary(pcz1.site.g.1)
 pcz1.site.g.o <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global # + rFC1 
                     + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz1.site.g.o)
 #                 Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.64794    0.07845   8.259 2.04e-10 ***
@@ -237,7 +224,7 @@ summary(pcz1.site.g.o)
 # Omit Ocean
 pcz1.site.g.fc1 <- lm(rPC1.zos.site ~ # Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz1.site.g.fc1)
 #                 Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.31172    0.11346   2.747  0.00874 ** 
@@ -266,7 +253,7 @@ AICc(pcz1.site.g.1, pcz1.site.g.o, pcz1.site.g.fc1)
 # Both Ocean and FC1
 pcz2.site.g.1 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz2.site.g.1)
 #                 Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)      0.68250    0.29521   2.312   0.0258 *
@@ -284,7 +271,7 @@ summary(pcz2.site.g.1)
 # Omit Ocean
 pcz2.site.g.o <- lm(rPC2.zos.site ~ # Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz2.site.g.o)
 #                 Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.72445    0.13517   5.359  3.1e-06 ***
@@ -301,7 +288,7 @@ summary(pcz2.site.g.o)
 pcz2.site.g.fc1 <- lm(rPC2.zos.site ~ Ocean
                         + rPC1.env.global + rPC2.env.global + rPC3.env.global # + rFC1 
                       + rFC2  
-                      , data = ZEN_2014_site_means_49)
+                      , data = site_means_49)
 summary(pcz2.site.g.fc1)
 #                  Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.735459   0.099027   7.427 3.12e-09 ***
@@ -330,7 +317,7 @@ AICc(pcz2.site.g.1, pcz2.site.g.o, pcz2.site.g.fc1)
 peri.site.area.1 <- lm(rperiphyton ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
                     + rPC1.zos.site + rPC2.zos.site
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(peri.site.area.1)
 #                  Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)      0.826925   0.329250   2.512   0.0162 *
@@ -349,7 +336,7 @@ summary(peri.site.area.1)
 peri.site.area.o <- lm(rperiphyton ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global # + rFC1 
                     + rFC2 + rPC1.zos.site + rPC2.zos.site
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(peri.site.area.o)
 #                  Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.657768   0.177926   3.697  0.00064 ***
@@ -367,7 +354,7 @@ summary(peri.site.area.o)
 peri.site.area.fc1 <- lm(rperiphyton ~ # Ocean
                       + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
                       + rPC1.zos.site + rPC2.zos.site
-                      , data = ZEN_2014_site_means_49)
+                      , data = site_means_49)
 summary(peri.site.area.fc1)
 #                  Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.671190   0.172152   3.899 0.000351 ***
@@ -399,7 +386,7 @@ AICc(peri.site.area.1, peri.site.area.o, peri.site.area.fc1)
 meso.site.area.1 <- lm(rmesograzer.mass ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
                     + rPC1.zos.site + rPC2.zos.site
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(meso.site.area.1)
 #                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)      0.209529   0.262366   0.799  0.42923   
@@ -418,7 +405,7 @@ summary(meso.site.area.1)
 meso.site.area.o <- lm(rmesograzer.mass ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global # + rFC1 
                     + rFC2 + rPC1.zos.site + rPC2.zos.site
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(meso.site.area.o)
 #                  Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.247438   0.141174   1.753 0.087126 .  
@@ -436,7 +423,7 @@ summary(meso.site.area.o)
 meso.site.area.fc1 <- lm(rmesograzer.mass ~ # Ocean
                         + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
                       + rPC1.zos.site + rPC2.zos.site
-                      , data = ZEN_2014_site_means_49)
+                      , data = site_means_49)
 summary(meso.site.area.fc1)
 #                 Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.37442    0.13758   2.721 0.009498 ** 
@@ -475,7 +462,7 @@ AICc(meso.site.area.1, meso.site.area.o, meso.site.area.fc1)
 # Main effects only
 pcz1.site.g.1 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz1.site.g.1)
 #                 Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)      0.80426    0.23255   3.458  0.00126 ** 
@@ -493,67 +480,67 @@ summary(pcz1.site.g.1)
 pcz1.site.g.2 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rPC1.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe2
 pcz1.site.g.3 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rPC2.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe3
 pcz1.site.g.4 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rPC3.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC1
 pcz1.site.g.5 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC2
 pcz1.site.g.6 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC2
 pcz1.site.g.7 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + rPC1.env.global*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe2 x FC2
 pcz1.site.g.8 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + rPC2.env.global*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe3 x FC2
 pcz1.site.g.9 <- lm(rPC1.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + rPC3.env.global*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC1
 pcz1.site.g.10 <- lm(rPC1.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC1.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe2 x FC1
 pcz1.site.g.11 <- lm(rPC1.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC2.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe3 x FC1
 pcz1.site.g.12 <- lm(rPC1.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC3.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 
 AICc(pcz1.site.g.1, pcz1.site.g.2, pcz1.site.g.3, pcz1.site.g.4, pcz1.site.g.5, pcz1.site.g.6, pcz1.site.g.7, pcz1.site.g.8, pcz1.site.g.9, pcz1.site.g.10, pcz1.site.g.11, pcz1.site.g.12) 
@@ -577,7 +564,7 @@ pcz1.site.g.13 <- lm(rPC1.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + Ocean*rPC3.env.global # added
                      + rPC3.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 AICc(pcz1.site.g.4, pcz1.site.g.12, pcz1.site.g.13)
 # No good. Average models 4 and 12
@@ -593,14 +580,14 @@ pcz1.site.g.14 <- lm(rPC1.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global # + rFC1 
                      + rFC2
                      + Ocean*rPC3.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 
 # Fit best model (12) without ocean 
 pcz1.site.g.15 <- lm(rPC1.zos.site ~ # Ocean
                        + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC3.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 AICc(pcz1.site.g.4, pcz1.site.g.12, pcz1.site.g.14, pcz1.site.g.15)
 #                df      AICc
@@ -647,10 +634,10 @@ summary(pcz1.site.g.12)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
 # par(op)
 # # RESULTS: Left-skewed BUT only one point well above the qq line 
 
@@ -673,7 +660,7 @@ summary(pcz1.site.g.12)
 # Main effects only
 pcz2.site.g.1 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz2.site.g.1)
 #                 Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)      0.68250    0.29521   2.312   0.0258 *
@@ -691,67 +678,67 @@ summary(pcz2.site.g.1)
 pcz2.site.g.2 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rPC1.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe2
 pcz2.site.g.3 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rPC2.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe3
 pcz2.site.g.4 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rPC3.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC1
 pcz2.site.g.5 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC2
 pcz2.site.g.6 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + Ocean*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC2
 pcz2.site.g.7 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + rPC1.env.global*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe2 x FC2
 pcz2.site.g.8 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + rPC2.env.global*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe3 x FC2
 pcz2.site.g.9 <- lm(rPC2.zos.site ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                     + rPC3.env.global*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC1
 pcz2.site.g.10 <- lm(rPC2.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC1.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe2 x FC1
 pcz2.site.g.11 <- lm(rPC2.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC2.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe3 x FC1
 pcz2.site.g.12 <- lm(rPC2.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC3.env.global*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 
 AICc(pcz2.site.g.1, pcz2.site.g.2, pcz2.site.g.3, pcz2.site.g.4, pcz2.site.g.5, pcz2.site.g.6, pcz2.site.g.7, pcz2.site.g.8, pcz2.site.g.9, pcz2.site.g.10, pcz2.site.g.11, pcz2.site.g.12) 
@@ -788,14 +775,14 @@ summary(pcz2.site.g.4)
 pcz2.site.g.13 <- lm(rPC2.zos.site ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 # + rFC1
                      + Ocean*rPC3.env.global 
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 
 # Fit best model (12) without ocean 
 pcz2.site.g.14 <- lm(rPC2.zos.site ~ # Ocean
                        + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC2 + rFC1
                      + rPC3.env.global*rFC1 
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 AICc(pcz2.site.g.4, pcz2.site.g.12, pcz2.site.g.13, pcz2.site.g.14)
 #                df       AIC
@@ -815,10 +802,10 @@ AICc(pcz2.site.g.4, pcz2.site.g.12, pcz2.site.g.13, pcz2.site.g.14)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
-# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) # diagonal row - zeros?
+# plot(site_means_49$rFC2,res, xlab = "PCz1 (scaled)", ylab = "residuals",) # diagonal row - zeros?
 # par(op)
 # # RESULTS: 
 
@@ -841,7 +828,7 @@ AICc(pcz2.site.g.4, pcz2.site.g.12, pcz2.site.g.13, pcz2.site.g.14)
 peri.site.g.1 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(peri.site.g.1)
 
 # Add interaction: ocean x PCe1
@@ -849,147 +836,147 @@ peri.site.g.2 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + Ocean*rPC1.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe2
 peri.site.g.3 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + Ocean*rPC2.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe3
 peri.site.g.4 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + Ocean*rPC3.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC1
 peri.site.g.5 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + Ocean*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC2
 peri.site.g.6 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + Ocean*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC1
 peri.site.g.7 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + rPC1.env.global*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe2 x FC1
 peri.site.g.8 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + rPC2.env.global*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe3 x FC1
 peri.site.g.9 <- lm(rperiphyton.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site
                     + rPC3.env.global*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC2
 peri.site.g.10 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site
                      + rPC1.env.global*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe2 x FC2
 peri.site.g.11 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site
                      + rPC2.env.global*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe3 x FC2
 peri.site.g.12 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site
                      + rPC3.env.global*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe1
 peri.site.g.13 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rPC1.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe2
 peri.site.g.14 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rPC2.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe3
 peri.site.g.15 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rPC3.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x FC1
 peri.site.g.16 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x FC2
 peri.site.g.17 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe1
 peri.site.g.18 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rPC1.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe2
 peri.site.g.19 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rPC2.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe3
 peri.site.g.20 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rPC3.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x FC1
 peri.site.g.21 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x FC2
 peri.site.g.22 <- lm(rperiphyton.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 
 AICc(peri.site.g.1, peri.site.g.2, peri.site.g.3, peri.site.g.4, peri.site.g.5, peri.site.g.6, 
@@ -1046,13 +1033,13 @@ summary(peri.site.g.2)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Tails depart from qq line.
 
@@ -1069,7 +1056,7 @@ summary(peri.site.g.2)
 peri.area.site.g.1 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 summary(peri.area.site.g.1)
 #                  Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)      0.826925   0.329250   2.512   0.0162 *
@@ -1090,147 +1077,147 @@ peri.area.site.g.2 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + Ocean*rPC1.env.global # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x PCe2
 peri.area.site.g.3 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + Ocean*rPC2.env.global # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x PCe3
 peri.area.site.g.4 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + Ocean*rPC3.env.global # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x FC1
 peri.area.site.g.5 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + Ocean*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x FC2
 peri.area.site.g.6 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + Ocean*rFC2 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe1 x FC1
 peri.area.site.g.7 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + rPC1.env.global*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe2 x FC1
 peri.area.site.g.8 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + rPC2.env.global*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe3 x FC1
 peri.area.site.g.9 <- lm(rperiphyton ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site
                          + rPC3.env.global*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe1 x FC2
 peri.area.site.g.10 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site
                           + rPC1.env.global*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCe2 x FC2
 peri.area.site.g.11 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site
                           + rPC2.env.global*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCe3 x FC2
 peri.area.site.g.12 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site
                           + rPC3.env.global*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe1
 peri.area.site.g.13 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rPC1.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe2
 peri.area.site.g.14 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rPC2.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe3
 peri.area.site.g.15 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rPC3.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x FC1
 peri.area.site.g.16 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rFC1 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x FC2
 peri.area.site.g.17 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe1
 peri.area.site.g.18 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rPC1.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe2
 peri.area.site.g.19 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rPC2.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe3
 peri.area.site.g.20 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rPC3.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x FC1
 peri.area.site.g.21 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rFC1 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x FC2
 peri.area.site.g.22 <- lm(rperiphyton ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 
 AICc(peri.area.site.g.1, peri.area.site.g.2, peri.area.site.g.3, peri.area.site.g.4, peri.area.site.g.5, peri.area.site.g.6, 
@@ -1287,13 +1274,13 @@ summary(peri.area.site.g.2)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Platykurtic. Tails depart from qq line.
 
@@ -1316,7 +1303,7 @@ summary(peri.area.site.g.2)
 meso.site.g.1 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(meso.site.g.1)
 
 # Add interaction: ocean x PCe1
@@ -1324,35 +1311,35 @@ meso.site.g.2 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + Ocean*rPC1.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe2
 meso.site.g.3 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + Ocean*rPC2.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x PCe3
 meso.site.g.4 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + Ocean*rPC3.env.global # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC1
 meso.site.g.5 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + Ocean*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction: ocean x FC2
 meso.site.g.6 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + Ocean*rFC2 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 
 # Add interaction:  PCe1 x FC1
@@ -1360,112 +1347,112 @@ meso.site.g.7 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + rPC1.env.global*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe2 x FC1
 meso.site.g.8 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + rPC2.env.global*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe3 x FC1
 meso.site.g.9 <- lm(rmesograzer.mass.perg ~ Ocean
                     + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                     + rPC1.zos.site + rPC2.zos.site 
                     + rPC3.env.global*rFC1 # added
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 
 # Add interaction:  PCe1 x FC2
 meso.site.g.10 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.env.global*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe2 x FC2
 meso.site.g.11 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.env.global*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCe3 x FC2
 meso.site.g.12 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC3.env.global*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe1
 meso.site.g.13 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rPC1.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe2
 meso.site.g.14 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rPC2.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe3
 meso.site.g.15 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rPC3.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x FC1
 meso.site.g.16 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz1 x FC2
 meso.site.g.17 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC1.zos.site*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe1
 meso.site.g.18 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rPC1.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe2
 meso.site.g.19 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rPC2.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe3
 meso.site.g.20 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rPC3.env.global # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x FC1
 meso.site.g.21 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rFC1 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 # Add interaction:  PCz2 x FC2
 meso.site.g.22 <- lm(rmesograzer.mass.perg ~ Ocean
                      + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                      + rPC1.zos.site + rPC2.zos.site 
                      + rPC2.zos.site*rFC2 # added
-                     , data = ZEN_2014_site_means_49)
+                     , data = site_means_49)
 
 
 AICc(meso.site.g.1, meso.site.g.2, meso.site.g.3, meso.site.g.4, meso.site.g.5, 
@@ -1541,14 +1528,14 @@ summary(meso.site.g.16)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Looks pretty good.
 
@@ -1568,7 +1555,7 @@ summary(meso.site.g.16)
 meso.area.site.g.1 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 summary(meso.area.site.g.1)
 #                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)      0.209529   0.262366   0.799  0.42923   
@@ -1590,35 +1577,35 @@ meso.area.site.g.2 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + Ocean*rPC1.env.global # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x PCe2
 meso.area.site.g.3 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + Ocean*rPC2.env.global # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x PCe3
 meso.area.site.g.4 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + Ocean*rPC3.env.global # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x FC1
 meso.area.site.g.5 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + Ocean*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction: ocean x FC2
 meso.area.site.g.6 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + Ocean*rFC2 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 
 # Add interaction:  PCe1 x FC1
@@ -1626,112 +1613,112 @@ meso.area.site.g.7 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + rPC1.env.global*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe2 x FC1
 meso.area.site.g.8 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + rPC2.env.global*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe3 x FC1
 meso.area.site.g.9 <- lm(rmesograzer.mass ~ Ocean
                          + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                          + rPC1.zos.site + rPC2.zos.site 
                          + rPC3.env.global*rFC1 # added
-                         , data = ZEN_2014_site_means_49)
+                         , data = site_means_49)
 
 # Add interaction:  PCe1 x FC2
 meso.area.site.g.10 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.env.global*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCe2 x FC2
 meso.area.site.g.11 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.env.global*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCe3 x FC2
 meso.area.site.g.12 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC3.env.global*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe1
 meso.area.site.g.13 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rPC1.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe2
 meso.area.site.g.14 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rPC2.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x PCe3
 meso.area.site.g.15 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rPC3.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x FC1
 meso.area.site.g.16 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rFC1 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz1 x FC2
 meso.area.site.g.17 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe1
 meso.area.site.g.18 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rPC1.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe2
 meso.area.site.g.19 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rPC2.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x PCe3
 meso.area.site.g.20 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rPC3.env.global # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x FC1
 meso.area.site.g.21 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rFC1 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 # Add interaction:  PCz2 x FC2
 meso.area.site.g.22 <- lm(rmesograzer.mass ~ Ocean
                           + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC2.zos.site*rFC2 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 
 
 AICc(meso.area.site.g.1, meso.area.site.g.2, meso.area.site.g.3, meso.area.site.g.4, meso.area.site.g.5, 
@@ -1787,7 +1774,7 @@ meso.area.site.g.23 <- lm(rmesograzer.mass ~ # Ocean
                             + rPC1.env.global + rPC2.env.global + rPC3.env.global + rFC1 + rFC2
                           + rPC1.zos.site + rPC2.zos.site 
                           + rPC1.zos.site*rFC1 # added
-                          , data = ZEN_2014_site_means_49)
+                          , data = site_means_49)
 AICc(meso.area.site.g.16, meso.area.site.g.23) # Slightly better
 #                    Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)         0.55933    0.14557   3.842 0.000426 ***
@@ -1811,14 +1798,14 @@ AICc(meso.area.site.g.16, meso.area.site.g.23) # Slightly better
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.env.global,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.env.global,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC3.env.global,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC1,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rFC2,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC1.zos.site,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rPC2.zos.site,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49$rperiphyton.perg,res, xlab = "periphyton (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: OK
 
@@ -1838,44 +1825,44 @@ AICc(meso.area.site.g.16, meso.area.site.g.23) # Slightly better
 # Main effects only
 pcz1.site.a.1 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl  
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 summary(pcz1.site.a.1)
 
 # Add interaction:  PCe1 x FC1
 pcz1.site.a.2 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC1
 pcz1.site.a.3 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC2.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC1
 pcz1.site.a.4 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC3.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe1 x FC2
 pcz1.site.a.5 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC2
 pcz1.site.a.6 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC2.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC2
 pcz1.site.a.7 <- lm(rPC1.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC3.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 
 AICc(pcz1.site.a.1, pcz1.site.a.2, pcz1.site.a.3, pcz1.site.a.4, pcz1.site.a.5, pcz1.site.a.6, pcz1.site.a.7) 
@@ -1908,7 +1895,7 @@ summary(pcz1.site.a.1)
 # Drop FC2
 pcz1.site.a.8 <- lm(rPC1.zos.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl # + rFC2.global.atl  
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(pcz1.site.a.8) # RESULT: PCe1 and PCe3 are significant
 #                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)           0.7976     0.1395   5.718 6.84e-06 ***
@@ -1924,7 +1911,7 @@ summary(pcz1.site.a.8) # RESULT: PCe1 and PCe3 are significant
 pcz1.site.a.9 <- lm(rPC1.zos.atl ~ 
   + rPC1.env.global.atl # + rPC2.env.global.atl 
   + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl  
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(pcz1.site.a.9) # RESULT: PCe1 and FC2 are significant
 #                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)           0.6420     0.1235   5.198 2.52e-05 ***
@@ -1940,7 +1927,7 @@ summary(pcz1.site.a.9) # RESULT: PCe1 and FC2 are significant
 pcz1.site.a.10 <- lm(rPC1.zos.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
   + rFC2.global.atl  
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(pcz1.site.a.10) # 
 #                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)           0.7131     0.1238   5.758 6.19e-06 ***
@@ -1955,7 +1942,7 @@ summary(pcz1.site.a.10) #
 # Fit best model with unstandardized data to allow direct comparison betwen oceans
 pcz1.site.a.1.raw <- lm(PC1.zos.site ~ 
                       + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 summary(pcz1.site.a.1.raw)
 #                 Estimate Std. Error t value Pr(>|t|)    
@@ -1977,11 +1964,11 @@ summary(pcz1.site.a.1.raw)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Pretty good. 
 
@@ -2002,44 +1989,44 @@ summary(pcz1.site.a.1.raw)
 # Main effects only
 pcz2.test.a.1 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl  
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 summary(pcz2.test.a.1)
 
 # Add interaction:  PCe1 x FC2
 pcz2.test.a.2 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC2
 pcz2.test.a.3 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC2.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC2
 pcz2.test.a.4 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC3.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe1 x FC1
 pcz2.test.a.5 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC1
 pcz2.test.a.6 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC2.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC1
 pcz2.test.a.7 <- lm(rPC2.zos.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC3.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 AICc(pcz2.test.a.1, pcz2.test.a.2, pcz2.test.a.3, pcz2.test.a.4, pcz2.test.a.5, pcz2.test.a.6, pcz2.test.a.7) 
 #               df        AICc
@@ -2084,7 +2071,7 @@ summary(pcz2.test.a.1)
 pcz2.test.a.8 <- lm(rPC2.zos.atl ~ rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl 
   + rFC1.global.atl # + rFC2.global.atl
   # + rPC1.env.global.atl*rFC2.global.atl # added
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(pcz2.test.a.8) # RESULT: Strong effect of PCe3 only, but model P = 0.06
 #                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)          0.76022    0.14030   5.419 1.45e-05 ***
@@ -2099,7 +2086,7 @@ summary(pcz2.test.a.8) # RESULT: Strong effect of PCe3 only, but model P = 0.06
 # Drop PCe2
 pcz2.test.a.9 <- lm(rPC2.zos.atl ~ rPC1.env.global.atl # + rPC2.env.global.atl 
   + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl+ rPC1.env.global.atl*rFC2.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(pcz2.test.a.9) # RESULT: Strong effects of PCe1 and 3, FC2
 #                                     Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)                           0.3509     0.1404   2.499  0.02005 * 
@@ -2115,7 +2102,7 @@ summary(pcz2.test.a.9) # RESULT: Strong effects of PCe1 and 3, FC2
 # Drop FC1
 pcz2.test.a.10 <- lm(rPC2.zos.atl ~ rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
   + rFC2.global.atl+ rPC1.env.global.atl*rFC2.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(pcz2.test.a.10) # RESULT: 
 #                                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)                           0.4143     0.1428   2.901 0.008055 ** 
@@ -2136,11 +2123,11 @@ summary(pcz2.test.a.10) # RESULT:
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Model seems to systematically overpredict, i.e., many poiunts are below qq line. ? 
 
@@ -2161,7 +2148,7 @@ summary(pcz2.test.a.10) # RESULT:
 peri.test.a.1 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl 
                     + rPC1.zos.atl + rPC2.zos.atl
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 summary(peri.test.a.1)
 
 # Add interaction:  PCe1 x FC1
@@ -2169,42 +2156,42 @@ peri.test.a.2 <- lm(rperiphyton.perg.atl ~
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC1.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC1
 peri.test.a.3 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC2.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC1
 peri.test.a.4 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC3.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe1 x FC2
 peri.test.a.5 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC1.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC2
 peri.test.a.6 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC2.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC2
 peri.test.a.7 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC3.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -2212,70 +2199,70 @@ peri.test.a.8 <- lm(rperiphyton.perg.atl ~
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC1.zos.atl*rPC1.env.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe2
 peri.test.a.9 <- lm(rperiphyton.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl
                     + rPC1.zos.atl*rPC2.env.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe3
 peri.test.a.10 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC1.zos.atl*rPC3.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC1
 peri.test.a.11 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC1.zos.atl*rFC1.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC2
 peri.test.a.12 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC1.zos.atl*rFC2.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe1
 peri.test.a.13 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC2.zos.atl*rPC1.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe2
 peri.test.a.14 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC2.zos.atl*rPC2.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe3
 peri.test.a.15 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC2.zos.atl*rPC3.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC1
 peri.test.a.16 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC2.zos.atl*rFC1.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC2
 peri.test.a.17 <- lm(rperiphyton.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl
                      + rPC2.zos.atl*rFC2.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 
 AICc(peri.test.a.1, peri.test.a.2, peri.test.a.3, peri.test.a.4, peri.test.a.5, 
@@ -2323,7 +2310,7 @@ summary(peri.test.a.9)
 peri.test.a.18 <- lm(rperiphyton.perg.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl # + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(peri.test.a.18) # RESULT: PCe2 abd PCz1 significant as in best model (but model not significant)
 #                                  Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)                        1.1032     0.4652   2.371   0.0274 *
@@ -2343,7 +2330,7 @@ peri.test.a.19 <- lm(rperiphyton.perg.atl ~
   + rPC1.env.global.atl # + rPC2.env.global.atl 
   + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl # + rPC1.zos.atl*rPC2.env.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(peri.test.a.19) # RESULT: Nothing
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)          0.09295    0.31756   0.293   0.7725  
@@ -2361,7 +2348,7 @@ summary(peri.test.a.19) # RESULT: Nothing
 peri.test.a.20 <- lm(rperiphyton.perg.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
   + rFC2.global.atl + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(peri.test.a.20) # RESULT: 
 #                                  Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)                        1.0783     0.4660   2.314   0.0309 *
@@ -2384,13 +2371,13 @@ summary(peri.test.a.20) # RESULT:
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Generally OK. Possibly underpredicted. 
 
@@ -2409,7 +2396,7 @@ summary(peri.test.a.20) # RESULT:
 peri.area.test.a.1 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl 
                          + rPC1.zos.atl + rPC2.zos.atl
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 summary(peri.area.test.a.1)
 
 # Add interaction:  PCe1 x FC1
@@ -2417,42 +2404,42 @@ peri.area.test.a.2 <- lm(rperiphyton.area.atl ~
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC1.env.global.atl*rFC1.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC1
 peri.area.test.a.3 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC2.env.global.atl*rFC1.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC1
 peri.area.test.a.4 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC3.env.global.atl*rFC1.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe1 x FC2
 peri.area.test.a.5 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC1.env.global.atl*rFC2.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC2
 peri.area.test.a.6 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC2.env.global.atl*rFC2.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC2
 peri.area.test.a.7 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC3.env.global.atl*rFC2.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -2460,70 +2447,70 @@ peri.area.test.a.8 <- lm(rperiphyton.area.atl ~
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC1.zos.atl*rPC1.env.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe2
 peri.area.test.a.9 <- lm(rperiphyton.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl
                          + rPC1.zos.atl*rPC2.env.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe3
 peri.area.test.a.10 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC1.zos.atl*rPC3.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC1
 peri.area.test.a.11 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC1.zos.atl*rFC1.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC2
 peri.area.test.a.12 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC1.zos.atl*rFC2.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe1
 peri.area.test.a.13 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC2.zos.atl*rPC1.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe2
 peri.area.test.a.14 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC2.zos.atl*rPC2.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe3
 peri.area.test.a.15 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC2.zos.atl*rPC3.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC1
 peri.area.test.a.16 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC2.zos.atl*rFC1.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC2
 peri.area.test.a.17 <- lm(rperiphyton.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl
                           + rPC2.zos.atl*rFC2.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 
 AICc(peri.area.test.a.1, peri.area.test.a.2, peri.area.test.a.3, peri.area.test.a.4, peri.area.test.a.5, 
@@ -2571,7 +2558,7 @@ summary(peri.area.test.a.9)
 peri.area.test.a.18 <- lm(rperiphyton.area.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl # + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(peri.area.test.a.18)
 #                                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)                        1.1355     0.3320   3.420  0.00257 **
@@ -2591,7 +2578,7 @@ peri.area.test.a.19 <- lm(rperiphyton.area.atl ~
   + rPC1.env.global.atl # + rPC2.env.global.atl 
   + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl # + rPC1.zos.atl*rPC2.env.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(peri.area.test.a.19)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)           0.3270     0.2313   1.414   0.1715  
@@ -2609,7 +2596,7 @@ summary(peri.area.test.a.19)
 peri.area.test.a.20 <- lm(rperiphyton.area.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
   + rFC2.global.atl + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl 
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(peri.area.test.a.20)
 #                                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)                        1.1196     0.3363   3.329  0.00318 **
@@ -2632,13 +2619,13 @@ summary(peri.area.test.a.20)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Generally OK. 
 
@@ -2660,7 +2647,7 @@ summary(peri.area.test.a.20)
 meso.test.a.1 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl 
                     + rPC1.zos.atl + rPC2.zos.atl  
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 summary(meso.test.a.1)
 
 # Add interaction:  PCe1 x FC1
@@ -2668,42 +2655,42 @@ meso.test.a.2 <- lm(rmesograzer.mass.perg.atl ~
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC1.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC1
 meso.test.a.3 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC2.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC1
 meso.test.a.4 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC3.env.global.atl*rFC1.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe1 x FC2
 meso.test.a.5 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC1.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC2
 meso.test.a.6 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC2.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC2
 meso.test.a.7 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC3.env.global.atl*rFC2.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -2711,70 +2698,70 @@ meso.test.a.8 <- lm(rmesograzer.mass.perg.atl ~
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC1.zos.atl*rPC1.env.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe2
 meso.test.a.9 <- lm(rmesograzer.mass.perg.atl ~ 
                       + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                     + rPC1.zos.atl + rPC2.zos.atl 
                     + rPC1.zos.atl*rPC2.env.global.atl # added
-                    , data = ZEN_2014_site_means_49_Atlantic)
+                    , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe3
 meso.test.a.10 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC1.zos.atl*rPC3.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC1
 meso.test.a.11 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC1.zos.atl*rFC1.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC2
 meso.test.a.12 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC1.zos.atl*rFC2.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe1
 meso.test.a.13 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC2.zos.atl*rPC1.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe2
 meso.test.a.14 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC2.zos.atl*rPC2.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe3
 meso.test.a.15 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC2.zos.atl*rPC3.env.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC1
 meso.test.a.16 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC2.zos.atl*rFC1.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC2
 meso.test.a.17 <- lm(rmesograzer.mass.perg.atl ~ 
                        + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                      + rPC1.zos.atl + rPC2.zos.atl 
                      + rPC2.zos.atl*rFC2.global.atl # added
-                     , data = ZEN_2014_site_means_49_Atlantic)
+                     , data = site_means_49_Atlantic)
 
 
 
@@ -2835,7 +2822,7 @@ summary(meso.test.a.1)
 meso.test.a.18 <- lm(rmesograzer.mass.perg.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl # + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(meso.test.a.18) # RESULT: PCe2,3 and PCz1 significant as in best. FC1 no longer significant. 
 #                                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)                       -0.1620     0.2619  -0.619  0.54288   
@@ -2855,7 +2842,7 @@ meso.test.a.19 <- lm(rmesograzer.mass.perg.atl ~
   + rPC1.env.global.atl # + rPC2.env.global.atl 
   + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl # + rPC1.zos.atl*rPC2.env.global.atl
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(meso.test.a.19) # RESULT: PCe3, PCz1, and FC2 significant as in best model, but not FC1
 #                     Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)          0.37582    0.15109   2.487  0.02094 * 
@@ -2873,7 +2860,7 @@ summary(meso.test.a.19) # RESULT: PCe3, PCz1, and FC2 significant as in best mod
 meso.test.a.20 <- lm(rmesograzer.mass.perg.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
   + rFC2.global.atl + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(meso.test.a.20) # RESULT: 
 #                                  Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)                       -0.1311     0.2518  -0.521   0.6081  
@@ -2905,13 +2892,13 @@ AICc(meso.test.a.9, meso.test.a.18, meso.test.a.19, meso.test.a.20)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: OK. A bit right-skewed.
 
@@ -2935,7 +2922,7 @@ AICc(meso.test.a.9, meso.test.a.18, meso.test.a.19, meso.test.a.20)
 meso.area.test.a.1 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl 
                          + rPC1.zos.atl + rPC2.zos.atl  
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 summary(meso.area.test.a.1)
 
 # Add interaction:  PCe1 x FC1
@@ -2943,42 +2930,42 @@ meso.area.test.a.2 <- lm(rmesograzer.mass.area.atl ~
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC1.env.global.atl*rFC1.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC1
 meso.area.test.a.3 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC2.env.global.atl*rFC1.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC1
 meso.area.test.a.4 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC3.env.global.atl*rFC1.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe1 x FC2
 meso.area.test.a.5 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC1.env.global.atl*rFC2.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe2 x FC2
 meso.area.test.a.6 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC2.env.global.atl*rFC2.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCe3 x FC2
 meso.area.test.a.7 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC3.env.global.atl*rFC2.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -2986,70 +2973,70 @@ meso.area.test.a.8 <- lm(rmesograzer.mass.area.atl ~
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC1.zos.atl*rPC1.env.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe2
 meso.area.test.a.9 <- lm(rmesograzer.mass.area.atl ~ 
                            + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                          + rPC1.zos.atl + rPC2.zos.atl 
                          + rPC1.zos.atl*rPC2.env.global.atl # added
-                         , data = ZEN_2014_site_means_49_Atlantic)
+                         , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x PCe3
 meso.area.test.a.10 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC1.zos.atl*rPC3.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC1
 meso.area.test.a.11 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC1.zos.atl*rFC1.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz1 x FC2
 meso.area.test.a.12 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC1.zos.atl*rFC2.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe1
 meso.area.test.a.13 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC2.zos.atl*rPC1.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe2
 meso.area.test.a.14 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC2.zos.atl*rPC2.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x PCe3
 meso.area.test.a.15 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC2.zos.atl*rPC3.env.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC1
 meso.area.test.a.16 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC2.zos.atl*rFC1.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 # Add interaction:  PCz2 x FC2
 meso.area.test.a.17 <- lm(rmesograzer.mass.area.atl ~ 
                             + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
                           + rPC1.zos.atl + rPC2.zos.atl 
                           + rPC2.zos.atl*rFC2.global.atl # added
-                          , data = ZEN_2014_site_means_49_Atlantic)
+                          , data = site_means_49_Atlantic)
 
 
 
@@ -3097,7 +3084,7 @@ summary(meso.area.test.a.1)
 meso.area.test.a.18 <- lm(rmesograzer.mass.area.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl + rFC1.global.atl # + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(meso.area.test.a.18)
 #                                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)                       0.05119    0.23224   0.220  0.82767   
@@ -3117,7 +3104,7 @@ meso.area.test.a.19 <- lm(rmesograzer.mass.area.atl ~
   + rPC1.env.global.atl # + rPC2.env.global.atl 
   + rPC3.env.global.atl + rFC1.global.atl + rFC2.global.atl
   + rPC1.zos.atl + rPC2.zos.atl # + rPC1.zos.atl*rPC2.env.global.atl
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(meso.area.test.a.19)
 #                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)          0.45942    0.12794   3.591 0.001626 ** 
@@ -3135,7 +3122,7 @@ summary(meso.area.test.a.19)
 meso.area.test.a.20 <- lm(rmesograzer.mass.area.atl ~ 
   + rPC1.env.global.atl + rPC2.env.global.atl + rPC3.env.global.atl # + rFC1.global.atl 
   + rFC2.global.atl + rPC1.zos.atl + rPC2.zos.atl + rPC1.zos.atl*rPC2.env.global.atl
-  , data = ZEN_2014_site_means_49_Atlantic)
+  , data = site_means_49_Atlantic)
 summary(meso.area.test.a.20)
 #                                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)                       0.07856    0.22164   0.354  0.72653   
@@ -3158,13 +3145,13 @@ summary(meso.area.test.a.20)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.env.global.atl,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.env.global.atl,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC3.env.global.atl,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC1.global.atl,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rFC2.global.atl,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC1.zos.atl,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_49_Atlantic$rPC2.zos.atl,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: OK.  
 
@@ -3187,7 +3174,7 @@ summary(meso.area.test.a.20)
 ###################################################################################
 # 
 # # Explore correlations among variables used in models
-# pairs.panels(ZEN_2014_site_means_Pacific[,c("Latitude", "PC1.env.global", "PC2.env.global", "PC3.env.global",
+# pairs.panels(site_means_Pacific[,c("Latitude", "PC1.env.global", "PC2.env.global", "PC3.env.global",
 #   "FC1", "FC2", "PC1.zos.site", "PC2.zos.site", 
 #   "log10.periphyton.mass.per.g.zostera.site", "log10.mesograzer.mass.per.g.plant.site")], 
 #   smooth=T,density=F,ellipses=F,lm=F,digits=2,scale=F, cex.cor = 8)
@@ -3195,44 +3182,44 @@ summary(meso.area.test.a.20)
 # Main effects only
 pcz1.test.p.1 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac  
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 summary(pcz1.test.p.1)
 
 # Add interaction:  PCe1 x FC2
 pcz1.test.p.2 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC2
 pcz1.test.p.3 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC2.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC2
 pcz1.test.p.4 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC3.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe1 x FC1
 pcz1.test.p.5 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC1
 pcz1.test.p.6 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC2.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC1
 pcz1.test.p.7 <- lm(rPC1.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC3.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 
 AICc(pcz1.test.p.1, pcz1.test.p.2, pcz1.test.p.3, pcz1.test.p.4, pcz1.test.p.5, pcz1.test.p.6, pcz1.test.p.7) 
@@ -3263,7 +3250,7 @@ summary(pcz1.test.p.1)
 # Drop PCe1
 pcz1.test.p.8 <- lm(rPC1.zos.pac ~ # rPC1.env.global.pac 
   + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac  
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(pcz1.test.p.8)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)          0.12263    0.41113   0.298   0.7696  
@@ -3278,7 +3265,7 @@ summary(pcz1.test.p.8)
 # Drop FC2
 pcz1.test.p.9 <- lm(rPC1.zos.pac ~ rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac 
   + rFC1.global.pac # + rFC2.global.pac  
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(pcz1.test.p.9)
 #                     Estimate Std. Error t value Pr(>|t|)
 # (Intercept)          0.13063    0.51845   0.252    0.804
@@ -3293,7 +3280,7 @@ summary(pcz1.test.p.9)
 
 # Fit best model with unstandardized data
 pcz1.test.p.1.raw <- lm(PC1.zos.site ~ +PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(pcz1.test.p.1.raw)
 #                  Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)    -3.1110782  2.3199478  -1.341  0.20127   
@@ -3314,11 +3301,11 @@ summary(pcz1.test.p.1.raw)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Pretty Good. 
 
@@ -3338,44 +3325,44 @@ summary(pcz1.test.p.1.raw)
 # Main effects only
 pcz2.test.p.1 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac  
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 summary(pcz2.test.p.1)
 
 # Add interaction:  PCe1 x FC2
 pcz2.test.p.2 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC2
 pcz2.test.p.3 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC2.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC2
 pcz2.test.p.4 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC3.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe1 x FC1
 pcz2.test.p.5 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC1
 pcz2.test.p.6 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC2.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC1
 pcz2.test.p.7 <- lm(rPC2.zos.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC3.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 AICc(pcz2.test.p.1, pcz2.test.p.2, pcz2.test.p.3, pcz2.test.p.4, pcz2.test.p.5, pcz2.test.p.6, pcz2.test.p.7) 
 #               df     AICc
@@ -3405,7 +3392,7 @@ summary(pcz2.test.p.1)
 # Drop PCe1
 pcz2.test.p.8 <- lm(rPC2.zos.pac ~ # rPC1.env.global.pac 
   + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac  
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(pcz2.test.p.8)
 #                     Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)           0.2530     0.2811   0.900 0.382239    
@@ -3420,7 +3407,7 @@ summary(pcz2.test.p.8)
 # Drop FC2
 pcz2.test.p.9 <- lm(rPC2.zos.pac ~ rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac 
   + rFC1.global.pac # + rFC2.global.pac  
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(pcz2.test.p.9)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)           0.4534     0.4008   1.131   0.2758  
@@ -3441,11 +3428,11 @@ summary(pcz2.test.p.9)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Residuals are strongly right-skewed. 
 
@@ -3465,7 +3452,7 @@ summary(pcz2.test.p.9)
 peri.test.p.1 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
                     + rPC1.zos.pac + rPC2.zos.pac
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 summary(peri.test.p.1)
 
 # Add interaction:  PCe1 x FC1
@@ -3473,42 +3460,42 @@ peri.test.p.2 <- lm(rperiphyton.perg.pac ~
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC1.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC1
 peri.test.p.3 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC2.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC1
 peri.test.p.4 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC3.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe1 x FC2
 peri.test.p.5 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC1.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC2
 peri.test.p.6 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC2.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC2
 peri.test.p.7 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC3.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -3516,70 +3503,70 @@ peri.test.p.8 <- lm(rperiphyton.perg.pac ~
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC1.zos.pac*rPC1.env.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe2
 peri.test.p.9 <- lm(rperiphyton.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac
                     + rPC1.zos.pac*rPC2.env.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe3
 peri.test.p.10 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC1.zos.pac*rPC3.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC1
 peri.test.p.11 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC1.zos.pac*rFC1.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC2
 peri.test.p.12 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC1.zos.pac*rFC2.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe1
 peri.test.p.13 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC2.zos.pac*rPC1.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe2
 peri.test.p.14 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC2.zos.pac*rPC2.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe3
 peri.test.p.15 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC2.zos.pac*rPC3.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC1
 peri.test.p.16 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC2.zos.pac*rFC1.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC2
 peri.test.p.17 <- lm(rperiphyton.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac
                      + rPC2.zos.pac*rFC2.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 
 AICc(peri.test.p.1, peri.test.p.2, peri.test.p.3, peri.test.p.4, peri.test.p.5, 
@@ -3626,7 +3613,7 @@ summary(peri.test.p.1)
 peri.test.p.18 <- lm(rperiphyton.perg.pac ~ # rPC1.env.global.pac 
   + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
   + rPC1.zos.pac + rPC2.zos.pac
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(peri.test.p.18)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)          -0.2161     0.4050  -0.534   0.6026  
@@ -3644,7 +3631,7 @@ summary(peri.test.p.18)
 peri.test.p.19 <- lm(rperiphyton.perg.pac ~ rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac 
   + rFC1.global.pac # + rFC2.global.pac 
   + rPC1.zos.pac + rPC2.zos.pac
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(peri.test.p.19)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)          0.07363    0.51080   0.144   0.8876  
@@ -3667,13 +3654,13 @@ summary(peri.test.p.19)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",) 
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "") 
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
-# plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",) 
+# plot(site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",) 
 # par(op)
 # # RESULTS: Generally OK.
 
@@ -3694,7 +3681,7 @@ summary(peri.test.p.19)
 peri.area.test.p.1 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
                          + rPC1.zos.pac + rPC2.zos.pac
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 summary(peri.area.test.p.1)
 
 # Add interaction:  PCe1 x FC1
@@ -3702,42 +3689,42 @@ peri.area.test.p.2 <- lm(rperiphyton.area.pac ~
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC1.env.global.pac*rFC1.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC1
 peri.area.test.p.3 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC2.env.global.pac*rFC1.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC1
 peri.area.test.p.4 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC3.env.global.pac*rFC1.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe1 x FC2
 peri.area.test.p.5 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC1.env.global.pac*rFC2.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC2
 peri.area.test.p.6 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC2.env.global.pac*rFC2.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC2
 peri.area.test.p.7 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC3.env.global.pac*rFC2.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -3745,70 +3732,70 @@ peri.area.test.p.8 <- lm(rperiphyton.area.pac ~
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC1.zos.pac*rPC1.env.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe2
 peri.area.test.p.9 <- lm(rperiphyton.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac
                          + rPC1.zos.pac*rPC2.env.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe3
 peri.area.test.p.10 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC1.zos.pac*rPC3.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC1
 peri.area.test.p.11 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC1.zos.pac*rFC1.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC2
 peri.area.test.p.12 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC1.zos.pac*rFC2.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe1
 peri.area.test.p.13 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC2.zos.pac*rPC1.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe2
 peri.area.test.p.14 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC2.zos.pac*rPC2.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe3
 peri.area.test.p.15 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC2.zos.pac*rPC3.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC1
 peri.area.test.p.16 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC2.zos.pac*rFC1.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC2
 peri.area.test.p.17 <- lm(rperiphyton.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac
                           + rPC2.zos.pac*rFC2.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 
 AICc(peri.area.test.p.1, peri.area.test.p.2, peri.area.test.p.3, peri.area.test.p.4, peri.area.test.p.5, 
@@ -3854,7 +3841,7 @@ summary(peri.area.test.p.1)
 peri.area.test.p.18 <- lm(rperiphyton.area.pac ~ # + rPC1.env.global.pac 
   + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
   + rPC1.zos.pac + rPC2.zos.pac
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(peri.area.test.p.18)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)           0.1393     0.3506   0.397   0.6976  
@@ -3872,7 +3859,7 @@ summary(peri.area.test.p.18)
 peri.area.test.p.19 <- lm(rperiphyton.area.pac ~ + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac 
   + rFC1.global.pac # + rFC2.global.pac 
   + rPC1.zos.pac + rPC2.zos.pac
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(peri.area.test.p.19)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)           0.2941     0.4507   0.653   0.5254  
@@ -3895,13 +3882,13 @@ summary(peri.area.test.p.19)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",)
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "")
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
 # par(op)
 # # RESULTS:OK.
 
@@ -3921,7 +3908,7 @@ summary(peri.area.test.p.19)
 meso.test.p.1 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
                     + rPC1.zos.pac + rPC2.zos.pac  
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 summary(meso.test.p.1)
 
 # Add interaction:  PCe1 x FC1
@@ -3929,42 +3916,42 @@ meso.test.p.2 <- lm(rmesograzer.mass.perg.pac ~
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC1.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC1
 meso.test.p.3 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC2.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC1
 meso.test.p.4 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC3.env.global.pac*rFC1.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe1 x FC2
 meso.test.p.5 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC1.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC2
 meso.test.p.6 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC2.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC2
 meso.test.p.7 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC3.env.global.pac*rFC2.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -3972,70 +3959,70 @@ meso.test.p.8 <- lm(rmesograzer.mass.perg.pac ~
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC1.zos.pac*rPC1.env.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe2
 meso.test.p.9 <- lm(rmesograzer.mass.perg.pac ~ 
                       + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                     + rPC1.zos.pac + rPC2.zos.pac 
                     + rPC1.zos.pac*rPC2.env.global.pac # added
-                    , data = ZEN_2014_site_means_Pacific)
+                    , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe3
 meso.test.p.10 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC1.zos.pac*rPC3.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC1
 meso.test.p.11 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC1.zos.pac*rFC1.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC2
 meso.test.p.12 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC1.zos.pac*rFC2.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe1
 meso.test.p.13 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC2.zos.pac*rPC1.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe2
 meso.test.p.14 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC2.zos.pac*rPC2.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe3
 meso.test.p.15 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC2.zos.pac*rPC3.env.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC1
 meso.test.p.16 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC2.zos.pac*rFC1.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC2
 meso.test.p.17 <- lm(rmesograzer.mass.perg.pac ~ 
                        + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                      + rPC1.zos.pac + rPC2.zos.pac 
                      + rPC2.zos.pac*rFC2.global.pac # added
-                     , data = ZEN_2014_site_means_Pacific)
+                     , data = site_means_Pacific)
 
 AICc(meso.test.p.1, meso.test.p.2, meso.test.p.3, meso.test.p.4, meso.test.p.5, 
     meso.test.p.6, meso.test.p.7, meso.test.p.8, meso.test.p.9, meso.test.p.10, meso.test.p.11, 
@@ -4081,7 +4068,7 @@ summary(meso.test.p.1)
 meso.test.p.18 <- lm(rmesograzer.mass.perg.pac ~ # + rPC1.env.global.pac 
   + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
   + rPC1.zos.pac + rPC2.zos.pac  
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(meso.test.p.18)
 #                      Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)         -0.009272   0.370623  -0.025   0.9804  
@@ -4099,7 +4086,7 @@ summary(meso.test.p.18)
 meso.test.p.19 <- lm(rmesograzer.mass.perg.pac ~ + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac 
   + rFC1.global.pac # + rFC2.global.pac 
   + rPC1.zos.pac + rPC2.zos.pac  
-  , data = ZEN_2014_site_means_Pacific)
+  , data = site_means_Pacific)
 summary(meso.test.p.19)
 #                     Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)           0.2036     0.4162   0.489   0.6328  
@@ -4121,13 +4108,13 @@ summary(meso.test.p.19)
 # plot(ypred,res, xlab = "predicted", ylab = "residuals",)
 # qqnorm(res, xlab = "Model Quantiles", ylab = "Observation Quantiles", main = "")
 # qqline(res, col = "blue", lwd = 2) # strong heavy tails
-# plot(ZEN_2014_site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
-# plot(ZEN_2014_site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC1.env.global.pac,res, xlab = "PCe1 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC2.env.global.pac,res, xlab = "PCe2 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC3.env.global.pac,res, xlab = "PCe3 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rFC1.global.pac,res, xlab = "FC1 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rFC2.global.pac,res, xlab = "FC2 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC1.zos.pac,res, xlab = "PCz1 (scaled)", ylab = "residuals",)
+# plot(site_means_Pacific$rPC2.zos.pac,res, xlab = "PCz2 (scaled)", ylab = "residuals",)
 # par(op)
 # # RESULTS: Looks good generally. One point way off qq line.
 
@@ -4147,7 +4134,7 @@ summary(meso.test.p.19)
 meso.area.test.p.1 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac 
                          + rPC1.zos.pac + rPC2.zos.pac  
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 summary(meso.area.test.p.1)
 
 # Add interaction:  PCe1 x FC1
@@ -4155,42 +4142,42 @@ meso.area.test.p.2 <- lm(rmesograzer.mass.area.pac ~
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC1.env.global.pac*rFC1.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC1
 meso.area.test.p.3 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC2.env.global.pac*rFC1.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC1
 meso.area.test.p.4 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC3.env.global.pac*rFC1.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe1 x FC2
 meso.area.test.p.5 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC1.env.global.pac*rFC2.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe2 x FC2
 meso.area.test.p.6 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC2.env.global.pac*rFC2.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCe3 x FC2
 meso.area.test.p.7 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC3.env.global.pac*rFC2.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 
 # Add interaction:  PCz1 x PCe1
@@ -4198,70 +4185,70 @@ meso.area.test.p.8 <- lm(rmesograzer.mass.area.pac ~
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC1.zos.pac*rPC1.env.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe2
 meso.area.test.p.9 <- lm(rmesograzer.mass.area.pac ~ 
                            + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                          + rPC1.zos.pac + rPC2.zos.pac 
                          + rPC1.zos.pac*rPC2.env.global.pac # added
-                         , data = ZEN_2014_site_means_Pacific)
+                         , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x PCe3
 meso.area.test.p.10 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC1.zos.pac*rPC3.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC1
 meso.area.test.p.11 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC1.zos.pac*rFC1.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz1 x FC2
 meso.area.test.p.12 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC1.zos.pac*rFC2.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe1
 meso.area.test.p.13 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC2.zos.pac*rPC1.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe2
 meso.area.test.p.14 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC2.zos.pac*rPC2.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x PCe3
 meso.area.test.p.15 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC2.zos.pac*rPC3.env.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC1
 meso.area.test.p.16 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC2.zos.pac*rFC1.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 # Add interaction:  PCz2 x FC2
 meso.area.test.p.17 <- lm(rmesograzer.mass.area.pac ~ 
                             + rPC1.env.global.pac + rPC2.env.global.pac + rPC3.env.global.pac + rFC1.global.pac + rFC2.global.pac
                           + rPC1.zos.pac + rPC2.zos.pac 
                           + rPC2.zos.pac*rFC2.global.pac # added
-                          , data = ZEN_2014_site_means_Pacific)
+                          , data = site_means_Pacific)
 
 AICc(meso.area.test.p.1, meso.area.test.p.2, meso.area.test.p.3, meso.area.test.p.4, meso.area.test.p.5, 
     meso.area.test.p.6, meso.area.test.p.7, meso.area.test.p.8, meso.area.test.p.9, meso.area.test.p.10, meso.area.test.p.11, 
@@ -4316,7 +4303,7 @@ summary(meso.area.test.p.1)
 pcz1.site.g.1.raw <- lm(PC1.zos.site ~ Ocean
                     + day.length + Temperature.C + Salinity.ppt + log10.Leaf.PercN.site 
                     + FC1 + FC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz1.site.g.1.raw)
 #                         Estimate Std. Error t value Pr(>|t|)    
 # (Intercept)           -1.9984582  2.0846681  -0.959  0.34336    
@@ -4340,7 +4327,7 @@ summary(pcz1.site.g.1.raw)
 pcz2.site.g.1.raw <- lm(PC2.zos.site ~ Ocean
                     + day.length + Temperature.C + Salinity.ppt + log10.Leaf.PercN.site 
                     + FC1 + FC2  
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(pcz2.site.g.1.raw)
 #                         Estimate Std. Error t value Pr(>|t|)   
 # (Intercept)           -1.723e+00  2.063e+00  -0.835  0.40828   
@@ -4366,7 +4353,7 @@ peri.site.g.1.raw <- lm(log10.periphyton.mass.per.area.site ~ Ocean
                     + day.length + Temperature.C + Salinity.ppt + log10.Leaf.PercN.site 
                     + FC1 + FC2  
                     + PC1.zos.site + PC2.zos.site
-                    , data = ZEN_2014_site_means_49)
+                    , data = site_means_49)
 summary(peri.site.g.1.raw)
 #                         Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)            1.0796526  1.2266968   0.880   0.3842  
@@ -4393,7 +4380,7 @@ meso.area.site.g.1.raw <- lm(log10.mesograzer.mass.per.area.site ~ Ocean
                              + day.length + Temperature.C + Salinity.ppt + log10.Leaf.PercN.site 
                              + FC1 + FC2  
                              + PC1.zos.site + PC2.zos.site
-                             , data = ZEN_2014_site_means_49)
+                             , data = site_means_49)
 summary(meso.area.site.g.1.raw)
 #                         Estimate Std. Error t value Pr(>|t|)  
 # (Intercept)            0.3651512  1.3972942   0.261   0.7952  
@@ -4436,13 +4423,13 @@ summary(meso.area.site.g.1.raw)
 
 library(randomForest)
 
-ZEN_2014_site_means$Ocean <- as.factor(ZEN_2014_site_means$Ocean)
+site_means$Ocean <- as.factor(site_means$Ocean)
 
 # EELGRASS CANOPY HEIGHT as function of local variables:
 
 canopy.rf = randomForest(Zostera.longest.leaf.length.site  ~  Temperature.C + Salinity.ppt 
   + day.length + leaf.CN.ratio.site + log10.mean.fetch + FC1 + FC2,
-  na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+  na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means)
 
 # Examine summary output
 canopy.rf # % Var explained: 45.12
@@ -4465,7 +4452,7 @@ dev.off()
 
 PC1.zos.local.rf = randomForest(PC1.zos.site  ~  Temperature.C + Salinity.ppt + day.length
   + leaf.CN.ratio.site + log10.mean.fetch + FC1 + FC2,
-  na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+  na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means)
 
 # Examine summary output
 PC1.zos.local.rf # % Var explained: 55.59
@@ -4484,7 +4471,7 @@ varImpPlot(PC1.zos.local.rf) # NOTE: saving this as an object returns the number
 
 PC1.zos.rf = randomForest(PC1.zos.site  ~  Ocean
                           + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2,
-                          na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+                          na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means)
 
 # Examine summary output
 PC1.zos.rf # % Var explained: 59.43
@@ -4501,13 +4488,13 @@ varImpPlot(PC1.zos.rf) # NOTE: saving this as an object returns the numbers in t
 
 # EELGRASS GROWTH FORM PCz1 (FOREST-MEADOW AXIS): ATLANTIC
 
-ZEN_2014_site_means_49_Atlantic <- droplevels(subset(ZEN_2014_site_means_49, Ocean == "Atlantic"))
-ZEN_2014_site_means_49_Atlantic$Ocean <- as.factor(ZEN_2014_site_means_49_Atlantic$Ocean)
+site_means_49_Atlantic <- droplevels(subset(site_means_49, Ocean == "Atlantic"))
+site_means_49_Atlantic$Ocean <- as.factor(site_means_49_Atlantic$Ocean)
 
 PC1.zos.a.rf = randomForest(PC1.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2 # global predictors
                             , 
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_49_Atlantic)
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means_49_Atlantic)
 
 # Examine summary output
 PC1.zos.a.rf # % Var explained: 28.96
@@ -4520,13 +4507,13 @@ varImpPlot(PC1.zos.a.rf) #
 
 # EELGRASS GROWTH FORM PCz1 (FOREST-MEADOW AXIS): PACIFIC
 
-ZEN_2014_site_means_Pacific <- droplevels(subset(ZEN_2014_site_means_49, Ocean == "Pacific"))
-ZEN_2014_site_means_Pacific$Ocean <- as.factor(ZEN_2014_site_means_Pacific$Ocean)
+site_means_Pacific <- droplevels(subset(site_means_49, Ocean == "Pacific"))
+site_means_Pacific$Ocean <- as.factor(site_means_Pacific$Ocean)
 
 PC1.zos.p.rf = randomForest(PC1.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2 # global predictors
                             ,
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_Pacific)
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means_Pacific)
 
 # Examine summary output
 PC1.zos.p.rf # % Var explained: 7.71. 
@@ -4544,10 +4531,10 @@ varImpPlot(PC1.zos.p.rf) #
 
 # EELGRASS GROWTH FORM PCz2 (BIOMASS): GLOBAL
 
-ZEN_2014_site_means$Ocean <- as.factor(ZEN_2014_site_means$Ocean)
+site_means$Ocean <- as.factor(site_means$Ocean)
 PC2.zos.rf = randomForest(PC2.zos.site  ~  Ocean
                           + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2,
-                          na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+                          na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means)
 
 # Examine summary output
 PC2.zos.rf # % Var explained: 13.99
@@ -4567,7 +4554,7 @@ varImpPlot(PC2.zos.rf) #
 PC2.zos.a.rf = randomForest(PC2.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2,
                             #, 
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_49_Atlantic)
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means_49_Atlantic)
 
 # Examine summary output
 PC2.zos.a.rf # % Var explained: 10.92
@@ -4586,7 +4573,7 @@ varImpPlot(PC2.zos.a.rf) #
 PC2.zos.p.rf = randomForest(PC2.zos.site  ~  
                               + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
                             , 
-                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_Pacific)
+                            na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means_Pacific)
 
 # Examine summary output
 PC2.zos.p.rf # % Var explained: 20.27
@@ -4606,7 +4593,7 @@ meso.rf = randomForest(log10.mesograzer.mass.per.area.site  ~  Ocean
                        + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
                        + PC1.zos.site + PC2.zos.site + log10.periphyton.mass.per.g.zostera.site
                        ,
-                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means)
 
 # Examine summary output
 meso.rf # % Var explained: 31.68
@@ -4629,7 +4616,7 @@ meso.a.rf = randomForest(log10.mesograzer.mass.per.area.site  ~
                            + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
                          + PC1.zos.site + PC2.zos.site + log10.periphyton.mass.per.g.zostera.site
                          , 
-                         na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_49_Atlantic)
+                         na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means_49_Atlantic)
 
 # Examine summary output
 meso.a.rf # % Var explained: 26.74
@@ -4649,7 +4636,7 @@ meso.p.rf = randomForest(log10.mesograzer.mass.per.area.site  ~
                            + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
                          + PC1.zos.site + PC2.zos.site + log10.periphyton.mass.per.g.zostera.site
                          , 
-                         na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means_Pacific)
+                         na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means_Pacific)
 
 # Examine summary output
 meso.p.rf # % Var explained: -14.87. Huh?
@@ -4669,7 +4656,7 @@ peri.rf = randomForest(log10.periphyton.mass.per.g.zostera.site  ~  Ocean
                        + PC1.env.global + PC2.env.global + PC3.env.global + FC1 + FC2
                        + PC1.zos.site + PC2.zos.site
                        ,
-                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = ZEN_2014_site_means)
+                       na.action = na.roughfix, corr.threshold = 0.7, ntree = 1000, data = site_means)
 
 # Examine summary output
 peri.rf # % Var explained: 8.5
@@ -4691,7 +4678,7 @@ varImpPlot(peri.rf) #
 # Any evidence that light limitation is stronger in Atlantic? Answer: No. 
 
 #  leaf length vs C:N ratio
-canopy.cn <- ggplot(ZEN_2014_site_means, aes(x = leaf.CN.ratio.site, y = log10.Zostera.longest.leaf.length.cm.site, group = Ocean, col = Ocean)) +
+canopy.cn <- ggplot(site_means, aes(x = leaf.CN.ratio.site, y = log10.Zostera.longest.leaf.length.cm.site, group = Ocean, col = Ocean)) +
   geom_point(size = 4) +
   geom_text(aes(label = unique(Site)), hjust = -0.25, vjust = 0, size = 3) +
   scale_color_manual(values = c("blue", "forestgreen")) +
@@ -4712,7 +4699,7 @@ ggsave( "figures/canopy_cn.png", canopy.cn, width = 6.5, height = 6 )
 # Does exposure (indexed by fetch) correlate with leaf length? Answer: No.
 
 #  leaf length vs fetch
-canopy.fetch <- ggplot(ZEN_2014_site_means, aes(x = log10.mean.fetch, y = log10.Zostera.longest.leaf.length.cm.site, group = Ocean, col = Ocean)) +
+canopy.fetch <- ggplot(site_means, aes(x = log10.mean.fetch, y = log10.Zostera.longest.leaf.length.cm.site, group = Ocean, col = Ocean)) +
   geom_point(size = 4) +
   geom_text(aes(label = unique(Site)), hjust = -0.25, vjust = 0, size = 3) +
   scale_color_manual(values = c("blue", "forestgreen")) +
@@ -4736,7 +4723,7 @@ ggsave( "figures/canopy_fetch.png", canopy.fetch, width = 6.5, height = 6 )
 
 
 # Eelgrass PCz1 predicted by genetics FC1  (Global) 
-pcz1.fc1 <- ggplot(ZEN_2014_site_means_49, aes(x = FC1, y = PC1.zos.site, col = "blue")) +
+pcz1.fc1 <- ggplot(site_means_49, aes(x = FC1, y = PC1.zos.site, col = "blue")) +
   geom_point(size = 4) +
   geom_text(aes(label = unique(Site)), hjust = -0.25, vjust = 0, size = 3) +
   scale_color_manual(values = c("blue")) +
@@ -4755,7 +4742,7 @@ pcz1.fc1 <- ggplot(ZEN_2014_site_means_49, aes(x = FC1, y = PC1.zos.site, col = 
 pcz1.fc1
 
 # Eelgrass PCz1 predicted by genetics FC2  (Global) 
-pcz1.fc2 <- ggplot(ZEN_2014_site_means_49, aes(x = FC2, y = PC1.zos.site, col = "blue")) +
+pcz1.fc2 <- ggplot(site_means_49, aes(x = FC2, y = PC1.zos.site, col = "blue")) +
   geom_point(size = 4) +
   geom_text(aes(label = unique(Site)), hjust = -0.25, vjust = 0, size = 3) +
   scale_color_manual(values = c("blue")) +
@@ -4774,7 +4761,7 @@ pcz1.fc2 <- ggplot(ZEN_2014_site_means_49, aes(x = FC2, y = PC1.zos.site, col = 
 pcz1.fc2
 
 # Eelgrass PCz1 predicted by environment PCe1  (Global) 
-pcz1.pce1 <- ggplot(ZEN_2014_site_means_49, aes(x = PC1.env.global, y = PC1.zos.site, col = "blue")) +
+pcz1.pce1 <- ggplot(site_means_49, aes(x = PC1.env.global, y = PC1.zos.site, col = "blue")) +
   geom_point(size = 4) +
   geom_text(aes(label = unique(Site)), hjust = -0.25, vjust = 0, size = 3) +
   scale_color_manual(values = c("blue")) +
